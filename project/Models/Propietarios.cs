@@ -4,41 +4,22 @@ using System.ComponentModel.DataAnnotations;
 namespace project.Models
 {
 
-    public class Propietario
+    public class Propietario : Persona
     {
-
         [Key]
-        [Display(Name = "Código Interno")]
-        public int PropietarioId { get; set; }
-        [Required, StringLength(100)]
-        public string Nombre { get; set; }
-        [Required, StringLength(100)]
-        public string Apellido { get; set; }
-        [Required, StringLength(10)]
-        public string Dni { get; set; }
-        [Required, Phone]
-        [Display(Name = "Teléfono")]
-        [StringLength(15)]
-        public string Telefono { get; set; }
-        [Required, EmailAddress]
-        [StringLength(200)]
-        public string Email { get; set; }
-        //USAR HASH PARA ENVIAR A LA BD - HASHEAR AL MOMENTO DE GUARDAR EN REPO
-        [Required(ErrorMessage = "La clave es obligatoria"), DataType(DataType.Password), MinLength(8)]
-        public string Clave { get; set; }
-
-        public override string ToString()
+        public int IdPropietario { get; set; }
+        public List<Inmueble> Inmuebles { get; set; } = new List<Inmueble>();
+        public Propietario( string nombre, string apellido, int dni, string telefono, string direccion)
+        : base(nombre, apellido, dni, telefono, direccion)
+        {}
+        public void AgregarInmueble(Inmueble inmueble)
         {
-            
-                var res = $"{Nombre} {Apellido}";
-            if (!string.IsNullOrEmpty(Dni))
+            if (inmueble == null)
             {
-                res += $", DNI: {Dni}";
+                throw new ArgumentNullException(nameof(inmueble), "El inmueble no puede ser nulo.");
             }
-            return res;
-
+            Inmuebles.Add(inmueble);
         }
-
 
     }
 
