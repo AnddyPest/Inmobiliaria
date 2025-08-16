@@ -8,14 +8,14 @@
         public int? IdContrato { get; set; }
         public int? IdPago { get; set; }
         public DateTime fecha { get; set; } = DateTime.Now;
-        public string motivo { get; set; }
+        public int IdMotivoAuditoria { get; set; }
 
-        public Auditoria(int idUsuario, int? idContrato, int? idPago, string motivo)
+        public Auditoria(int idUsuario, int? idContrato, int? idPago, int IdMotivoAuditoria)
         {
             this.IdUsuario = idUsuario;
             this.IdContrato = idContrato;
             this.IdPago = idPago;
-            this.motivo = motivo;
+            this.IdMotivoAuditoria = IdMotivoAuditoria;
         }
     }
 }
