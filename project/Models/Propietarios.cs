@@ -9,6 +9,7 @@ namespace project.Models
         [Key]
         public int IdPropietario { get; set; }
         public List<Inmueble> Inmuebles { get; set; } = new List<Inmueble>();
+        public List<Contratos> contratos { get; set; } = new List<Contratos>();
         public Propietario( string nombre, string apellido, int dni, string telefono, string direccion)
         : base(nombre, apellido, dni, telefono, direccion)
         {}

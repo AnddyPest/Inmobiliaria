@@ -9,6 +9,7 @@
         public DateTime FechaI { get; set; }
         public DateTime FechaF { get; set; }
         public List<Pago> Pagos { get; set; } = new List<Pago>();
+        public Propietario propietario { get; set; }
 
         public Contrato(Inquilino inquilino, Inmueble inmueble, decimal monto, DateTime fechaInicio, DateTime fechaFin)
         {
