@@ -5,6 +5,7 @@
         public int IdInmueble { get; set; }
         public string Uso { get; set; }
         public string Tipo { get; set; }
+        public int Superficie { get; set; }
         public int CantAmbientes { get; set; }
         public decimal Coordenadas { get; set; }
         public decimal Precio { get; set; }
@@ -13,11 +14,12 @@
         public Propietario Propietario { get; set; }
         public bool Disponible { get; set; }
 
-        public Inmueble(string uso, string tipo, int cantAmbientes, decimal coordenadas, decimal precio, string direccion, Ciudad ciudad, Propietario propietario)
+        public Inmueble(string uso, string tipo, int superficie, int cantAmbientes, decimal coordenadas, decimal precio, string direccion, Ciudad ciudad, Propietario propietario)
         {
             Uso = uso;
             Tipo = tipo;
             CantAmbientes = cantAmbientes;
+            Superficie = superficie;
             Coordenadas = coordenadas;
             Precio = precio;
             Direccion = direccion;
