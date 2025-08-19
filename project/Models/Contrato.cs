@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace project.Models
 {
-    public class Contrato(int idInquilino, int idInmueble, decimal monto, DateTime fechaInicio, DateTime fechaFin, int idPropietario)
+    public class Contrato(int idInquilino, int idInmueble, decimal monto, DateTime fechaInicio, DateTime fechaFin)
     {
         [Key]
         public int IdContrato { get; set; }
@@ -28,14 +28,14 @@ namespace project.Models
 
     public List<Pago> Pagos { get; set; } = [];
 
-    [ForeignKey("Propietario")]
-    public int IdPropietario { get; set; } = idPropietario;
+    
+    
 
     
     private readonly bool validarFechas = ValidarFechas(fechaInicio, fechaFin);
 
     // Constructor vacío
-    public Contrato() : this(default, default, default, default, default, default) { }
+    public Contrato() : this(default, default, default, default, default) { }
 
         public void AgregarPago(Pago pago)
         {

@@ -12,9 +12,12 @@ builder.Services.AddControllersWithViews();
 // ADO.NET de la carpeta DATA
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 
+// Registrar el repositorio para poder resolverlo en la prueba
+builder.Services.AddTransient<project.Models.Interfaces.IPropietarioRepository, project.Models.Repos.PropietarioRepository>();
+
 var app = builder.Build();
 
-// Asegurar que la BD exista al arrancar, sino, la crea con el nombre del appsettings.json
+// Asegurar que la BD exista al arrancar
 try
 {
     await DbInitializer.CreateDatabaseIfNotExistsAsync(builder.Configuration);
@@ -25,6 +28,33 @@ catch (Exception ex)
     app.Logger.LogError(ex, "Error al crear/verificar la base de datos. Revisa permisos y cadena de conexión.");
     throw;
 }
+
+// --- BLOQUE DE PRUEBA (solo para desarrollo) ---
+using (var scope = app.Services.CreateScope())
+{
+    var repo = scope.ServiceProvider.GetRequiredService<project.Models.Interfaces.IPropietarioRepository>();
+    var prueba = new project.Models.Propietario
+    {
+        Nombre = "Prueba",
+        Apellido = "Repo",
+        Dni = 99999999,
+        Telefono = "00000000",
+        Direccion = "Calle Test 123",
+        Email = "prueba@local",
+        LogicoProp = true
+    };
+
+    try
+    {
+        var id = repo.Alta(prueba); // usa el método síncrono que tenés
+        app.Logger.LogInformation("Alta de prueba creada. IdPropietario={Id}", id);
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Error al crear propietario de prueba");
+    }
+}
+// --- FIN BLOQUE DE PRUEBA ---
 
 // Config de HTTP REQ
 if (!app.Environment.IsDevelopment())

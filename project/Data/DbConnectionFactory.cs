@@ -1,3 +1,4 @@
+using System;
 using System.Data;
 using System.Threading.Tasks;
 using MySqlConnector;
@@ -11,15 +12,14 @@ namespace project.Data
 
         public DbConnectionFactory(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string missing.");
+            _connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Connection string missing.");
         }
 
-        public IDbConnection CreateConnection()
-        {
-            return new MySqlConnection(_connectionString);
-        }
+        // Devuelve una conexión nueva (sin abrir)
+        public IDbConnection CreateConnection() => new MySqlConnection(_connectionString);
 
-        // Implementar Todos los metodos de la interfaz, similar a JAVA
+        // Devuelve una conexión nueva ya abierta (caller es responsable de Dispose)
         public async Task<IDbConnection> CreateOpenConnectionAsync()
         {
             var conn = new MySqlConnection(_connectionString);
