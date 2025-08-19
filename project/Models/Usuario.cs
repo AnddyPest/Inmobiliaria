@@ -1,19 +1,13 @@
 ﻿namespace project.Models
 {
-    public class Usuario
+    public class Usuario(string gmail, string contrasena, Rol rol, Empleado empleado)
     {
         public int IdUsuario { get; set; }
-        public string gmail { get; set; }
-        public string contraseña { get; set; }
-        public Rol rol { get; set; }
-        public Empleado empleado { get; set; }
+        public string Gmail { get; set; } = gmail;
+        public string Contrasena { get; set; } = contrasena;
+        public Rol Rol { get; set; } = rol;
+        public Empleado Empleado { get; set; } = empleado;
 
-        public Usuario(string gmail, string contraseña, Rol rol, Empleado empleado)
-        {
-            this.gmail = gmail;
-            this.contraseña = contraseña;
-            this.rol = rol;
-            this.empleado = empleado;
-        }
+        public Usuario() : this(default!, default!, default!, default!) { }
     }
 }

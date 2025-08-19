@@ -4,15 +4,17 @@ using System.ComponentModel.DataAnnotations;
 namespace project.Models
 {
 
-    public class Propietario : Persona
+    public class Propietario(string nombre, string apellido, int dni, string telefono, string direccion)
+        : Persona(nombre, apellido, dni, telefono, direccion)
     {
         [Key]
         public int IdPropietario { get; set; }
         public List<Inmueble> Inmuebles { get; set; } = new List<Inmueble>();
-        public List<Contratos> contratos { get; set; } = new List<Contratos>();
-        public Propietario( string nombre, string apellido, int dni, string telefono, string direccion)
-        : base(nombre, apellido, dni, telefono, direccion)
-        {}
+        public List<Contrato> Contratos { get; set; } = new List<Contrato>();
+
+        // Constructor vacío
+        public Propietario() : this(default!, default!, default, default!, default!) { }
+
         public void AgregarInmueble(Inmueble inmueble)
         {
             if (inmueble == null)
@@ -21,7 +23,9 @@ namespace project.Models
             }
             Inmuebles.Add(inmueble);
         }
-
     }
 
+    internal class Contratos
+    {
+    }
 }

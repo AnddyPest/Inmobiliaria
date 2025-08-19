@@ -1,13 +1,11 @@
 ﻿namespace project.Models
 {
-    public class MotivosAuditoria
+    public class MotivosAuditoria(string motivo)
     {
         public int IdMotivoAuditoria { get; set; }
-        public string motivo {  get; set; }
+        public string Motivo { get; set; } = motivo;
 
-        public MotivosAuditoria(string motivo)
-        {
-            this.motivo = motivo;
-        }
+        // Constructor vacío
+        public MotivosAuditoria() : this(default!) { }
     }
 }

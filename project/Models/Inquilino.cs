@@ -2,15 +2,15 @@
 
 namespace project.Models
 {
-    public class Inquilino : Persona
+    public class Inquilino(string nombre, string apellido, int dni, string telefono, string direccion) : Persona(nombre, apellido, dni, telefono, direccion)
     {
         [Key]
         public int IdInquilino { get; set; }
         public List<Contrato> Contratos { get; set; } = new List<Contrato>();
-        public Inquilino(string nombre, string apellido, int dni, string telefono, string direccion)
-            : base(nombre, apellido, dni, telefono, direccion)
-        {
-        }
+
+        // Constructor vacío
+        public Inquilino() : this(default!, default!, default, default!, default!) { }
+
         public void AgregarContrato(Contrato contrato)
         {
             if (contrato == null)

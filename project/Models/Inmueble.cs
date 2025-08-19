@@ -1,31 +1,47 @@
-﻿namespace project.Models
-{
-    public class Inmueble
-    {
-        public int IdInmueble { get; set; }
-        public string Uso { get; set; }
-        public string Tipo { get; set; }
-        public int Superficie { get; set; }
-        public int CantAmbientes { get; set; }
-        public decimal Coordenadas { get; set; }
-        public decimal Precio { get; set; }
-        public string Direccion { get; set; }
-        public Ciudad Ciudad { get; set; }
-        public Propietario Propietario { get; set; }
-        public bool Disponible { get; set; }
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-        public Inmueble(string uso, string tipo, int superficie, int cantAmbientes, decimal coordenadas, decimal precio, string direccion, Ciudad ciudad, Propietario propietario)
-        {
-            Uso = uso;
-            Tipo = tipo;
-            CantAmbientes = cantAmbientes;
-            Superficie = superficie;
-            Coordenadas = coordenadas;
-            Precio = precio;
-            Direccion = direccion;
-            Ciudad = ciudad ?? throw new ArgumentNullException(nameof(ciudad), "La ciudad no puede ser nula.");
-            Propietario = propietario ?? throw new ArgumentNullException(nameof(propietario), "El propietario no puede ser nulo.");
-            Disponible = true; 
-        }
+namespace project.Models
+{
+    public class Inmueble(string uso, string tipo, int superficie, int cantAmbientes, decimal coordenadas, decimal precio, string direccion, int idCiudad, int idPropietario)
+    {
+        [Key]
+        public int IdInmueble { get; set; }
+
+        [Required(ErrorMessage = "El uso es requerido")]
+        public string Uso { get; set; } = uso;
+
+        [Required(ErrorMessage = "El tipo es requerido")]
+        public string Tipo { get; set; } = tipo;
+
+        [Required(ErrorMessage = "La superficie es requerida")]
+        [Range(1, int.MaxValue, ErrorMessage = "La superficie debe ser un valor positivo")]
+        public int Superficie { get; set; } = superficie;
+
+        [Required(ErrorMessage = "La cantidad de ambientes es requerida")]
+        [Range(1, int.MaxValue, ErrorMessage = "La cantidad de ambientes debe ser un valor positivo")]
+        public int CantAmbientes { get; set; } = cantAmbientes;
+
+        [Required(ErrorMessage = "Las coordenadas son requeridas")]
+        public decimal Coordenadas { get; set; } = coordenadas;
+
+        [Required(ErrorMessage = "El precio es requerido")]
+        [Range(0, double.MaxValue, ErrorMessage = "El precio debe ser un valor positivo")]
+        public decimal Precio { get; set; } = precio;
+
+        [Required(ErrorMessage = "La dirección es requerida")]
+        public string Direccion { get; set; } = direccion;
+
+        [ForeignKey("Ciudad")]
+        public int IdCiudad { get; set; } = idCiudad;
+
+        [ForeignKey("Propietario")]
+        public int IdPropietario { get; set; } = idPropietario;
+
+        [Required(ErrorMessage = "La disponibilidad es requerida")]
+        public bool Disponible { get; set; } = true;
+
+        // Constructor vacío
+        public Inmueble() : this(default!, default!, default, default, default, default, default!, default, default) { }
     }
 }
