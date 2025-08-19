@@ -9,8 +9,8 @@ namespace project.Models
     {
         [Key]
         public int IdPropietario { get; set; }
-        public List<Inmueble> Inmuebles { get; set; } = new List<Inmueble>();
-        public List<Contrato> Contratos { get; set; } = new List<Contrato>();
+        public List<Inmueble> Inmuebles { get; set; } = [];
+        public List<Contrato> Contratos { get; set; } = [];
 
         // Constructor vacío
         public Propietario() : this(default!, default!, default, default!, default!) { }

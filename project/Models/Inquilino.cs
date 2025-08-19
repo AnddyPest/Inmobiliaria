@@ -6,7 +6,7 @@ namespace project.Models
     {
         [Key]
         public int IdInquilino { get; set; }
-        public List<Contrato> Contratos { get; set; } = new List<Contrato>();
+        public List<Contrato> Contratos { get; set; } = [];
 
         // Constructor vacío
         public Inquilino() : this(default!, default!, default, default!, default!) { }

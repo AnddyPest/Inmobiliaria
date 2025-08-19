@@ -26,7 +26,7 @@ namespace project.Models
         [Required(ErrorMessage = "La fecha de fin es requerida")]
         public DateTime FechaF { get; set; } = fechaFin;
 
-    public List<Pago> Pagos { get; set; } = new List<Pago>();
+    public List<Pago> Pagos { get; set; } = [];
 
     [ForeignKey("Propietario")]
     public int IdPropietario { get; set; } = idPropietario;
