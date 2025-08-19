@@ -89,6 +89,35 @@ namespace project.Models.Repos
         }
 
         
+
+        public int Baja(int id)
+        {
+            // Baja lógica solo en Propietarios
+            using var conn = _dbFactory.CreateOpenConnectionAsync().GetAwaiter().GetResult();
+            using var tran = conn.BeginTransaction();
+            try
+            {
+                using var cmd = conn.CreateCommand();
+                cmd.Transaction = tran;
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "UPDATE Propietarios SET LogicoProp = 0 WHERE IdPropietario = @IdPropietario;";
+                AddParam(cmd, "@IdPropietario", id);
+
+                int idProp = cmd.ExecuteNonQuery();
+                tran.Commit();
+                return idProp;
+            }
+            catch
+            {
+                try { tran.Rollback(); } catch { }
+                throw;
+            }
+        }
+
+        public int ObtenerCantidad() => throw new NotImplementedException();
+        public Propietario ObtenerPorDni(int dni) => throw new NotImplementedException();
+        public IList<Propietario> ObtenerPorNombre(string nombre) => throw new NotImplementedException();
+        public IList<Propietario> ObtenerTodos() => throw new NotImplementedException();
         private static void AddParam(IDbCommand cmd, string name, object? value)
         {
             var p = cmd.CreateParameter();
@@ -113,10 +142,5 @@ namespace project.Models.Repos
         Algunos proveedores aceptan prefijos distintos (MySQL acepta @); si cambias proveedor revisá el prefijo.
         Para rendimiento con ciertos proveedores puedes preferir crear parámetros con tipos explícitos en lugar de confiar en la inferencia.
         */
-
-        public int ObtenerCantidad() => throw new NotImplementedException();
-        public Propietario ObtenerPorDni(int dni) => throw new NotImplementedException();
-        public IList<Propietario> ObtenerPorNombre(string nombre) => throw new NotImplementedException();
-        public IList<Propietario> ObtenerTodos() => throw new NotImplementedException();
     }
 }
