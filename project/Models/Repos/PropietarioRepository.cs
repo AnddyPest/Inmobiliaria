@@ -88,11 +88,9 @@ namespace project.Models.Repos
             return res;
         }
 
-        
-
-        public int Baja(int id)
+        public int Baja(int idPropietario)
         {
-            // Baja lógica solo en Propietarios
+            // Baja lógica Propietarios
             using var conn = _dbFactory.CreateOpenConnectionAsync().GetAwaiter().GetResult();
             using var tran = conn.BeginTransaction();
             try
@@ -101,7 +99,30 @@ namespace project.Models.Repos
                 cmd.Transaction = tran;
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "UPDATE Propietarios SET LogicoProp = 0 WHERE IdPropietario = @IdPropietario;";
-                AddParam(cmd, "@IdPropietario", id);
+                AddParam(cmd, "@IdPropietario", idPropietario);
+
+                int idProp = cmd.ExecuteNonQuery();
+                tran.Commit();
+                return idProp;
+            }
+            catch
+            {
+                try { tran.Rollback(); } catch { }
+                throw;
+            }
+        }
+        public int Reestablecer(int idPropietario)
+        {
+            // Reestablece lógica Propietarios
+            using var conn = _dbFactory.CreateOpenConnectionAsync().GetAwaiter().GetResult();
+            using var tran = conn.BeginTransaction();
+            try
+            {
+                using var cmd = conn.CreateCommand();
+                cmd.Transaction = tran;
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "UPDATE Propietarios SET LogicoProp = 1 WHERE IdPropietario = @IdPropietario;";
+                AddParam(cmd, "@IdPropietario", idPropietario);
 
                 int idProp = cmd.ExecuteNonQuery();
                 tran.Commit();
@@ -114,10 +135,77 @@ namespace project.Models.Repos
             }
         }
 
+        public int Editar(Propietario propietario)
+        {
+            if (propietario == null) throw new ArgumentNullException(nameof(propietario));
+
+            using var conn = _dbFactory.CreateOpenConnectionAsync().GetAwaiter().GetResult();
+            using var tran = conn.BeginTransaction();
+            try
+            {
+                using var cmd = conn.CreateCommand();
+                cmd.Transaction = tran;
+                cmd.CommandType = CommandType.Text;
+                // Actualiza datos en Personas
+                cmd.CommandText = @"
+                    UPDATE Personas
+                    SET Nombre = @Nombre, Apellido = @Apellido, Dni = @Dni, Telefono = @Telefono, Direccion = @Direccion, Email = @Email
+                    WHERE IdPersona = (
+                        SELECT IdPersona FROM Propietarios WHERE IdPropietario = @IdPropietario
+                    );
+                ";
+                AddParam(cmd, "@Nombre", propietario.Nombre);
+                AddParam(cmd, "@Apellido", propietario.Apellido);
+                AddParam(cmd, "@Dni", propietario.Dni);
+                AddParam(cmd, "@Telefono", propietario.Telefono);
+                AddParam(cmd, "@Direccion", propietario.Direccion);
+                AddParam(cmd, "@Email", propietario.Email);
+                AddParam(cmd, "@IdPropietario", propietario.IdPropietario);
+
+                int rows = cmd.ExecuteNonQuery();
+                tran.Commit();
+                return rows;
+            }
+            catch
+            {
+                try { tran.Rollback(); } catch { }
+                throw;
+            }
+        }
+        public IList<Propietario> ObtenerTodos() {
+            using var conn = _dbFactory.CreateOpenConnectionAsync().GetAwaiter().GetResult();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = @"
+                SELECT pr.IdPropietario, p.IdPersona, p.Nombre, p.Apellido, p.Dni, p.Telefono, p.Direccion, p.Email
+                FROM Propietarios pr
+                JOIN Personas p ON p.IdPersona = pr.IdPersona
+                WHERE pr.LogicoProp = 1;
+                "; 
+            using var reader = cmd.ExecuteReader();
+            var propietarios = new List<Propietario>();
+            while (reader.Read())
+            {
+                var propietario = new Propietario
+                {
+                    IdPropietario = reader.GetInt32(reader.GetOrdinal("IdPropietario")),
+                    Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
+                    Apellido = reader.GetString(reader.GetOrdinal("Apellido")),
+                    Dni = reader.GetInt32(reader.GetOrdinal("Dni")),
+                    Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
+                    Direccion = reader.GetString(reader.GetOrdinal("Direccion")),
+                    Email = reader.GetString(reader.GetOrdinal("Email"))
+                };
+                propietarios.Add(propietario);
+            }
+            return propietarios;
+        }
+
         public int ObtenerCantidad() => throw new NotImplementedException();
         public Propietario ObtenerPorDni(int dni) => throw new NotImplementedException();
         public IList<Propietario> ObtenerPorNombre(string nombre) => throw new NotImplementedException();
-        public IList<Propietario> ObtenerTodos() => throw new NotImplementedException();
+
+
         private static void AddParam(IDbCommand cmd, string name, object? value)
         {
             var p = cmd.CreateParameter();
