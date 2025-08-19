@@ -83,31 +83,41 @@ namespace project.Data
     {
         public static async Task CreateDatabaseIfNotExistsAsync(IConfiguration configuration)
         {
-            var cs = configuration.GetConnectionString("DefaultConnection")
+            try
+            {
+                var cs = configuration.GetConnectionString("DefaultConnection")
                      ?? throw new InvalidOperationException("Connection string missing.");
 
-            var builder = new MySqlConnectionStringBuilder(cs);
+                var builder = new MySqlConnectionStringBuilder(cs);
 
-            // Guarda el nombre de BD y conecta al servidor
-            var databaseName = builder.Database;
-            if (string.IsNullOrWhiteSpace(databaseName))
-                throw new InvalidOperationException("La cadena de conexión debe contener Database.");
+                // Guarda el nombre de BD y conecta al servidor
+                var databaseName = builder.Database;
+                if (string.IsNullOrWhiteSpace(databaseName))
+                    throw new InvalidOperationException("La cadena de conexión debe contener Database.");
 
-            builder.Database = ""; // conecta al servidor sin DB
-            var serverConnectionString = builder.ConnectionString;
+                builder.Database = ""; // conecta al servidor sin DB
+                var serverConnectionString = builder.ConnectionString;
 
-            await using var conn = new MySqlConnection(serverConnectionString);
-            await conn.OpenAsync();
+                await using var conn = new MySqlConnection(serverConnectionString);
+                await conn.OpenAsync();
 
-            // HAcemos un "ESCAPEADO" al nombre y, finalmente, creamos la DB si no existe, gracias GPT 5,
-            // se me estaba derritiendo el cerebro.
-            // si quisiéramos crear las tablas de la base de datos de manera automatica al iniciar, debemos
-            // escribir todo el chorizo de SQL que requeriria crearla a mano en mysql en PHPMyAdmin. JEJE.
-            var escaped = $"`{databaseName.Replace("`", "``")}`";
-            var createSql = $"CREATE DATABASE IF NOT EXISTS {escaped} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;";
+                // HAcemos un "ESCAPEADO" al nombre y, finalmente, creamos la DB si no existe, gracias GPT 5,
+                // se me estaba derritiendo el cerebro.
+                // si quisiéramos crear las tablas de la base de datos de manera automatica al iniciar, debemos
+                // escribir todo el chorizo de SQL que requeriria crearla a mano en mysql en PHPMyAdmin. JEJE.
+                var escaped = $"`{databaseName.Replace("`", "``")}`";
+                var createSql = $"CREATE DATABASE IF NOT EXISTS {escaped} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;";
 
-            await using var cmd = new MySqlCommand(createSql, conn);
-            await cmd.ExecuteNonQueryAsync();
+                await using var cmd = new MySqlCommand(createSql, conn);
+                await cmd.ExecuteNonQueryAsync();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("No se pudo Crear inicializar la base de datos");
+                Console.WriteLine(ex);
+                Console.WriteLine("Mensaje de error: ", ex.Message);
+            }
+            
         }
     }
 }
