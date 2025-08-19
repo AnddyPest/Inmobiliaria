@@ -46,7 +46,7 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        var id = repo.Alta(prueba); // usa el método síncrono que tenés
+        var id = repo.Alta(prueba); // Alta de prueba
         app.Logger.LogInformation("Alta de prueba creada. IdPropietario={Id}", id);
     }
     catch (Exception ex)
