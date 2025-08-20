@@ -4,11 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuevo Inquilino</title>
+
+    <style>
+        .img-shadow {
+            box-shadow: 0 10px 28px rgba(0,0,0,0.20);
+            border-radius: 0.5rem;
+            transition: box-shadow .18s ease, transform .18s ease;
+            transform-origin: center;
+        }
+        .img-shadow:hover {
+            box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+            transform: scale(0.98);
+        }
+    </style>
 </head>
 <body>
-    <div class="d-flex p-2 border border-success-subtle border-rounded-3" style="background-color: #e3daccc8;">
-        <h1 class="text-primary">Registrar Nuevo Inquilino</h1>
-        <form action="/Inquilinos/Create" method="post" class="p-1 border border-success border-rounded-3">
+    <div class="d-flex flex-column p-2 border border-success-subtle rounded" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
+
+        <h3 class="text-primary mb-3">Registrar Nuevo Inquilino</h3>
+        <form action="/Inquilinos/Create" method="post" class="p-3 border border-success mb-2 rounded">
             <div class="row mb-3">
                 <div class="col">
                     <label for="nombre">Nombre:</label>
@@ -39,18 +53,31 @@
                     <input type="email" id="email" name="email" class="form-control" required>
                 </div>
             </div>
-            <div class="mb-3 p-1 row border border-dark border-rounded-3">
-                <div class="col">
-                    <button class="btn btn-warning ms-1 me-1" type="reset" onclick="window.location.reload()">Limpiar</button>
+
+            <div class="mb-3 p-3 row border border-dark rounded w-100 ms-1">
+                <div class="col w-25">
+                    <button class="btn btn-warning shadow ms-1 me-1 w-100" type="reset" onclick="window.location.reload()">Limpiar Formulario</button>
                 </div>
-                <div class="col">
-                    <button type="submit" class="btn btn-primary ms-1 me-1">Registrar</button>
-                </div>
-                <div class="col">
-                    <button type="button" class="btn btn-secondary ms-1 me-1" onclick="window.location.href='/Inquilinos/Index'">Cancelar</button>
+                <div class="col w-25"></div>
+                <div class="col w-25"></div>
+                <div class="col w-25">
+                    <button type="submit" class="btn btn-primary shadow ms-1 me-1 w-100">Registrar Inquilino</button>
                 </div>
             </div>
         </form>
+        <div class="row border-dark mb-2 rounded">
+            <div style="height:25vh; display:flex; align-items:center; justify-content:center; overflow:hidden; width:100%;">
+                <img src="@Url.Content("~/images/inmobiliaria.png")" alt="Inmobiliaria" class="img-fluid img-shadow me-5" style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
+                <img src="@Url.Content("~/images/elegant.png")" alt="Inmobiliaria" class="img-fluid img-shadow ms-5 me-5" style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
+                <img src="@Url.Content("~/images/key.png")" alt="Inmobiliaria" class="img-fluid img-shadow ms-5" style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
+            </div>
+            
+        </div>
+        <div class="row justify-content-end w-100">
+            <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/Inquilinos/Index'">Cancelar</button>
+        </div>
     </div>
+
+   
 </body>
 </html>
