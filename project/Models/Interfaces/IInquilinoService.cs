@@ -4,7 +4,7 @@
     {
         Task<(string?, Inquilino?)> GetInquilinoById(int idInquilino);
         Task<(string?, List<Inquilino>)> GetAllInquilinos();
-        Task<(string?, bool?)> AddInquilino(Inquilino inquilino);
+        Task<(string?, Inquilino?)> AddInquilino(Inquilino inquilino);
         Task<(string?, bool?)> LogicalDeleteInquilino(int idInquilino);
     }
 }

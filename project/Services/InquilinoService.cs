@@ -1,7 +1,9 @@
 ﻿
 
+using Microsoft.AspNetCore.Components.Web;
 using MySql.Data.MySqlClient;
 using project.Data;
+using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
 using System.Data;
@@ -47,7 +49,7 @@ namespace project.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InquilinoService), nameof(AddInquilino));
                 return ($"Error al agregar el inquilino: {ex}", null);
             }
         }
@@ -91,7 +93,7 @@ namespace project.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InquilinoService), nameof(GetAllInquilinos));
                 return ($"Error al obtener los inquilinos: {ex}", null);
             }
         }
@@ -138,15 +140,42 @@ namespace project.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InquilinoService), nameof(GetInquilinoById));
                 return ($"Error al obtener el inquilino con ID {idInquilino}: {ex}", null);
             }
 
         }
 
-        public (string?, bool?) LogicalDeleteInquilino(int idInquilino)
+        public async Task<(string?, bool?)> LogicalDeleteInquilino(int idInquilino,bool estado)
         {
-            throw new NotImplementedException();
+            try
+            {
+                bool validation = false;
+                using (var connection = new MySqlConnection(_connectionString)) 
+                {
+                    string query = @"Update inquilino 
+                                    set estado=@estadoNuevo
+                                    where idInquilino= @idInquilino";
+                    using (var command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@estadoNuevo", estado);
+                        command.Parameters.AddWithValue("@idInquilino", idInquilino);
+                        await connection.OpenAsync();
+                        var res = await command.ExecuteNonQueryAsync();
+                        await connection.CloseAsync();
+                        if(res  != 0)
+                        {
+                            validation = true;
+                        }
+                    }
+                }
+                return (null, validation);
+            }catch(Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InquilinoService), nameof(LogicalDeleteInquilino));
+                return ($"Error al dar la baja logica al inquilino con id: {idInquilino}", false);
+            }
         }
 
     }
