@@ -18,7 +18,7 @@ namespace project.Services
             _connectionString = config.GetConnectionString("Connection");
         }
 
-        public async Task<(string?, Inquilino?)> AddInquilino(Inquilino inquilino)
+        public async Task<(string?, Inquilino?)> AddInquilino(Inquilino inquilino) //Solo hay que enviarle idPersona y el estado(opcional)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace project.Services
                     using (var command = new MySqlCommand(query, connection))
                     {
                         command.CommandType = CommandType.Text;
-                        command.Parameters.AddWithValue("@idPersona", inquilino.idPersona.IdPersona);
+                        command.Parameters.AddWithValue("@idPersona", inquilino.Persona.IdPersona);
                         command.Parameters.AddWithValue("@estado", inquilino.estado);
                         await connection.OpenAsync();
                         var result = Convert.ToInt32(await command.ExecuteScalarAsync());
@@ -59,7 +59,7 @@ namespace project.Services
                 string query = @"Select p.* 
                                 from persona p 
                                 inner join inquilino i On p.idPersona = i.idPersona";
-                using(MySqlConnection conexion = new MySqlConnection(_connectionString))
+                using (MySqlConnection conexion = new MySqlConnection(_connectionString))
                 {
                     await conexion.OpenAsync();
                     using (MySqlCommand command = new MySqlCommand(query, conexion))
@@ -88,7 +88,8 @@ namespace project.Services
                         return (null, inquilinos);
                     }
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 return ($"Error al obtener los inquilinos: {ex}", null);
@@ -140,7 +141,7 @@ namespace project.Services
                 Console.WriteLine(ex);
                 return ($"Error al obtener el inquilino con ID {idInquilino}: {ex}", null);
             }
-            
+
         }
 
         public (string?, bool?) LogicalDeleteInquilino(int idInquilino)
@@ -148,9 +149,5 @@ namespace project.Services
             throw new NotImplementedException();
         }
 
-        public (string?, bool?) UpdateInquilino(Inquilino inquilino)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

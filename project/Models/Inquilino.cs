@@ -8,7 +8,7 @@ namespace project.Models
         public int IdInquilino { get; set; }
         public List<Contrato> Contratos { get; set; } = [];
 
-        public Persona idPersona { get; set; } = persona;
+        public Persona Persona { get; set; } = persona;
 
         // Constructor vacío
         public Inquilino() : this(default! ,default!, default!, default, default!, default!, default!, default!) { }
