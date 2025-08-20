@@ -13,10 +13,11 @@ namespace project.Services
     {
         private readonly string _connectionString = config.GetConnectionString("Connection") ?? throw new System.InvalidOperationException("Connection string 'Connection' not found.");
 
-        public async Task<(string?, Inquilino?)> AddInquilino(Inquilino inquilino) //Solo hay que enviarle idPersona y el estado(opcional)
+        public async Task<(string?, Inquilino?)> AddInquilino(Persona persona) //Solo hay que enviarle idPersona y el estado(opcional)
         {
             try
             {
+                 
                 using (var connection = new MySqlConnection(_connectionString))
                 {
                     string query = @"Insert into inquilino(idPersona, estado) 
@@ -26,15 +27,28 @@ namespace project.Services
                     using (var command = new MySqlCommand(query, connection))
                     {
                         command.CommandType = CommandType.Text;
-                        command.Parameters.AddWithValue("@idPersona", inquilino.Persona.IdPersona);
-                        command.Parameters.AddWithValue("@estado", inquilino.EstadoInquilino);
+                        command.Parameters.AddWithValue("@idPersona", persona.IdPersona);
+                        command.Parameters.AddWithValue("@estado", persona.Estado);
                         await connection.OpenAsync();
                         var result = Convert.ToInt32(await command.ExecuteScalarAsync());
-                        inquilino.IdInquilino = result;
+                        Inquilino inquilino = new Inquilino
+                        {
+                            IdInquilino = result,
+                            Nombre = persona.Nombre,
+                            Apellido = persona.Apellido,
+                            Dni = persona.Dni,
+                            Telefono = persona.Telefono,
+                            Direccion = persona.Direccion,
+                            Email = persona.Email,
+                            EstadoInquilino = persona.Estado
+                        };
+                        
                         await connection.CloseAsync();
+                        
+                        return (null, inquilino);
                     }
                     
-                    return (null, inquilino);
+                    
                 }
             }
             catch (Exception ex)
@@ -44,12 +58,12 @@ namespace project.Services
             }
         }
 
-        public async Task<(string?, List<Inquilino>)> GetAllInquilinos()
+        public async Task<(string?, List<Inquilino>)> GetAllInquilinos() //Testeado y funcional
         {
             try
             {
-                string query = @"Select p.* 
-                                from persona p 
+                string query = @"Select p.*, i.estado as estado_inquilino, i.idInquilino
+                                from persona as p 
                                 inner join inquilino i On p.idPersona = i.idPersona";
                 using (MySqlConnection conexion = new MySqlConnection(_connectionString))
                 {
@@ -62,14 +76,16 @@ namespace project.Services
                             while (await reader.ReadAsync())
                             {
                                 Inquilino inquilino = new Inquilino();
-                                inquilino.IdInquilino = reader.GetInt32("idPersona");
+                                inquilino.IdInquilino = reader.GetInt32("idInquilino");
+                                inquilino.IdPersona= reader.GetInt32("idPersona");
                                 inquilino.Nombre = reader.GetString("Nombre");
                                 inquilino.Apellido = reader.GetString("Apellido");
                                 inquilino.Dni = reader.GetInt32("Dni");
                                 inquilino.Telefono = reader.GetInt64("Telefono");
                                 inquilino.Direccion = reader.GetString("Direccion");
                                 inquilino.Email = reader.GetString("Email");
-                                inquilino.EstadoInquilino = reader.GetBoolean("estado");
+                                inquilino.Estado = reader.GetBoolean("estado");
+                                inquilino.EstadoInquilino = reader.GetBoolean("estado_Inquilino");
                                 inquilinos.Add(inquilino);
                             }
 
@@ -88,12 +104,12 @@ namespace project.Services
             }
         }
 
-        public async Task<(string?, Inquilino?)> GetInquilinoById(int idInquilino)
+        public async Task<(string?, Inquilino?)> GetInquilinoById(int idInquilino) //testeado y funcional
         {
             try
             {
-                string query = @$"select p.*
-                                from personas as p
+                string query = @$"select p.*, i.estado as estado_inquilino, i.idInquilino
+                                from persona as p
                                 inner join inquilino i on p.idPersona = i.idPersona
                                 where i.idInquilino = @idInquilino";
 
@@ -108,14 +124,16 @@ namespace project.Services
                         {
                             if (await reader.ReadAsync())
                             {
-                                inquilinoFromDatabase.IdInquilino = reader.GetInt32("idPersona");
+                                inquilinoFromDatabase.IdInquilino = reader.GetInt32("idInquilino");
+                                inquilinoFromDatabase.IdPersona = reader.GetInt32("idPersona");
                                 inquilinoFromDatabase.Nombre = reader.GetString("Nombre");
                                 inquilinoFromDatabase.Apellido = reader.GetString("Apellido");
                                 inquilinoFromDatabase.Dni = reader.GetInt32("Dni");
                                 inquilinoFromDatabase.Telefono = reader.GetInt64("Telefono");
                                 inquilinoFromDatabase.Direccion = reader.GetString("Direccion");
                                 inquilinoFromDatabase.Email = reader.GetString("Email");
-                                inquilinoFromDatabase.EstadoInquilino = reader.GetBoolean("estado");
+                                inquilinoFromDatabase.Estado = reader.GetBoolean("estado");
+                                inquilinoFromDatabase.EstadoInquilino = reader.GetBoolean("estado_inquilino");
 
                             }
                         }
@@ -138,8 +156,13 @@ namespace project.Services
 
         public async Task<(string?, bool?)> LogicalDeleteInquilino(int idInquilino)
         {
+            if(idInquilino <= 0)
+            {
+                return ("El ID del inquilino debe ser mayor que 0.", null);
+            }
             try
             {
+
                 await using var conn = new MySqlConnection(_connectionString);
                 await conn.OpenAsync();
 
