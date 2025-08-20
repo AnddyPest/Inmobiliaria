@@ -5,6 +5,7 @@ using project.Data;
 using project.Models;
 using project.Models.Interfaces;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace project.Services
 {
@@ -63,9 +64,50 @@ namespace project.Services
             }
         }
 
-        public (string?, Inquilino) GetInquilinoById(int idInquilino)
+        public async Task<(string?, Inquilino?)> GetInquilinoById(int idInquilino)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string query = @$"select p.*
+                                from personas as p
+                                inner join inquilino i on p.idPersona = i.idPersona
+                                where i.idInquilino = @idInquilino";
+
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+                    using (MySqlCommand commando = new MySqlCommand(query, connection))
+                    {
+                        Inquilino inquilinoFromDatabase = new Inquilino();
+                        commando.Parameters.AddWithValue("@idInquilino", idInquilino);
+                        using (var reader = await commando.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                inquilinoFromDatabase.IdInquilino = reader.GetInt32("idPersona");
+                                inquilinoFromDatabase.Nombre = reader.GetString("Nombre");
+                                inquilinoFromDatabase.Apellido = reader.GetString("Apellido");
+                                inquilinoFromDatabase.Dni = reader.GetInt32("Dni");
+                                inquilinoFromDatabase.Telefono = reader.GetInt64("Telefono");
+                                inquilinoFromDatabase.Direccion = reader.GetString("Direccion");
+                                inquilinoFromDatabase.Logico = reader.GetBoolean("estado");
+
+                            }
+                        }
+                        if (inquilinoFromDatabase.IdInquilino == 0 || inquilinoFromDatabase == null)
+                        {
+                            return ($"No se encontró un inquilino con ID {idInquilino}", null);
+                        }
+                        return (null, inquilinoFromDatabase);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return ($"Error al obtener el inquilino con ID {idInquilino}: {ex}", null);
+            }
+            
         }
 
         public (string?, bool?) LogicalDeleteInquilino(int idInquilino)

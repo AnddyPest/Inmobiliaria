@@ -2,7 +2,7 @@
 {
     public interface IInquilinoService
     {
-        (string?, Inquilino) GetInquilinoById(int idInquilino);
+        Task<(string?, Inquilino?)> GetInquilinoById(int idInquilino);
         Task<(string?, List<Inquilino>)> GetAllInquilinos();
         (string?,bool?) AddInquilino(Inquilino inquilino);
         (string?, bool?) UpdateInquilino(Inquilino inquilino);
