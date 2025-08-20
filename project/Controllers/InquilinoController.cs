@@ -26,6 +26,21 @@ namespace project.Controllers
             Console.WriteLine(inquilinos.Item2);
             return Ok(inquilinos.Item2);
         }
+        [HttpGet]
+        public async Task<IActionResult> getInquilinoById(int idInquilino)
+        {
+            (string?, Inquilino?) inquilino = await inquilinoService.GetInquilinoById(idInquilino);
+            if(inquilino.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(inquilino.Item1, nameof(InquilinoController), nameof(getInquilinoById));
+                return BadRequest(inquilino.Item1);
+            }
+            if(inquilino.Item2 == null)
+            {
+                return NotFound();
+            }
+            return Ok(inquilino.Item2);
+        }
 
     }
 }

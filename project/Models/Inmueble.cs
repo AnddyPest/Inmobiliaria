@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace project.Models
 {
-    public class Inmueble(string uso, string tipo, int superficie, int cantAmbientes, decimal coordenadas, decimal precio, string direccion, int idCiudad, int idPropietario)
+    public class Inmueble(string uso, string tipo, int superficie, int cantAmbientes, decimal coordenadas, decimal precio, string direccion, int idCiudad, int idPropietario, bool estado)
     {
         [Key]
         public int IdInmueble { get; set; }
@@ -41,7 +41,9 @@ namespace project.Models
         [Required(ErrorMessage = "La disponibilidad es requerida")]
         public bool Disponible { get; set; } = true;
 
+        public bool estado { get; set; } = estado;
+
         // Constructor vacío
-        public Inmueble() : this(default!, default!, default, default, default, default, default!, default, default) { }
+        public Inmueble() : this(default!, default!, default, default, default, default, default!, default, default, default) { }
     }
 }
