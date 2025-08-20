@@ -101,7 +101,14 @@ namespace project.Controllers
             }
             return Ok("El inquilino ha sido eliminado lógicamente.");
         }
-        //Vista Nuevo Inquilino
+        //Vistas
+        [HttpGet("Inquilinos")]
+        public IActionResult VistaInquilinos()
+        {
+            return View("~/Views/Inquilinos/IndexInquilinos.cshtml");
+        }
+
+        //New
         [HttpGet("Inquilinos/New")]
         public IActionResult VistaNuevoInquilino()
         { 

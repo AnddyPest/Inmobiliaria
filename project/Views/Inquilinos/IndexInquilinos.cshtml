@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inquilinos</title>
+
+    <style>
+        .img-shadow {
+            box-shadow: 0 10px 28px rgba(0,0,0,0.20);
+            border-radius: 0.5rem;
+            transition: box-shadow .18s ease, transform .18s ease;
+            transform-origin: center;
+        }
+        .img-shadow:hover {
+            box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+            transform: scale(0.98);
+        }
+
+        /* Animación de llaves flotando */
+        .keys-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .key-anim {
+            position: absolute;
+            font-size: 2.2rem;
+            color: #b6a77a88;
+            opacity: 0.7;
+            animation: floatKey 10s linear infinite;
+        }
+        .key-anim.k1 { left: 10%; top: 80%; font-size: 2.5rem; animation-delay: 0s; }
+        .key-anim.k2 { left: 30%; top: 90%; font-size: 2rem; animation-delay: 2s; }
+        .key-anim.k3 { left: 60%; top: 85%; font-size: 2.8rem; animation-delay: 4s; }
+        .key-anim.k4 { left: 80%; top: 95%; font-size: 2.1rem; animation-delay: 6s; }
+        .key-anim.k5 { left: 50%; top: 92%; font-size: 2.3rem; animation-delay: 8s; }
+        .key-anim.k6 { left: 15%; top: 95%; font-size: 2.1rem; animation-delay: 1s; }
+        .key-anim.k7 { left: 70%; top: 92%; font-size: 2.4rem; animation-delay: 3s; }
+        .key-anim.k8 { left: 40%; top: 98%; font-size: 2.2rem; animation-delay: 5s; }
+        .key-anim.k9 { left: 85%; top: 88%; font-size: 2.6rem; animation-delay: 7s; }
+        .key-anim.k10 { left: 25%; top: 97%; font-size: 2.3rem; animation-delay: 9s; }
+
+        @@keyframes floatKey {
+            0% { transform: translateY(0) rotate(-10deg); opacity: 0.7;}
+            80% { opacity: 0.7;}
+            100% { transform: translateY(-90vh) rotate(20deg); opacity: 0;}
+        }
+        .container-relative {
+            position: relative;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex flex-column p-2 border border-success-subtle rounded container-relative" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
+        <h3 class="text-primary mb-3" style="z-index:1; position:relative;">Index Inquilinos</h3>
+        
+        <!-- Fondo animado de llaves -->
+        <div class="keys-bg">
+            <span class="key-anim k1">🔑</span>
+            <span class="key-anim k2">🗝️</span>
+            <span class="key-anim k3">🔑</span>
+            <span class="key-anim k4">🗝️</span>
+            <span class="key-anim k5">🔑</span>
+            <span class="key-anim k6">🗝️</span>
+            <span class="key-anim k7">🔑</span>
+            <span class="key-anim k8">🗝️</span>
+            <span class="key-anim k9">🔑</span>
+            <span class="key-anim k10">🗝️</span>
+        </div>
+        
+        <!-- Contenedor flex para imágenes en fila -->
+        <div class="d-flex flex-row align-items-start mb-3 p-2" style="height:75vh; width:100%;">
+            <!-- Imagen principal a la izquierda (50%) -->
+            <div class="me-3" style="height:100%; width:50%; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                <img src="@Url.Content("~/images/key.png")" alt="Inmobiliaria" class="img-fluid img-shadow"
+                     style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
+            </div>
+            <!-- Columna derecha: botones uno debajo del otro -->
+            <div style="height:100%; width:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <img src="@Url.Content("~/images/NuevoInquilino.png")"
+                     alt="Nuevo Inquilino"
+                     class="img-fluid img-shadow mb-4"
+                     style="max-height:50%; max-width:80%; object-fit:contain; display:block; border: solid rgb(197, 192, 192); cursor:pointer;"
+                     onclick="window.location.href='/Inquilinos/New'" />
+
+                <img src="@Url.Content("~/images/ListarInquilinos.png")"
+                     alt="Listar Inquilinos"
+                     class="img-fluid img-shadow"
+                     style="max-height:50%; max-width:80%; object-fit:contain; display:block; border: solid rgb(197, 192, 192); cursor:pointer;"
+                     onclick="window.location.href='/Inquilinos/Gestionar'" />
+            </div>
+        </div>
+        
+        <!-- Botón Cancelar alineado a la derecha debajo de las imágenes -->
+        <div class="d-flex justify-content-end w-100">
+            <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/home'">Cancelar</button>
+        </div>
+    </div>
+</body>
+</html>
