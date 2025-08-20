@@ -45,7 +45,7 @@ namespace project.Controllers
             return Ok(inquilino.Item2);
         }
         [HttpPost]
-        public async Task<IActionResult> addInquilino([FromBody] int idPersona)
+        public async Task<IActionResult> addInquilino([FromBody] int idPersona) //crear persona y testear
         {
             if (!ModelState.IsValid)
             {
