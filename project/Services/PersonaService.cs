@@ -144,7 +144,7 @@ namespace project.Services
                                     Nombre = reader.GetString("Nombre"),
                                     Apellido = reader.GetString("Apellido"),
                                     Dni = reader.GetInt32("Dni"),
-                                    Telefono = reader.GetInt64("Telefono"),
+                                    Telefono = reader.GetString("Telefono"),
                                     Direccion = reader.GetString("Direccion"),
                                     Email = reader.GetString("Email"),
                                     Estado = reader.GetBoolean("Estado")
@@ -184,7 +184,7 @@ namespace project.Services
                                     Nombre = reader.GetString("Nombre"),
                                     Apellido = reader.GetString("Apellido"),
                                     Dni = reader.GetInt32("Dni"),
-                                    Telefono = reader.GetInt64("Telefono"),
+                                    Telefono = reader.GetString("Telefono"),
                                     Direccion = reader.GetString("Direccion"),
                                     Email = reader.GetString("Email"),
                                     Estado = reader.GetBoolean("Estado")
@@ -224,7 +224,7 @@ namespace project.Services
                                     Nombre = reader.GetString("Nombre"),
                                     Apellido = reader.GetString("Apellido"),
                                     Dni = reader.GetInt32("Dni"),
-                                    Telefono = reader.GetInt64("Telefono"),
+                                    Telefono = reader.GetString("Telefono"),
                                     Direccion = reader.GetString("Direccion"),
                                     Email = reader.GetString("Email"),
                                     Estado = reader.GetBoolean("Estado")

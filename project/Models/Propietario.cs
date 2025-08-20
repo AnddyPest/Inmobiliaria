@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace project.Models
 {
 
-    public class Propietario(string nombre, string apellido, int dni, long telefono, string direccion, string email, bool logico, bool logicoProp, Persona persona)
+    public class Propietario(string nombre, string apellido, int dni, string telefono, string direccion, string email, bool logico, bool logicoProp, Persona persona)
         : Persona(nombre, apellido, dni, telefono, direccion, email, logico)
     {
         [Key]

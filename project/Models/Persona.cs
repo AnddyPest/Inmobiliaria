@@ -2,7 +2,7 @@
 
 namespace project.Models
 {
-    public class Persona(string nombre, string apellido, int dni, long telefono, string direccion, string email, bool estado)
+    public class Persona(string nombre, string apellido, int dni, string telefono, string direccion, string email, bool estado)
     {
         
         
@@ -20,7 +20,7 @@ namespace project.Models
         public int Dni { get; set; } = dni;
         [Required(ErrorMessage = "El telefono es requerido")]
         [Phone(ErrorMessage = "El teléfono debe ser un número de teléfono válido")]
-        public long Telefono { get; set; } = telefono;
+        public string Telefono { get; set; } = telefono;
         [Required(ErrorMessage = "La direccion es requerida")]
         [MinLength(5, ErrorMessage = "La dirección debe tener al menos 5 caracteres")]
         [MaxLength(255, ErrorMessage = "La dirección no puede tener más de 255 caracteres")]

@@ -2,7 +2,7 @@
 
 namespace project.Models
 {
-    public class Inquilino(string nombre, string apellido, int dni, long telefono, string direccion, string email, bool estado, bool estadoInquilino, Persona persona) : Persona(nombre, apellido, dni, telefono, direccion, email, estado)
+    public class Inquilino(string nombre, string apellido, int dni, string telefono, string direccion, string email, bool estado, bool estadoInquilino, Persona persona) : Persona(nombre, apellido, dni, telefono, direccion, email, estado)
     {
         [Key]
         public int IdInquilino { get; set; }

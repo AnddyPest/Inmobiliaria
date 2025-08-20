@@ -81,7 +81,7 @@ namespace project.Services
                                 inquilino.Nombre = reader.GetString("Nombre");
                                 inquilino.Apellido = reader.GetString("Apellido");
                                 inquilino.Dni = reader.GetInt32("Dni");
-                                inquilino.Telefono = reader.GetInt64("Telefono");
+                                inquilino.Telefono = reader.GetString("Telefono");
                                 inquilino.Direccion = reader.GetString("Direccion");
                                 inquilino.Email = reader.GetString("Email");
                                 inquilino.Estado = reader.GetBoolean("estado");
@@ -129,7 +129,7 @@ namespace project.Services
                                 inquilinoFromDatabase.Nombre = reader.GetString("Nombre");
                                 inquilinoFromDatabase.Apellido = reader.GetString("Apellido");
                                 inquilinoFromDatabase.Dni = reader.GetInt32("Dni");
-                                inquilinoFromDatabase.Telefono = reader.GetInt64("Telefono");
+                                inquilinoFromDatabase.Telefono = reader.GetString("Telefono");
                                 inquilinoFromDatabase.Direccion = reader.GetString("Direccion");
                                 inquilinoFromDatabase.Email = reader.GetString("Email");
                                 inquilinoFromDatabase.Estado = reader.GetBoolean("estado");
