@@ -22,7 +22,7 @@ namespace project.Services
                     string query = @"Insert into inquilino(idPersona, estado) 
                                     values (@idPersona, @estado);
                                      Select last_insert_id()";
-                    Inquilino inquilinoResponse = new Inquilino();
+                    
                     using (var command = new MySqlCommand(query, connection))
                     {
                         command.CommandType = CommandType.Text;
@@ -33,10 +33,7 @@ namespace project.Services
                         inquilino.IdInquilino = result;
                         await connection.CloseAsync();
                     }
-                    if (inquilinoResponse == null)
-                    {
-                        return ($"No se pudo agregar el inquilino", null);
-                    }
+                    
                     return (null, inquilino);
                 }
             }
