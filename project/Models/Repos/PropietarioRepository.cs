@@ -192,7 +192,7 @@ namespace project.Models.Repos
                     Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
                     Apellido = reader.GetString(reader.GetOrdinal("Apellido")),
                     Dni = reader.GetInt32(reader.GetOrdinal("Dni")),
-                    Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
+                   // Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
                     Direccion = reader.GetString(reader.GetOrdinal("Direccion")),
                     Email = reader.GetString(reader.GetOrdinal("Email"))
                 };
