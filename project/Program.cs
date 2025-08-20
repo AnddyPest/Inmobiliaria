@@ -17,7 +17,7 @@ builder.Services.AddSingleton<IInquilinoService,InquilinoService>();
 
 
 // Registrar el repositorio para poder resolverlo en la prueba
-builder.Services.AddTransient<project.Models.Interfaces.IPropietarioRepository, project.Models.Repos.PropietarioRepository>();
+//builder.Services.AddTransient<project.Models.Interfaces.IPropietarioRepository, project.Models.Repos.PropietarioRepository>();
 
 var app = builder.Build();
 
