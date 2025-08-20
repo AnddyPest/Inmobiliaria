@@ -45,13 +45,23 @@ namespace project.Controllers
             return Ok(inquilino.Item2);
         }
         [HttpPost]
-        public async Task<IActionResult> addInquilino([FromBody] Persona persona)
+        public async Task<IActionResult> addInquilino([FromBody] int idPersona)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            (string?, Inquilino?) result = await inquilinoService.AddInquilino(persona);
+            (string?, bool?) validacion = await inquilinoService.validarQueNoEsteAgregadoElInquilino(idPersona);
+            if(validacion.Item1 != null)
+            {
+                return BadRequest(validacion.Item1);
+            }
+            (string? ,Persona? ) persona = await personaService.GetPersonaById(idPersona, true);
+            if(persona.Item1 != null)
+            {
+                return BadRequest(persona.Item1);
+            }
+            (string?, Inquilino?) result = await inquilinoService.AddInquilino(persona.Item2!);
             if (result.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(result.Item1, nameof(InquilinoController), nameof(addInquilino));

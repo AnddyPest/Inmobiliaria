@@ -266,5 +266,46 @@ namespace project.Services
             }
             return res;
         }
+        public async Task<(string?, Persona?)> GetPersonaById(int idPersona, bool estado)
+        {
+            Persona persona = new Persona();
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    string query = @"SELECT * FROM Persona WHERE IdPersona = @IdPersona AND Estado = @Estado";
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@IdPersona", idPersona);
+                        cmd.Parameters.AddWithValue("@Estado", estado);
+                        await conn.OpenAsync();
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                persona.IdPersona = reader.GetInt32("IdPersona");
+                                persona.Nombre = reader.GetString("Nombre");
+                                persona.Apellido = reader.GetString("Apellido");
+                                persona.Dni = reader.GetInt32("Dni");
+                                persona.Telefono = reader.GetString("Telefono");
+                                persona.Direccion = reader.GetString("Direccion");
+                                persona.Email = reader.GetString("Email");
+                                persona.Estado = reader.GetBoolean("Estado");
+                            }
+                        }
+                    }
+                }
+                if(persona == null)
+                {
+                    return ($"No se encontró una persona con ID {idPersona} y estado {estado}.", null);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en GetPersonaById: {ex.Message}");
+                return ($"Error al obtener la persona con ID {idPersona}: {ex.Message}", null);
+            }
+            return (null,persona);
+        }
     }
 }

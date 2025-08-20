@@ -13,6 +13,38 @@ namespace project.Services
     {
         private readonly string _connectionString = config.GetConnectionString("Connection") ?? throw new System.InvalidOperationException("Connection string 'Connection' not found.");
 
+        public async Task<(string?, bool)> validarQueNoEsteAgregadoElInquilino(int idPersona)
+        {
+            try
+            {
+                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @"SELECT * FROM inquilino WHERE idPersona = @idPersona";
+                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@idPersona", idPersona);
+                        await connection.OpenAsync();
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            
+                            if(await reader.ReadAsync())
+                            {
+                                return ("Ya existe un registro", false);
+                            }
+                        }
+                        await connection.CloseAsync();
+                    }
+                }
+                return (null, true);
+            }catch(Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InquilinoService), nameof(validarQueNoEsteAgregadoElInquilino));
+                return (ex.Message, false);
+            }
+        }
+
         public async Task<(string?, Inquilino?)> AddInquilino(Persona persona) //Solo hay que enviarle idPersona y el estado(opcional)
         {
             try
@@ -34,13 +66,16 @@ namespace project.Services
                         Inquilino inquilino = new Inquilino
                         {
                             IdInquilino = result,
+                            IdPersona = persona.IdPersona,
                             Nombre = persona.Nombre,
                             Apellido = persona.Apellido,
                             Dni = persona.Dni,
                             Telefono = persona.Telefono,
                             Direccion = persona.Direccion,
                             Email = persona.Email,
-                            EstadoInquilino = persona.Estado
+                            EstadoInquilino = persona.Estado,
+                            Estado = true
+                            
                         };
                         
                         await connection.CloseAsync();

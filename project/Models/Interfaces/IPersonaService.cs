@@ -10,5 +10,6 @@ namespace project.Models.Interfaces
         Task<IList<Persona?>> ObtenerPorNombre(string nombre);
         Task<IList<Persona?>> ObtenerTodos();
         Task<int> Reestablecer(int idPersona);
+        Task<(string?, Persona?)> GetPersonaById(int idPersona, bool estado);
     }
 }
