@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Inquilino</title>
+</head>
+<body>
+    <div class="d-flex p-2 border border-success-subtle border-rounded-3" style="background-color: #e3daccc8;">
+        <h1 class="text-primary">Registrar Nuevo Inquilino</h1>
+        <form action="/Inquilinos/Create" method="post" class="p-1 border border-success border-rounded-3">
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" class="form-control" required>
+                </div>
+                <div class="col">
+                    <label for="apellido">Apellido:</label>
+                    <input type="text" id="apellido" name="apellido" class="form-control" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="dni">DNI:</label>
+                    <input type="text" id="dni" name="dni" class="form-control" required>
+                </div>
+                <div class="col">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="text" id="telefono" name="telefono" class="form-control" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="direccion">Dirección:</label>
+                    <input type="text" id="direccion" name="direccion" class="form-control" required>
+                </div>
+                <div class="col">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+            </div>
+            <div class="mb-3 p-1 row border border-dark border-rounded-3">
+                <div class="col">
+                    <button class="btn btn-warning ms-1 me-1" type="reset" onclick="window.location.reload()">Limpiar</button>
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary ms-1 me-1">Registrar</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-secondary ms-1 me-1" onclick="window.location.href='/Inquilinos/Index'">Cancelar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
