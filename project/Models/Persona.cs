@@ -2,12 +2,12 @@
 
 namespace project.Models
 {
-    public abstract class Persona(string nombre, string apellido, int dni, long telefono, string direccion, string email, bool logico)
+    public abstract class Persona(string nombre, string apellido, int dni, long telefono, string direccion, string email, bool estado)
     {
         
         
         [Key]
-        protected int IdPersona { get; set; }
+        public int IdPersona { get; set; }
         [Required(ErrorMessage = "El nombre es requerido")]
         [MinLength(2, ErrorMessage = "El nombre debe tener al menos 2 caracteres")]
         [MaxLength(255, ErrorMessage = "El nombre no puede tener más de 255 caracteres")]
@@ -29,7 +29,7 @@ namespace project.Models
         [EmailAddress(ErrorMessage = "El email debe ser una dirección de correo electrónico válida")]
         public string Email { get; set; } = email;
 
-        public Boolean Logico { get; set; } = logico;
+        public Boolean estado { get; set; } = estado;
 
     public Persona() : this(default!, default!, default, default!, default!, default!, default!) { }
 

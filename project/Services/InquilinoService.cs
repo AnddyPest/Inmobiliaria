@@ -18,9 +18,38 @@ namespace project.Services
             _connectionString = config.GetConnectionString("Connection");
         }
 
-        public (string?, bool?) AddInquilino(Inquilino inquilino)
+        public async Task<(string?, Inquilino?)> AddInquilino(Inquilino inquilino)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (var connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @"Insert into inquilino(idPersona, estado) 
+                                    values (@idPersona, @estado);
+                                     Select last_insert_id()";
+                    Inquilino inquilinoResponse = new Inquilino();
+                    using (var command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@idPersona", inquilino.idPersona.IdPersona);
+                        command.Parameters.AddWithValue("@estado", inquilino.estado);
+                        await connection.OpenAsync();
+                        var result = Convert.ToInt32(await command.ExecuteScalarAsync());
+                        inquilino.IdInquilino = result;
+                        await connection.CloseAsync();
+                    }
+                    if (inquilinoResponse == null)
+                    {
+                        return ($"No se pudo agregar el inquilino", null);
+                    }
+                    return (null, inquilino);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return ($"Error al agregar el inquilino: {ex}", null);
+            }
         }
 
         public async Task<(string?, List<Inquilino>)> GetAllInquilinos()
@@ -47,11 +76,13 @@ namespace project.Services
                                 inquilino.Dni = reader.GetInt32("Dni");
                                 inquilino.Telefono = reader.GetInt64("Telefono");
                                 inquilino.Direccion = reader.GetString("Direccion");
-                                inquilino.Logico = reader.GetBoolean("estado");
+                                inquilino.Email = reader.GetString("Email");
+                                inquilino.estado = reader.GetBoolean("estado");
                                 inquilinos.Add(inquilino);
                             }
 
                         }
+                        await conexion.CloseAsync();
                         Console.WriteLine("Funciono");
                         Console.WriteLine(inquilinos);
                         return (null, inquilinos);
@@ -90,7 +121,8 @@ namespace project.Services
                                 inquilinoFromDatabase.Dni = reader.GetInt32("Dni");
                                 inquilinoFromDatabase.Telefono = reader.GetInt64("Telefono");
                                 inquilinoFromDatabase.Direccion = reader.GetString("Direccion");
-                                inquilinoFromDatabase.Logico = reader.GetBoolean("estado");
+                                inquilinoFromDatabase.Email = reader.GetString("Email");
+                                inquilinoFromDatabase.estado = reader.GetBoolean("estado");
 
                             }
                         }
@@ -98,6 +130,7 @@ namespace project.Services
                         {
                             return ($"No se encontró un inquilino con ID {idInquilino}", null);
                         }
+                        await connection.CloseAsync();
                         return (null, inquilinoFromDatabase);
                     }
                 }
