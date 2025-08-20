@@ -8,7 +8,7 @@ namespace project.Services
 {
     public class PropietarioService(IConfiguration config) : IPropietarioService
     {
-        private string _connectionString = config.GetConnectionString("Connection")!;
+        private string _connectionString = config.GetConnectionString("Connection") ?? throw new InvalidOperationException("Connection string 'Connection' not found.");
 
         //ALTA PROPIETARIO
         public async Task<int> Alta(Propietario propietario)
