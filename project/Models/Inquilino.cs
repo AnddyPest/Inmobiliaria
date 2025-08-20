@@ -2,7 +2,7 @@
 
 namespace project.Models
 {
-    public class Inquilino(string nombre, string apellido, int dni, long telefono, string direccion, string email, Boolean estado, Persona persona) : Persona(nombre, apellido, dni, telefono, direccion, email, estado)
+    public class Inquilino(string nombre, string apellido, int dni, long telefono, string direccion, string email, bool estado, bool estadoInquilino, Persona persona) : Persona(nombre, apellido, dni, telefono, direccion, email, estado)
     {
         [Key]
         public int IdInquilino { get; set; }
@@ -10,8 +10,10 @@ namespace project.Models
 
         public Persona Persona { get; set; } = persona;
 
+        public bool EstadoInquilino { get; set; } = estadoInquilino;
+
         // Constructor vacío
-        public Inquilino() : this(default! ,default!, default!, default, default!, default!, default!, default!) { }
+        public Inquilino() : this(default!, default!, default!, default, default!, default!, default!, default!, default!) { }
 
         public void AgregarContrato(Contrato contrato)
         {

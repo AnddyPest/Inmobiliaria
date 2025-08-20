@@ -2,7 +2,7 @@
 
 namespace project.Models
 {
-    public abstract class Persona(string nombre, string apellido, int dni, long telefono, string direccion, string email, bool estado)
+    public class Persona(string nombre, string apellido, int dni, long telefono, string direccion, string email, bool estado)
     {
         
         
@@ -29,7 +29,7 @@ namespace project.Models
         [EmailAddress(ErrorMessage = "El email debe ser una dirección de correo electrónico válida")]
         public string Email { get; set; } = email;
 
-        public Boolean estado { get; set; } = estado;
+        public Boolean Estado { get; set; } = estado;
 
     public Persona() : this(default!, default!, default, default!, default!, default!, default!) { }
 

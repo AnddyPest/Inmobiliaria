@@ -1,6 +1,4 @@
-﻿
-
-using Microsoft.AspNetCore.Components.Web;
+﻿using Microsoft.AspNetCore.Components.Web;
 using MySql.Data.MySqlClient;
 using project.Data;
 using project.Helpers;
@@ -11,14 +9,9 @@ using System.Threading.Tasks;
 
 namespace project.Services
 {
-    public class InquilinoService : IInquilinoService
+    public class InquilinoService(IConfiguration config) : IInquilinoService
     {
-        private string _connectionString;
-
-        public InquilinoService(IConfiguration config)
-        {
-            _connectionString = config.GetConnectionString("Connection");
-        }
+        private readonly string _connectionString = config.GetConnectionString("Connection") ?? throw new System.InvalidOperationException("Connection string 'Connection' not found.");
 
         public async Task<(string?, Inquilino?)> AddInquilino(Inquilino inquilino) //Solo hay que enviarle idPersona y el estado(opcional)
         {
@@ -34,7 +27,7 @@ namespace project.Services
                     {
                         command.CommandType = CommandType.Text;
                         command.Parameters.AddWithValue("@idPersona", inquilino.Persona.IdPersona);
-                        command.Parameters.AddWithValue("@estado", inquilino.estado);
+                        command.Parameters.AddWithValue("@estado", inquilino.EstadoInquilino);
                         await connection.OpenAsync();
                         var result = Convert.ToInt32(await command.ExecuteScalarAsync());
                         inquilino.IdInquilino = result;
@@ -79,7 +72,7 @@ namespace project.Services
                                 inquilino.Telefono = reader.GetInt64("Telefono");
                                 inquilino.Direccion = reader.GetString("Direccion");
                                 inquilino.Email = reader.GetString("Email");
-                                inquilino.estado = reader.GetBoolean("estado");
+                                inquilino.EstadoInquilino = reader.GetBoolean("estado");
                                 inquilinos.Add(inquilino);
                             }
 
@@ -94,7 +87,7 @@ namespace project.Services
             catch (Exception ex)
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, nameof(InquilinoService), nameof(GetAllInquilinos));
-                return ($"Error al obtener los inquilinos: {ex}", null);
+                return ($"Error al obtener los inquilinos: {ex}", new List<Inquilino>());
             }
         }
 
@@ -125,7 +118,7 @@ namespace project.Services
                                 inquilinoFromDatabase.Telefono = reader.GetInt64("Telefono");
                                 inquilinoFromDatabase.Direccion = reader.GetString("Direccion");
                                 inquilinoFromDatabase.Email = reader.GetString("Email");
-                                inquilinoFromDatabase.estado = reader.GetBoolean("estado");
+                                inquilinoFromDatabase.EstadoInquilino = reader.GetBoolean("estado");
 
                             }
                         }
@@ -146,35 +139,24 @@ namespace project.Services
 
         }
 
-        public async Task<(string?, bool?)> LogicalDeleteInquilino(int idInquilino,bool estado)
+        public async Task<(string?, bool?)> LogicalDeleteInquilino(int idInquilino)
         {
             try
             {
-                bool validation = false;
-                using (var connection = new MySqlConnection(_connectionString)) 
-                {
-                    string query = @"Update inquilino 
-                                    set estado=@estadoNuevo
-                                    where idInquilino= @idInquilino";
-                    using (var command = new MySqlCommand(query, connection))
-                    {
-                        command.CommandType = CommandType.Text;
-                        command.Parameters.AddWithValue("@estadoNuevo", estado);
-                        command.Parameters.AddWithValue("@idInquilino", idInquilino);
-                        await connection.OpenAsync();
-                        var res = await command.ExecuteNonQueryAsync();
-                        await connection.CloseAsync();
-                        if(res  != 0)
-                        {
-                            validation = true;
-                        }
-                    }
-                }
-                return (null, validation);
-            }catch(Exception ex)
+                await using var conn = new MySqlConnection(_connectionString);
+                await conn.OpenAsync();
+
+                const string sql = "UPDATE Inquilino SET Estado = 0 WHERE IdInquilino = @id;";
+                await using var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@id", idInquilino);
+
+                var rows = await cmd.ExecuteNonQueryAsync();
+                return (null, rows > 0);
+            }
+            catch (Exception ex)
             {
-                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InquilinoService), nameof(LogicalDeleteInquilino));
-                return ($"Error al dar la baja logica al inquilino con id: {idInquilino}", false);
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InquilinoService), nameof(GetInquilinoById));
+                return ($"Error al obtener el inquilino con ID {idInquilino}: {ex}", null);
             }
         }
 
