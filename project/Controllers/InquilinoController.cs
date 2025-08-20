@@ -44,7 +44,7 @@ namespace project.Controllers
             }
             return Ok(inquilino.Item2);
         }
-        [HttpPost]
+        [HttpPost("Inquilinos/Create")]
         public async Task<IActionResult> AddInquilino([FromBody] int idPersona) //crear persona y testear
         {
             if (!ModelState.IsValid)
@@ -69,7 +69,7 @@ namespace project.Controllers
             }
             return Ok(result.Item2);
         }
-        [HttpPost]
+        [HttpPost("Inquilinos/Update")]
         public async Task<IActionResult> UpdateInquilino([FromBody] Persona persona)
         {
             if (!ModelState.IsValid)
