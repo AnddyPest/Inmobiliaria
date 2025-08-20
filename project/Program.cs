@@ -13,11 +13,10 @@ builder.Services.AddControllersWithViews();
 
 // ADO.NET de la carpeta DATA
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
-builder.Services.AddSingleton<IInquilinoService,InquilinoService>();
+builder.Services.AddSingleton<IInquilinoService, InquilinoService>();
+builder.Services.AddSingleton<IPersonaService, PersonaService>();
+builder.Services.AddSingleton<IPropietarioService, PropietarioService>();
 
-
-// Registrar el repositorio para poder resolverlo en la prueba
-//builder.Services.AddTransient<project.Models.Interfaces.IPropietarioRepository, project.Models.Repos.PropietarioRepository>();
 
 var app = builder.Build();
 
