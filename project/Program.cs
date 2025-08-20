@@ -27,7 +27,7 @@ var app = builder.Build();
 //    app.Logger.LogInformation("Database ensured/created if it did not exist.");
 //}
 //catch (Exception ex)
-//{
+//
 //    app.Logger.LogError(ex, "Error al crear/verificar la base de datos. Revisa permisos y cadena de conexión.");
 //    throw;
 //}
