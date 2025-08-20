@@ -14,13 +14,7 @@ builder.Services.AddControllersWithViews();
 // ADO.NET de la carpeta DATA
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddSingleton<IInquilinoService,InquilinoService>();
-//builder.Services.AddScoped<IDbConexion>( provider =>
-//{
-//    IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
-//    string connectionString = configuration.GetConnectionString("connection");
-//    Conexion conexionCreada = new Conexion(connectionString);
-//    return conexionCreada;
-//});
+
 
 // Registrar el repositorio para poder resolverlo en la prueba
 builder.Services.AddTransient<project.Models.Interfaces.IPropietarioRepository, project.Models.Repos.PropietarioRepository>();
