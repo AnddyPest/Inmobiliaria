@@ -12,6 +12,56 @@ namespace project.Services
         private string _connectionString = config.GetConnectionString("Connection") ?? throw new InvalidOperationException("Connection string 'Connection' not found.");
         private IPersonaService personaService = personaService;
 
+        public async Task<(string?, Propietario?)> getPropietarioById(int idPropietario)
+        {
+            try
+            {
+                if (idPropietario <= 0) return ("El ID del propietario debe ser mayor que 0.", null);
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @"SELECT p.*, propi.estado as estado_propietario, propi.idPropietario
+                                    FROM persona as p
+                                    INNER JOIN propietario propi ON p.idPersona = propi.idPersona
+                                    WHERE propi.idPropietario = @idPropietario";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@idPropietario", idPropietario);
+                        await connection.OpenAsync();
+                        Propietario propietarioFromDatabase = new Propietario();
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                propietarioFromDatabase.IdPropietario = reader.GetInt32("idPropietario");
+                                propietarioFromDatabase.IdPersona = reader.GetInt32("idPersona");
+                                propietarioFromDatabase.Nombre = reader.GetString("Nombre");
+                                propietarioFromDatabase.Apellido = reader.GetString("Apellido");
+                                propietarioFromDatabase.Dni = reader.GetInt32("Dni");
+                                propietarioFromDatabase.Telefono = reader.GetString("Telefono");
+                                propietarioFromDatabase.Direccion = reader.GetString("Direccion");
+                                propietarioFromDatabase.Email = reader.GetString("Email");
+                                propietarioFromDatabase.Estado = reader.GetBoolean("estado");
+                                propietarioFromDatabase.EstadoPropietario = reader.GetBoolean("estado_propietario");
+                            }
+                        }
+                        if (propietarioFromDatabase.IdPropietario == 0 || propietarioFromDatabase == null)
+                        {
+                            return ($"No se encontró un propietario con ID {idPropietario}", null);
+                        }
+                        await connection.CloseAsync();
+                        return (null, propietarioFromDatabase);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(PropietarioService), nameof(getPropietarioById));
+                return (ex.Message, null);
+            } 
+        }
+
+
         public async Task<(string?, bool)> validarQueNoEsteAgregadoElPropietario(int idPersona)
         {
             try
@@ -125,11 +175,17 @@ namespace project.Services
         }
 
         //BAJA LOGICA PROPIETARIO
-        public async Task<int> Baja(int idPropietario)
+        public async Task<int> BajaLogica(int idPropietario)
         {
             int res = -1;
             try
             {
+                (string?,Propietario?) propietario = await this.getPropietarioById(idPropietario);
+                if(propietario.Item1 != null)
+                {
+                    Console.WriteLine(propietario.Item1);
+                    return res;
+                }
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
                     string query = @"UPDATE propietario SET estado = false WHERE idPropietario = @idPropietario;";
@@ -266,7 +322,7 @@ namespace project.Services
         }
 
         //REESTABLECIMIENTO LOGICO
-        public async Task<int> Reestablecer(int idPropietario)
+        public async Task<int> AltaLogica(int idPropietario)
         {
             int res = 0;
             try
