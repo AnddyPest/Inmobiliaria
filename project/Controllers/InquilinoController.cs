@@ -91,33 +91,33 @@ namespace project.Controllers
         {
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            Console.WriteLine(model.Dni);
-            if (model.Dni <= 0) return BadRequest("Se requiere el Dni de la persona");
-
-            var existingPersona = await personaService.ObtenerPorDni(model.Dni);
-            if (existingPersona == null) return BadRequest("No se encuentra registrada la persona");
             
-            (string?,Inquilino?) inquilinoResult = await inquilinoService.getInquilinoByIdPersona(existingPersona.IdPersona);
+            if (model.IdPersona <= 0) return BadRequest("Se requiere el idPersona de la persona");
+
+            var existingPersona = await personaService.GetPersonaById(model.IdPersona, true);
+            if (existingPersona.Item1 != null) return BadRequest(existingPersona.Item1);
+            
+            (string?,Inquilino?) inquilinoResult = await inquilinoService.getInquilinoByIdPersona(existingPersona.Item2!.IdPersona);
             if(inquilinoResult.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inquilinoResult.Item1, nameof(InquilinoController), nameof(UpdateInquilino));
                 return BadRequest(inquilinoResult.Item1);
             }
-            model.IdPersona = existingPersona.IdPersona;
+            model.IdPersona = existingPersona.Item2.IdPersona!;
             int result = await personaService.Editar(model);
             if (result == -1)
             {
                 HelperFor.imprimirMensajeDeError("No se actualizo la persona", nameof(InquilinoController), nameof(UpdateInquilino));
                 return BadRequest("No se actualizo la persona");
             }
-            (string?, Inquilino?) inquilinoUpdate = await inquilinoService.getInquilinoByIdPersona(existingPersona.IdPersona);
+            (string?, Inquilino?) inquilinoUpdate = await inquilinoService.getInquilinoByIdPersona(existingPersona.Item2.IdPersona!);
             if (inquilinoResult.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inquilinoResult.Item1, nameof(InquilinoController), nameof(UpdateInquilino));
                 return BadRequest(inquilinoResult.Item1);
             }
 
-            return View("~/Views/Inquilinos/GestionInquilinos.cshtml", inquilinoUpdate.Item2);
+            return RedirectToAction("GetAllInquilinos");
         }
         [HttpPost("inquilino/Baja")]
         public async Task<IActionResult> LogicalDeleteInquilino([FromBody] int idInquilino) //Testeado y funcional
