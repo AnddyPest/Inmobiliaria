@@ -113,43 +113,41 @@ dniInput.addEventListener("input", function() {
         }, 900);
     }
 });
-//SCRIPT DE FILTRO POR DNI CON LISTENER PARA CUANDO PRESIONO TECLAS
+
+
+// FILTROS ACUMULATIVOS PARA DNI Y NOMBRE y APELLIDO
 document.getElementById("dniInput").addEventListener("keyup", function() {
-    buscarPorDni();
+    filtrarTabla();
 });
-
-function buscarPorDni() {
-    var dni = document.getElementById("dniInput").value;
-    var rows = document.querySelectorAll("table tbody tr");
-    rows.forEach(function(row) {
-        var cell = row.querySelector("td:nth-child(2)");
-        if (cell) {
-            var cellValue = cell.textContent || cell.innerText;
-            if (cellValue.indexOf(dni) === -1) {
-                row.style.display = "none";
-            } else {
-                row.style.display = "";
-            }
-        }
-    });
-}
-//FILTRO PARA BUSCAR POR NOMBRE CON STARTS WITH TECLA A TECLA, digamos, similar al de DNI
 document.getElementById("nombreInput").addEventListener("keyup", function() {
-    buscarPorNombre();
+    filtrarTabla();
 });
 
-function buscarPorNombre() {
+function filtrarTabla() {
+    var dni = document.getElementById("dniInput").value;
     var nombre = document.getElementById("nombreInput").value.toLowerCase();
     var rows = document.querySelectorAll("table tbody tr");
     rows.forEach(function(row) {
-        var cell = row.querySelector("td:nth-child(1)");
-        if (cell) {
-            var cellValue = cell.textContent || cell.innerText;
-            if (cellValue.toLowerCase().startsWith(nombre)) {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
+        var cellNombre = row.querySelector("td:nth-child(1)");
+        var cellDni = row.querySelector("td:nth-child(2)");
+        var matchNombre = true;
+        var matchDni = true;
+        if (cellNombre) {
+            var cellNombreValue = cellNombre.textContent || cellNombre.innerText;
+            if (nombre && !cellNombreValue.toLowerCase().startsWith(nombre)) {
+                matchNombre = false;
             }
+        }
+        if (cellDni) {
+            var cellDniValue = cellDni.textContent || cellDni.innerText;
+            if (dni && cellDniValue.indexOf(dni) === -1) {
+                matchDni = false;
+            }
+        }
+        if (matchNombre && matchDni) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
         }
     });
 }
