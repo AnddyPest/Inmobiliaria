@@ -7,6 +7,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inquilinos</title>
+<style>
+    /* Placeholder de DNI rojo y negrita cuando hay error texto: "SOLO NUMEROS"*/
+    #dniInput.placeholder-error::placeholder {
+        color: #dc3545 !important;
+        font-weight: bold;
+        opacity: 1;
+    }
+</style>
 
     
 </head>
@@ -14,11 +22,12 @@
     <div class="d-flex flex-column p-2 border border-success-subtle rounded" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
 
         <h3 class="text-primary mb-3">Listado de Inquilinos</h3>
-        <table class="table table-dark table-stripped">
+        <div class="table-responsive p-2" style="min-height: 600px;">
+        <table class="table table-dark table-stripped" style="overflow-x: auto;">
             <thead>
                 <tr class="text-center">
-                    <th style="width: 10%;">Nombre</th>
-                    <th style="width: 10%;">Apellido</th>
+                    <th style="width: 20%;">Nombre</th>
+                    
                     <th style="width: 10%;">DNI</th>
                     <th style="width: 10%;">Teléfono</th>
                     <th style="width: 10%;">Dirección</th>
@@ -31,8 +40,8 @@
                 @foreach (var inquilino in Model)
                 {
                     <tr class="text-center">
-                        <td>@inquilino.Nombre</td>
-                        <td>@inquilino.Apellido</td>
+                        <td>@inquilino.Nombre @inquilino.Apellido</td>
+                        
                         <td>@inquilino.Dni</td>
                         <td>@inquilino.Telefono</td>
                         <td>@inquilino.Direccion</td>
@@ -57,11 +66,92 @@
                 }
             </tbody>
         </table>
+        </div>
         <div class="row justify-content-end w-100">
-            <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/Inquilinos'">Cancelar</button>
+            <!--Filtro para buscar por DNI-->
+            <div class="col input w-25">
+                <input type="text" class="form-control" placeholder="Buscar por DNI" id="dniInput">
+                
+            </div>
+            <!--Filtro para buscar por nombre-->
+            <div class="col input w-25">
+                <input type="text" class="form-control" placeholder="Buscar por Nombre" id="nombreInput">
+                
+            </div>
+            <!--Boton de resetear filtros-->
+            <div class="col w-25">
+            <button type="button" class="btn btn-secondary shadow ms-1 me-1 w-100" onclick="window.location.reload()">Resetear</button>
+            </div>
+            <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/Inquilino'">Cancelar</button>
         </div>
     </div>
 
    
 </body>
 </html>
+<script>
+//Funcion para evitar que se ingresen NaN en el filtro por DNI, Solo adminte numeros del 0 - 9
+const dniInput = document.getElementById("dniInput");
+dniInput.addEventListener("input", function() {
+    const original = this.value;
+    const filtered = original.replace(/[^0-9]/g, '');
+    if (original !== filtered) {
+        // Feedback visual TEXTO EN ROJO Y BORDE EN ROJO "SOLO NÚMEROS"
+        const prevPlaceholder = this.placeholder;
+        this.value = filtered;
+        this.placeholder = "SOLO NÚMEROS";
+        this.classList.add("placeholder-error");
+        this.style.color = "#dc3545";
+        this.style.fontWeight = "bold";
+        this.style.borderColor = "#dc3545";
+        setTimeout(() => {
+            this.classList.remove("placeholder-error");
+            this.placeholder = prevPlaceholder;
+            this.style.color = "";
+            this.style.fontWeight = "";
+            this.style.borderColor = "";
+        }, 900);
+    }
+});
+//SCRIPT DE FILTRO POR DNI CON LISTENER PARA CUANDO PRESIONO TECLAS
+document.getElementById("dniInput").addEventListener("keyup", function() {
+    buscarPorDni();
+});
+
+function buscarPorDni() {
+    var dni = document.getElementById("dniInput").value;
+    var rows = document.querySelectorAll("table tbody tr");
+    rows.forEach(function(row) {
+        var cell = row.querySelector("td:nth-child(2)");
+        if (cell) {
+            var cellValue = cell.textContent || cell.innerText;
+            if (cellValue.indexOf(dni) === -1) {
+                row.style.display = "none";
+            } else {
+                row.style.display = "";
+            }
+        }
+    });
+}
+//FILTRO PARA BUSCAR POR NOMBRE CON STARTS WITH TECLA A TECLA, digamos, similar al de DNI
+document.getElementById("nombreInput").addEventListener("keyup", function() {
+    buscarPorNombre();
+});
+
+function buscarPorNombre() {
+    var nombre = document.getElementById("nombreInput").value.toLowerCase();
+    var rows = document.querySelectorAll("table tbody tr");
+    rows.forEach(function(row) {
+        var cell = row.querySelector("td:nth-child(1)");
+        if (cell) {
+            var cellValue = cell.textContent || cell.innerText;
+            if (cellValue.toLowerCase().startsWith(nombre)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        }
+    });
+}
+
+</script>
