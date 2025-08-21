@@ -87,14 +87,14 @@ namespace project.Controllers
             return RedirectToAction("");
         }
         [HttpPost("inquilino/Update")]
-        public async Task<IActionResult> UpdateInquilino([FromBody] Persona persona)//Testeado y funcional
+        public async Task<IActionResult> UpdateInquilino(Persona model)//Testeado y funcional
         {
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            Console.WriteLine(persona.Dni);
-            if (persona.Dni <= 0) return BadRequest("Se requiere el Dni de la persona");
-            
-            var existingPersona = await personaService.ObtenerPorDni(persona.Dni);
+            Console.WriteLine(model.Dni);
+            if (model.Dni <= 0) return BadRequest("Se requiere el Dni de la persona");
+
+            var existingPersona = await personaService.ObtenerPorDni(model.Dni);
             if (existingPersona == null) return BadRequest("No se encuentra registrada la persona");
             
             (string?,Inquilino?) inquilinoResult = await inquilinoService.getInquilinoByIdPersona(existingPersona.IdPersona);
@@ -103,8 +103,8 @@ namespace project.Controllers
                 HelperFor.imprimirMensajeDeError(inquilinoResult.Item1, nameof(InquilinoController), nameof(UpdateInquilino));
                 return BadRequest(inquilinoResult.Item1);
             }
-            persona.IdPersona = existingPersona.IdPersona;
-            int result = await personaService.Editar(persona);
+            model.IdPersona = existingPersona.IdPersona;
+            int result = await personaService.Editar(model);
             if (result == -1)
             {
                 HelperFor.imprimirMensajeDeError("No se actualizo la persona", nameof(InquilinoController), nameof(UpdateInquilino));
@@ -117,7 +117,7 @@ namespace project.Controllers
                 return BadRequest(inquilinoResult.Item1);
             }
 
-            return Ok(inquilinoUpdate.Item2);
+            return View("~/Views/Inquilinos/GestionInquilinos.cshtml", inquilinoUpdate.Item2);
         }
         [HttpPost("inquilino/Baja")]
         public async Task<IActionResult> LogicalDeleteInquilino([FromBody] int idInquilino) //Testeado y funcional
@@ -167,9 +167,14 @@ namespace project.Controllers
             return View("~/Views/Inquilinos/NewInquilino.cshtml");
         }
         [HttpGet("inquilino/Update")]
-        public IActionResult VistaActualizarInquilino()
+        public async Task<IActionResult> VistaActualizarInquilino(int id)
         {
-            return View("~/Views/Inquilinos/EditInquilinos.cshtml");
+            var persona = await personaService.GetPersonaById(id, true);
+            if (persona.Item2 == null)
+            {
+                return NotFound("No se encontró la persona.");
+            }
+            return View("~/Views/Inquilinos/EditInquilinos.cshtml", persona.Item2);
         }
         
     }
