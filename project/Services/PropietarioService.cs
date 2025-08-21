@@ -1,17 +1,103 @@
-using System.Data;
-using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
+using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace project.Services
 {
-    public class PropietarioService(IConfiguration config) : IPropietarioService
+    public class PropietarioService(IConfiguration config, IPersonaService personaService) : IPropietarioService
     {
         private string _connectionString = config.GetConnectionString("Connection") ?? throw new InvalidOperationException("Connection string 'Connection' not found.");
+        private IPersonaService personaService = personaService;
+
+        public async Task<(string?, bool)> validarQueNoEsteAgregadoElPropietario(int idPersona)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @"SELECT * FROM propietario WHERE idPersona = @idPersona";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@idPersona", idPersona);
+                        await connection.OpenAsync();
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+
+                            if (await reader.ReadAsync())
+                            {
+                                return ("Ya existe un registro", false);
+                            }
+                        }
+                        await connection.CloseAsync();
+                    }
+                }
+                return (null, true);
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(PropietarioService), nameof(validarQueNoEsteAgregadoElPropietario));
+                return (ex.Message, false);
+            }
+        }
+        public async Task<(string?, Propietario?)> getPropietarioByIdPersona(int idPersona) //testear
+        {
+            try
+            {
+                if (idPersona <= 0)
+                {
+                    return ("El ID de la persona debe ser mayor que 0.", null);
+                }
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @"SELECT p.*, propi.estado as estado_propietario, propi.idPropietario
+                                    FROM persona as p
+                                    INNER JOIN propietario propi ON p.idPersona = propi.idPersona
+                                    WHERE p.idPersona = @idPersona";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@idPersona", idPersona);
+                        await connection.OpenAsync();
+                        Propietario propietarioFromDatabase = new Propietario();
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                propietarioFromDatabase.IdPropietario = reader.GetInt32("idPropietario");
+                                propietarioFromDatabase.IdPersona = reader.GetInt32("idPersona");
+                                propietarioFromDatabase.Nombre = reader.GetString("Nombre");
+                                propietarioFromDatabase.Apellido = reader.GetString("Apellido");
+                                propietarioFromDatabase.Dni = reader.GetInt32("Dni");
+                                propietarioFromDatabase.Telefono = reader.GetString("Telefono");
+                                propietarioFromDatabase.Direccion = reader.GetString("Direccion");
+                                propietarioFromDatabase.Email = reader.GetString("Email");
+                                propietarioFromDatabase.Estado = reader.GetBoolean("estado");
+                                propietarioFromDatabase.EstadoPropietario = reader.GetBoolean("estado_propietario");
+                            }
+                        }
+                        if (propietarioFromDatabase.IdPropietario == 0 || propietarioFromDatabase == null)
+                        {
+                            return ($"No se encontró un propietario con ID de persona {idPersona}", null);
+                        }
+                        await connection.CloseAsync();
+                        return (null, propietarioFromDatabase);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(PropietarioService), nameof(getPropietarioByIdPersona));
+                return (ex.Message, null);
+            }
+        }
 
         //ALTA PROPIETARIO
-        public async Task<int> Alta(Propietario propietario)
+        public async Task<int> Alta(int idPersona)
         {
             int res = -1;
             try
@@ -22,10 +108,11 @@ namespace project.Services
                                      SELECT LAST_INSERT_ID();";
                     using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@idPersona", propietario.Persona.IdPersona);
+                        cmd.Parameters.AddWithValue("@idPersona", idPersona);
                         cmd.Parameters.AddWithValue("@estado", true);
                         await conn.OpenAsync();
-                        res = await cmd.ExecuteNonQueryAsync();
+                        object? idGenerated = await cmd.ExecuteScalarAsync();
+                        res = Convert.ToInt32(idGenerated);
                     }
                 }
             }
@@ -89,14 +176,51 @@ namespace project.Services
         }
 
 
-        public Task<Propietario> ObtenerPorDni(int dni)
+        public async Task<(string?, Propietario?)> getPropietarioPorDni(int dni)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<IList<Propietario>> ObtenerPorNombre(string nombre)
-        {
-            throw new NotImplementedException();
+            if (dni <= 0) return ("El dni debe ser mayor que 0", null);
+            try
+            {
+                Persona? persona = await personaService.ObtenerPorDni(dni);
+                if (persona == null) return ("No se encuentra una persona registrada con dicho dni", null);
+                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @"Select p.*, prop.estado as estado_propietario, prop.idPropietario 
+                                    from persona as p
+                                    inner join propietario as prop on p.idPersona = prop.idPersona
+                                    where p.idPersona = @idPersona";
+                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@idPersona", persona.IdPersona);
+                        await connection.OpenAsync();
+                        Propietario propietario = null;
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                propietario = new Propietario();
+                                propietario.IdPropietario = reader.GetInt32("idPropietario");
+                                propietario.IdPersona = reader.GetInt32("idPersona");
+                                propietario.Nombre = reader.GetString("nombre");
+                                propietario.Apellido = reader.GetString("Apellido");
+                                propietario.Dni = reader.GetInt32("Dni");
+                                propietario.Telefono = reader.GetString("Telefono");
+                                propietario.Direccion = reader.GetString("Direccion");
+                                propietario.Email = reader.GetString("Email");
+                                propietario.Estado = reader.GetBoolean("estado");
+                                propietario.EstadoPropietario = reader.GetBoolean("estado_propietario");
+                            }
+                            if (propietario == null) return ("No se encuentra un propietario con dicho dni", null);
+                            return (null,propietario);
+                        }
+                    }
+                }
+            }catch(Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(PropietarioService), nameof(getPropietarioPorDni));
+                return (ex.Message, null);
+            }
         }
 
         //OBTENER TODOS LOS PROPIETARIOS JOINT PERSONA POR ID PERSONA

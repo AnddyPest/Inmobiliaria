@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace project.Models
 {
 
-    public class Propietario(string nombre, string apellido, int dni, string telefono, string direccion, string email, bool logico, bool logicoProp, Persona persona)
+    public class Propietario(string nombre, string apellido, int dni, string telefono, string direccion, string email, bool logico, bool EstadoPropietario, Persona persona)
         : Persona(nombre, apellido, dni, telefono, direccion, email, logico)
     {
         [Key]
@@ -14,7 +14,7 @@ namespace project.Models
         public List<Inmueble> Inmuebles { get; set; } = [];
         public Persona Persona { get; set; } = persona;
         
-        public bool LogicoProp { get; set; } = logicoProp;
+        public bool EstadoPropietario { get; set; } = EstadoPropietario;
 
         // Constructor vacío -> por defecto true para los flags lógicos
         public Propietario() : this(default!, default!, default, default!, default!, default!, default!, default!, default!) { }

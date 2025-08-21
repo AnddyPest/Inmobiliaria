@@ -166,5 +166,15 @@ namespace project.Controllers
         { 
             return View("~/Views/Inquilinos/NewInquilino.cshtml");
         }
+        [HttpGet("Inquilinos/Update")]
+        public IActionResult VistaActualizarInquilino()
+        {
+            return View("~/Views/Inquilinos/EditInquilinos.cshtml");
+        }
+        [HttpGet("Inquilinos/Gestion")]
+        public IActionResult VistaGestionInquilinos()
+        {
+            return View("~/Views/Inquilinos/GestionInquilinos.cshtml");
+        }
     }
 }
