@@ -33,7 +33,12 @@ namespace project.Controllers
                 persona.IdPersona = personaRegistrada.IdPersona;
             }
             var propietario = await propietarioService.Alta(persona.IdPersona);
-            return Ok();
+            if(propietario == -1)
+            {
+                return Problem("No se creo el propietario");
+            } 
+
+            return Ok(persona);
         }
     }
 }
