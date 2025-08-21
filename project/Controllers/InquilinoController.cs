@@ -45,29 +45,46 @@ namespace project.Controllers
             return Ok(inquilino.Item2);
         }
         [HttpPost("Inquilinos/Create")]
-        public async Task<IActionResult> AddInquilino([FromBody] int idPersona) //crear persona y testear
+        public async Task<IActionResult> AddInquilino(Persona model)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
-            (string?, bool?) validacion = await inquilinoService.validarQueNoEsteAgregadoElInquilino(idPersona);
-            if (validacion.Item1 != null)
+
+            // 1. Buscar persona por DNI (Comprueba q la persona no exista para no crearla al pedo)
+            var personaExistente = await personaService.ObtenerPorDni(model.Dni);
+            int idPersona;
+
+            if (personaExistente != null)
             {
-                return BadRequest(validacion.Item1);
+                // Si existe, usa su id
+                idPersona = personaExistente.IdPersona;
             }
-            (string?, Persona?) persona = await personaService.GetPersonaById(idPersona, true);
-            if (persona.Item1 != null)
+            else
             {
-                return BadRequest(persona.Item1);
+                // Si no existe, la crea
+                int altaRes = await personaService.Alta(model);
+                if (altaRes <= 0)
+                    return BadRequest("No se pudo crear la persona.");
+
+                // Una vez creada, la buscamos y usamos su id
+                var nuevaPersona = await personaService.ObtenerPorDni(model.Dni);
+                if (nuevaPersona == null)
+                    return BadRequest("No se pudo obtener la persona creada.");
+                idPersona = nuevaPersona.IdPersona;
             }
-            (string?, Inquilino?) result = await inquilinoService.AddInquilino(persona.Item2!);
-            if (result.Item1 != null)
-            {
-                HelperFor.imprimirMensajeDeError(result.Item1, nameof(InquilinoController), nameof(AddInquilino));
-                return BadRequest(result.Item1);
-            }
-            return Ok(result.Item2);
+
+            // 2. Validamos q ya no sea inquilino para no agregarlo al pedo
+            (string? validacion, bool puedeAgregar) = await inquilinoService.validarQueNoEsteAgregadoElInquilino(idPersona);
+            if (!puedeAgregar)
+                return BadRequest(validacion);
+
+            // 3. si no es inquilino, si no lo es, lo agregamos.
+            model.IdPersona = idPersona;
+            (string? errorInq, Inquilino? inquilino) = await inquilinoService.AddInquilino(model);
+            if (errorInq != null)
+                return BadRequest(errorInq);
+
+            return RedirectToAction("Inquilinos");
         }
         [HttpPost("Inquilinos/Update")]
         public async Task<IActionResult> UpdateInquilino([FromBody] Persona persona)

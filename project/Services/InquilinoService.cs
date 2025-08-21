@@ -60,7 +60,7 @@ namespace project.Services
                     {
                         command.CommandType = CommandType.Text;
                         command.Parameters.AddWithValue("@idPersona", persona.IdPersona);
-                        command.Parameters.AddWithValue("@estado", persona.Estado);
+                        command.Parameters.AddWithValue("@estado", true);
                         await connection.OpenAsync();
                         var result = Convert.ToInt32(await command.ExecuteScalarAsync());
                         Inquilino inquilino = new Inquilino
