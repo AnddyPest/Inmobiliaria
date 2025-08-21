@@ -16,7 +16,7 @@ namespace project.Controllers
         }
 
         [HttpGet("Propietario/Add")]
-        public async Task<IActionResult> AgregarPropietario(Persona persona)
+        public async Task<IActionResult> AgregarPropietario([FromBody] Persona persona)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (persona.Dni <= 0) return BadRequest("Se requiere dni y debe ser mayor que 0");

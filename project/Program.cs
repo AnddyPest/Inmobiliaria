@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using MySqlConnector;
 using Microsoft.Extensions.Configuration;
-using project.Data;
+
 using project.Services;
 using project.Models.Interfaces;
 using Microsoft.AspNetCore.Builder;
@@ -18,7 +18,7 @@ if (builder.Environment.IsDevelopment())
 }
 
 // ADO.NET de la carpeta DATA
-builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
+
 builder.Services.AddSingleton<IInquilinoService, InquilinoService>();
 builder.Services.AddSingleton<IPersonaService, PersonaService>();
 builder.Services.AddSingleton<IPropietarioService, PropietarioService>();

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Web;
 using MySql.Data.MySqlClient;
-using project.Data;
+
 using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
