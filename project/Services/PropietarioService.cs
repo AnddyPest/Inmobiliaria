@@ -11,7 +11,46 @@ namespace project.Services
     {
         private string _connectionString = config.GetConnectionString("Connection") ?? throw new InvalidOperationException("Connection string 'Connection' not found.");
         private IPersonaService personaService = personaService;
-
+        public async Task<IList<Propietario>> ObtenerTodos()
+        {
+            IList<Propietario> propietarios = new List<Propietario>();
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    string query = @"SELECT p.*, per.* FROM propietario p
+                                     JOIN persona per ON p.idPersona = per.idPersona
+                                     WHERE p.estado = true;";
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        await conn.OpenAsync();
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                Propietario propietario = new Propietario
+                                {
+                                    IdPropietario = reader.GetInt32("idPropietario"),
+                                    Persona = new Persona
+                                    {
+                                        IdPersona = reader.GetInt32("idPersona"),
+                                        Nombre = reader.GetString("nombre"),
+                                        Apellido = reader.GetString("apellido"),
+                                        Dni = reader.GetInt32("dni")
+                                    }
+                                };
+                                propietarios.Add(propietario);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en ObtenerTodos Propietario: {ex.Message}");
+            }
+            return propietarios;
+        }
         public async Task<(string?, Propietario?)> getPropietarioById(int idPropietario)
         {
             try
@@ -174,35 +213,7 @@ namespace project.Services
             return res;
         }
 
-        //BAJA LOGICA PROPIETARIO
-        public async Task<int> BajaLogica(int idPropietario)
-        {
-            int res = -1;
-            try
-            {
-                (string?,Propietario?) propietario = await this.getPropietarioById(idPropietario);
-                if(propietario.Item1 != null)
-                {
-                    Console.WriteLine(propietario.Item1);
-                    return res;
-                }
-                using (MySqlConnection conn = new MySqlConnection(_connectionString))
-                {
-                    string query = @"UPDATE propietario SET estado = false WHERE idPropietario = @idPropietario;";
-                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@idPropietario", idPropietario);
-                        await conn.OpenAsync();
-                        res = await cmd.ExecuteNonQueryAsync();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error en Baja Propietario: {ex.Message}");
-            }
-            return res;
-        }
+        
 
         public Task<int> Editar(Propietario propietario)
         {
@@ -250,7 +261,7 @@ namespace project.Services
                         command.CommandType = CommandType.Text;
                         command.Parameters.AddWithValue("@idPersona", persona.IdPersona);
                         await connection.OpenAsync();
-                        Propietario propietario = null;
+                        Propietario? propietario = null;
                         using (var reader = await command.ExecuteReaderAsync())
                         {
                             if (await reader.ReadAsync())
@@ -280,53 +291,53 @@ namespace project.Services
         }
 
         //OBTENER TODOS LOS PROPIETARIOS JOINT PERSONA POR ID PERSONA
-        public async Task<IList<Propietario>> ObtenerTodos()
+        //BAJA LOGICA PROPIETARIO
+        public async Task<(string?, Boolean)> BajaLogica(int idPropietario)
         {
-            IList<Propietario> propietarios = new List<Propietario>();
+            int res = -1;
             try
             {
+                (string?, Propietario?) propietario = await this.getPropietarioById(idPropietario);
+                if (propietario.Item1 != null)
+                {
+                    Console.WriteLine(propietario.Item1);
+                    return (propietario.Item1, false);
+                }
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
-                    string query = @"SELECT p.*, per.* FROM propietario p
-                                     JOIN persona per ON p.idPersona = per.idPersona
-                                     WHERE p.estado = true;";
+                    string query = @"UPDATE propietario SET estado = false WHERE idPropietario = @idPropietario;";
                     using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
+                        cmd.Parameters.AddWithValue("@idPropietario", idPropietario);
                         await conn.OpenAsync();
-                        using (var reader = await cmd.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                Propietario propietario = new Propietario
-                                {
-                                    IdPropietario = reader.GetInt32("idPropietario"),
-                                    Persona = new Persona
-                                    {
-                                        IdPersona = reader.GetInt32("idPersona"),
-                                        Nombre = reader.GetString("nombre"),
-                                        Apellido = reader.GetString("apellido"),
-                                        Dni = reader.GetInt32("dni")
-                                    }
-                                };
-                                propietarios.Add(propietario);
-                            }
-                        }
+                        res = await cmd.ExecuteNonQueryAsync();
+                    }
+                    if(res == 0)
+                    {
+                        return ("No se pudo dar de baja logica al propietario", false);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error en ObtenerTodos Propietario: {ex.Message}");
+                Console.WriteLine($"Error en Baja Propietario: {ex.Message}");
+                return (ex.Message, false);
             }
-            return propietarios;
+            return (null,true);
         }
 
         //REESTABLECIMIENTO LOGICO
-        public async Task<int> AltaLogica(int idPropietario)
+        public async Task<(string?, Boolean)> AltaLogica(int idPropietario)
         {
             int res = 0;
             try
             {
+                (string?, Propietario?) propietario = await this.getPropietarioById(idPropietario);
+                if (propietario.Item1 != null)
+                {
+                    Console.WriteLine(propietario.Item1);
+                    return (propietario.Item1, false);
+                }
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
                     string query = @"UPDATE propietario SET estado = true WHERE idPropietario = @idPropietario;";
@@ -336,13 +347,18 @@ namespace project.Services
                         await conn.OpenAsync();
                         res = await cmd.ExecuteNonQueryAsync();
                     }
+                    if (res == 0)
+                    {
+                        return ("No se pudo dar de alta logica al propietario", false);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error en Reestablecer Propietario: {ex.Message}");
+                return (ex.Message, false);
             }
-            return res;
+            return (null,true);
         }
     }
 }
