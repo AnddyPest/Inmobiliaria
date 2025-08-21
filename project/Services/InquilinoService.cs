@@ -44,7 +44,57 @@ namespace project.Services
                 return (ex.Message, false);
             }
         }
-
+        public async Task<(string?, Inquilino?)> getInquilinoByIdPersona(int idPersona)
+        {
+            try
+            {
+                if(idPersona <= 0)
+                {
+                    return ("El ID de la persona debe ser mayor que 0.", null);
+                }
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @"SELECT p.*, i.estado as estado_inquilino, i.idInquilino
+                                    FROM persona as p
+                                    INNER JOIN inquilino i ON p.idPersona = i.idPersona
+                                    WHERE p.idPersona = @idPersona";
+                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@idPersona", idPersona);
+                        await connection.OpenAsync();
+                        Inquilino inquilinoFromDatabase = new Inquilino();
+                        using(var reader = await command.ExecuteReaderAsync())
+                        {
+                            if(await reader.ReadAsync())
+                            {
+                                inquilinoFromDatabase.IdInquilino = reader.GetInt32("idInquilino");
+                                inquilinoFromDatabase.IdPersona = reader.GetInt32("idPersona");
+                                inquilinoFromDatabase.Nombre = reader.GetString("Nombre");
+                                inquilinoFromDatabase.Apellido = reader.GetString("Apellido");
+                                inquilinoFromDatabase.Dni = reader.GetInt32("Dni");
+                                inquilinoFromDatabase.Telefono = reader.GetString("Telefono");
+                                inquilinoFromDatabase.Direccion = reader.GetString("Direccion");
+                                inquilinoFromDatabase.Email = reader.GetString("Email");
+                                inquilinoFromDatabase.Estado = reader.GetBoolean("estado");
+                                inquilinoFromDatabase.EstadoInquilino = reader.GetBoolean("estado_inquilino");
+                            }
+                        }
+                        if(inquilinoFromDatabase.IdInquilino == 0 || inquilinoFromDatabase == null)
+                        {
+                            return ($"No se encontró un inquilino con ID de persona {idPersona}", null);
+                        }
+                        await connection.CloseAsync();
+                        return (null, inquilinoFromDatabase);
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InquilinoService), nameof(getInquilinoByIdPersona));
+                return (ex.Message, null);
+            }
+        }
         public async Task<(string?, Inquilino?)> AddInquilino(Persona persona) //Solo hay que enviarle idPersona y el estado(opcional)
         {
             try

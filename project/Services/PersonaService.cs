@@ -77,7 +77,7 @@ namespace project.Services
             {
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
-                    string query = @"UPDATE Persona SET Nombre = @Nombre, Apellido = @Apellido, Dni = @Dni, Telefono = @Telefono, Direccion = @Direccion, Email = @Email WHERE Id = @Id";
+                    string query = @"UPDATE Persona SET Nombre = @Nombre, Apellido = @Apellido, Dni = @Dni, Telefono = @Telefono, Direccion = @Direccion, Email = @Email WHERE IdPersona = @idPersona";
                     using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@Nombre", persona.Nombre);
@@ -86,8 +86,13 @@ namespace project.Services
                         cmd.Parameters.AddWithValue("@Telefono", persona.Telefono);
                         cmd.Parameters.AddWithValue("@Direccion", persona.Direccion);
                         cmd.Parameters.AddWithValue("@Email", persona.Email);
+                        cmd.Parameters.AddWithValue("@idPersona", persona.IdPersona);
                         await conn.OpenAsync();
                         res = await cmd.ExecuteNonQueryAsync();
+                        if(res == 0)
+                        {
+                            return -1; // No se actualizó ninguna fila, lo que indica que la persona no existe o no se modificó.
+                        }
                     }
                 }
             }

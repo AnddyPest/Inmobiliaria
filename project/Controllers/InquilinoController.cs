@@ -89,10 +89,21 @@ namespace project.Controllers
         [HttpPost("Inquilinos/Update")]
         public async Task<IActionResult> UpdateInquilino([FromBody] Persona persona)
         {
-            if (!ModelState.IsValid)
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            Console.WriteLine(persona.Dni);
+            if (persona.Dni <= 0) return BadRequest("Se requiere el Dni de la persona");
+            
+            var existingPersona = await personaService.ObtenerPorDni(persona.Dni);
+            if (existingPersona == null) return BadRequest("No se encuentra registrada la persona");
+            
+            (string?,Inquilino?) inquilinoResult = await inquilinoService.getInquilinoByIdPersona(existingPersona.IdPersona);
+            if(inquilinoResult.Item1 != null)
             {
-                return BadRequest(ModelState);
+                HelperFor.imprimirMensajeDeError(inquilinoResult.Item1, nameof(InquilinoController), nameof(UpdateInquilino));
+                return BadRequest(inquilinoResult.Item1);
             }
+            persona.IdPersona = existingPersona.IdPersona;
             int result = await personaService.Editar(persona);
             if (result == -1)
             {
