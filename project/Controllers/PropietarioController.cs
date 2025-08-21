@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using project.Dtos.Propietario;
 using project.Models;
 using project.Models.Interfaces;
 using System.Threading.Tasks;
@@ -7,15 +8,15 @@ namespace project.Controllers
 {
     public class PropietarioController : Controller
     {
-        IPropietarioService propietarioService;
-        IPersonaService personaService;
+        private IPropietarioService propietarioService;
+        private IPersonaService personaService;
         public PropietarioController(IPropietarioService propietarioServ, IPersonaService personaService)
         {
             this.propietarioService = propietarioServ;
             this.personaService = personaService;
         }
 
-        [HttpGet("Propietario/Add")]
+        [HttpPost("Propietario/Add")]
         public async Task<IActionResult> AgregarPropietario([FromBody] Persona persona)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -40,5 +41,24 @@ namespace project.Controllers
 
             return Ok(persona);
         }
-    }
+        [HttpPost("Propietario/Update")]
+        public async Task<IActionResult> ActualizarPropietario([FromBody] Persona personaEnviadaDesdeElFront)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (personaEnviadaDesdeElFront.Dni <= 0) return BadRequest("Se requiere dni y debe ser mayor que 0");
+            Persona? personaDesdeDB = await personaService.ObtenerPorDni(personaEnviadaDesdeElFront.Dni);
+            
+            if(personaDesdeDB == null) return NotFound("No se encuentra registrada la persona");
+            
+            personaEnviadaDesdeElFront.IdPersona = personaDesdeDB.IdPersona;
+            int codeResult = await personaService.Editar(personaEnviadaDesdeElFront);
+            if (codeResult == -1) return Problem("No se actualizo al propietario");
+
+            (string ? ,Propietario ?) propietario = await propietarioService.getPropietarioByIdPersona(personaEnviadaDesdeElFront.IdPersona);
+            if(propietario.Item1 != null)
+            {
+                return Problem(propietario.Item1);
+            }
+            return Ok(propietario.Item2);
+        }
 }
