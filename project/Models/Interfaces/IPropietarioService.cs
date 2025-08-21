@@ -4,7 +4,7 @@ namespace project.Models.Interfaces
     {
         Task<(string?, bool)> validarQueNoEsteAgregadoElPropietario(int idPersona);
         Task<(string?, Propietario?)> getPropietarioByIdPersona(int idPersona);
-        Task<int> Alta(Propietario propietario);
+        Task<int> Alta(int idPersona);
         Task<int> Baja(int idPropietario);
         Task<int> Reestablecer(int idPropietario);
         Task<int> Editar(Propietario propietario);

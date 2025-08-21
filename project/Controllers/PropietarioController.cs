@@ -21,13 +21,19 @@ namespace project.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (persona.Dni <= 0) return BadRequest("Se requiere dni y debe ser mayor que 0");
             Persona? personaRegistrada = await personaService.ObtenerPorDni(persona.Dni);
+            
             if(personaRegistrada == null)
             {
                 int codeResult = await personaService.Alta(persona);
                 if (codeResult == -1) return Problem("No se registro a la persona");
                 persona.IdPersona = codeResult;
             }
-            
+            else
+            {
+                persona.IdPersona = personaRegistrada.IdPersona;
+            }
+            var propietario = await propietarioService.Alta(persona.IdPersona);
+            return Ok();
         }
     }
 }
