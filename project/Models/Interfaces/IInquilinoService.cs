@@ -8,5 +8,6 @@
         Task<(string?, List<Inquilino>)> GetAllInquilinos();
         Task<(string?, Inquilino?)> AddInquilino(Persona persona);
         Task<(string?, bool?)> LogicalDeleteInquilino(int idInquilino);
+        Task<(string?, bool?)> AltaLogicaInquilino(int idInquilino);
     }
 }

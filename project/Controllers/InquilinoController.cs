@@ -45,7 +45,7 @@ namespace project.Controllers
             return Ok(inquilino.Item2);
         }
         [HttpPost("Inquilinos/Create")]
-        public async Task<IActionResult> AddInquilino(Persona model)
+        public async Task<IActionResult> AddInquilino(Persona model) //Testeado y funcional
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -87,7 +87,7 @@ namespace project.Controllers
             return RedirectToAction("Inquilinos");
         }
         [HttpPost("Inquilinos/Update")]
-        public async Task<IActionResult> UpdateInquilino([FromBody] Persona persona)
+        public async Task<IActionResult> UpdateInquilino([FromBody] Persona persona)//Testeado y funcional
         {
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -110,13 +110,20 @@ namespace project.Controllers
                 HelperFor.imprimirMensajeDeError("No se actualizo la persona", nameof(InquilinoController), nameof(UpdateInquilino));
                 return BadRequest("No se actualizo la persona");
             }
+            (string?, Inquilino?) inquilinoUpdate = await inquilinoService.getInquilinoByIdPersona(existingPersona.IdPersona);
+            if (inquilinoResult.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(inquilinoResult.Item1, nameof(InquilinoController), nameof(UpdateInquilino));
+                return BadRequest(inquilinoResult.Item1);
+            }
 
-            return Ok("Inquilino actualizado con exito");
+            return Ok(inquilinoUpdate.Item2);
         }
-        [HttpPost]
-        public async Task<IActionResult> LogicalDeleteInquilino(int idInquilino)
+        [HttpPost("Inquilinos/Baja")]
+        public async Task<IActionResult> LogicalDeleteInquilino([FromBody] int idInquilino) //Testeado y funcional
         {
-
+            if (idInquilino <= 0) return BadRequest("Error Message: Se requiere idInquilino y debe ser mayor a 0");
+            
             (string?, bool?) result = await inquilinoService.LogicalDeleteInquilino(idInquilino);
             if (result.Item1 != null)
             {
@@ -127,7 +134,24 @@ namespace project.Controllers
             {
                 return NotFound();
             }
-            return Ok("El inquilino ha sido eliminado lógicamente.");
+            return Ok("El inquilino ha sido dado de baja lógicamente.");
+        }
+        [HttpPost("Inquilinos/Alta")]
+        public async Task<IActionResult> AltaLogicaInquilino([FromBody] int idInquilino) //Testeado y funcional
+        {
+            if (idInquilino <= 0) return BadRequest("Error Message: Se requiere idInquilino y debe ser mayor a 0");
+
+            (string?, bool?) result = await inquilinoService.AltaLogicaInquilino(idInquilino);
+            if (result.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(result.Item1, nameof(InquilinoController), nameof(AltaLogicaInquilino));
+                return BadRequest(result.Item1);
+            }
+            if (result.Item2 == false)
+            {
+                return NotFound();
+            }
+            return Ok("El inquilino ha sido dado de alta lógicamente.");
         }
         //Vistas
         [HttpGet("Inquilinos")]

@@ -241,17 +241,16 @@ namespace project.Services
 
         public async Task<(string?, bool?)> LogicalDeleteInquilino(int idInquilino)
         {
-            if(idInquilino <= 0)
-            {
-                return ("El ID del inquilino debe ser mayor que 0.", null);
-            }
+            if (idInquilino <= 0) return ("El ID del inquilino debe ser mayor que 0.", null);
             try
             {
+                (string?, Inquilino?) inquilino = await this.GetInquilinoById(idInquilino);
+                if (inquilino.Item1 != null) return ($"El inquilino no se encuentra registrado con el Id: {idInquilino}", null);
 
                 await using var conn = new MySqlConnection(_connectionString);
                 await conn.OpenAsync();
 
-                const string sql = "UPDATE Inquilino SET Estado = 0 WHERE IdInquilino = @id;";
+                const string sql = "UPDATE inquilino SET estado = false WHERE idInquilino = @id;";
                 await using var cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@id", idInquilino);
 
@@ -262,6 +261,29 @@ namespace project.Services
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, nameof(InquilinoService), nameof(GetInquilinoById));
                 return ($"Error al obtener el inquilino con ID {idInquilino}: {ex}", null);
+            }
+        }
+        public async Task<(string?,bool?)> AltaLogicaInquilino(int idInquilino)
+        {
+            if (idInquilino <= 0) return ("El ID del inquilino debe ser mayor que 0.", null);
+            try
+            {
+                (string?, Inquilino?) inquilino = await this.GetInquilinoById(idInquilino);
+                if (inquilino.Item1 != null) return ($"El inquilino no se encuentra registrado con el Id: {idInquilino}", null);
+                await using var conn = new MySqlConnection(_connectionString);
+                await conn.OpenAsync();
+
+                const string sql = "UPDATE inquilino SET estado = true WHERE idInquilino = @id;";
+                await using var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@id", idInquilino);
+
+                var rows = await cmd.ExecuteNonQueryAsync();
+                return (null, rows > 0);
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InquilinoService), nameof(AltaLogicaInquilino));
+                return (ex.Message, null);
             }
         }
 
