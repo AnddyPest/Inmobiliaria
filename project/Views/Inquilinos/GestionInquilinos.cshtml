@@ -1,0 +1,67 @@
+@model List<project.Models.Inquilino>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Font Awesome CDN -->
+    <script src="https://kit.fontawesome.com/ba328774a1.js" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inquilinos</title>
+
+    
+</head>
+<body>
+    <div class="d-flex flex-column p-2 border border-success-subtle rounded" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
+
+        <h3 class="text-primary mb-3">Listado de Inquilinos</h3>
+        <table class="table table-dark table-stripped">
+            <thead>
+                <tr class="text-center">
+                    <th style="width: 10%;">Nombre</th>
+                    <th style="width: 10%;">Apellido</th>
+                    <th style="width: 10%;">DNI</th>
+                    <th style="width: 10%;">Teléfono</th>
+                    <th style="width: 10%;">Dirección</th>
+                    <th style="width: 15%;">Email</th>
+                    <th style="width: 10%;">Estado</th>
+                    <th style="width: 10%;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var inquilino in Model)
+                {
+                    <tr class="text-center">
+                        <td>@inquilino.Nombre</td>
+                        <td>@inquilino.Apellido</td>
+                        <td>@inquilino.Dni</td>
+                        <td>@inquilino.Telefono</td>
+                        <td>@inquilino.Direccion</td>
+                        <td>@inquilino.Email</td>
+                        <td>
+                            @if (@inquilino.EstadoInquilino)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactivo</span>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary me-1" onclick="window.location.href='/Inquilinos/Update?id=@inquilino.IdInquilino'"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn btn-sm btn-danger me-1" onclick="eliminarInquilino(@inquilino.IdInquilino)"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn btn-sm btn-warning" onclick="verContratosInquilino(@inquilino.IdInquilino)"><i class="fa-solid fa-key"></i></button>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="row justify-content-end w-100">
+            <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/Inquilinos'">Cancelar</button>
+        </div>
+    </div>
+
+   
+</body>
+</html>

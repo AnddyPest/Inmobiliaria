@@ -16,7 +16,7 @@ namespace project.Controllers
             this.personaService = personaService;
 
         }
-        [HttpGet]
+        [HttpGet("inquilino/listar")]
         public async Task<IActionResult> GetAllInquilinos() //Testeado y funcional
         {
 
@@ -27,7 +27,7 @@ namespace project.Controllers
                 return BadRequest(inquilinos.Item1);
             }
             Console.WriteLine(inquilinos.Item2);
-            return Ok(inquilinos.Item2);
+            return View("~/Views/Inquilinos/GestionInquilinos.cshtml", inquilinos.Item2);
         }
         [HttpGet]
         public async Task<IActionResult> GetInquilinoById(int idInquilino) //Testeado y funcional
@@ -44,7 +44,7 @@ namespace project.Controllers
             }
             return Ok(inquilino.Item2);
         }
-        [HttpPost("Inquilinos/Create")]
+        [HttpPost("inquilino/Create")]
         public async Task<IActionResult> AddInquilino(Persona model) //Testeado y funcional
         {
             if (!ModelState.IsValid)
@@ -84,9 +84,9 @@ namespace project.Controllers
             if (errorInq != null)
                 return BadRequest(errorInq);
 
-            return RedirectToAction("Inquilinos");
+            return RedirectToAction("");
         }
-        [HttpPost("Inquilinos/Update")]
+        [HttpPost("inquilino/Update")]
         public async Task<IActionResult> UpdateInquilino([FromBody] Persona persona)//Testeado y funcional
         {
 
@@ -119,7 +119,7 @@ namespace project.Controllers
 
             return Ok(inquilinoUpdate.Item2);
         }
-        [HttpPost("Inquilinos/Baja")]
+        [HttpPost("inquilino/Baja")]
         public async Task<IActionResult> LogicalDeleteInquilino([FromBody] int idInquilino) //Testeado y funcional
         {
             if (idInquilino <= 0) return BadRequest("Error Message: Se requiere idInquilino y debe ser mayor a 0");
@@ -136,7 +136,7 @@ namespace project.Controllers
             }
             return Ok("El inquilino ha sido dado de baja lógicamente.");
         }
-        [HttpPost("Inquilinos/Alta")]
+        [HttpPost("inquilino/Alta")]
         public async Task<IActionResult> AltaLogicaInquilino([FromBody] int idInquilino) //Testeado y funcional
         {
             if (idInquilino <= 0) return BadRequest("Error Message: Se requiere idInquilino y debe ser mayor a 0");
@@ -154,27 +154,23 @@ namespace project.Controllers
             return Ok("El inquilino ha sido dado de alta lógicamente.");
         }
         //Vistas
-        [HttpGet("Inquilinos")]
+        [HttpGet("Inquilino")]
         public IActionResult VistaInquilinos()
         {
             return View("~/Views/Inquilinos/IndexInquilinos.cshtml");
         }
 
         //New
-        [HttpGet("Inquilinos/New")]
+        [HttpGet("inquilino/New")]
         public IActionResult VistaNuevoInquilino()
         { 
             return View("~/Views/Inquilinos/NewInquilino.cshtml");
         }
-        [HttpGet("Inquilinos/Update")]
+        [HttpGet("inquilino/Update")]
         public IActionResult VistaActualizarInquilino()
         {
             return View("~/Views/Inquilinos/EditInquilinos.cshtml");
         }
-        [HttpGet("Inquilinos/Gestion")]
-        public IActionResult VistaGestionInquilinos()
-        {
-            return View("~/Views/Inquilinos/GestionInquilinos.cshtml");
-        }
+        
     }
 }
