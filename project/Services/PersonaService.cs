@@ -18,7 +18,8 @@ namespace project.Services
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
                     string query = @"INSERT INTO Persona (Nombre, Apellido, Dni, Telefono, Direccion, Email, Estado) 
-                                    VALUES (@Nombre, @Apellido, @Dni, @Telefono, @Direccion, @Email, @Estado)";
+                                    VALUES (@Nombre, @Apellido, @Dni, @Telefono, @Direccion, @Email, @Estado);
+                                    Select last_insert_id();";
                     using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@Nombre", persona.Nombre);
@@ -29,7 +30,8 @@ namespace project.Services
                         cmd.Parameters.AddWithValue("@Email", persona.Email);
                         cmd.Parameters.AddWithValue("@Estado", true);
                         await conn.OpenAsync();
-                        res = await cmd.ExecuteNonQueryAsync();
+                        res = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                        
                     }
                 }
             }
