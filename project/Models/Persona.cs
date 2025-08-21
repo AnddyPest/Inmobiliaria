@@ -31,8 +31,13 @@ namespace project.Models
 
         public Boolean Estado { get; set; } = estado;
 
-    public Persona() : this(default!, default!, default, default!, default!, default!, default!) { }
+        public override string ToString()
+        {
+            return $"\nIdPersona: {IdPersona} - Nombre: {Nombre} {Apellido} - DNI: {Dni} - Telefono: {Telefono} - Email: {Email} - Direccion: {Direccion} - Estado: {Estado}";
+        }
+        public Persona() : this(default!, default!, default, default!, default!, default!, default!) { }
 
     }
+    
     
 }

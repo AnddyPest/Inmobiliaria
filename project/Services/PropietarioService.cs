@@ -186,11 +186,13 @@ namespace project.Services
         }
 
         //ALTA PROPIETARIO
-        public async Task<int> Alta(int idPersona)
+        public async Task<(string?,Boolean)> Alta(int idPersona)
         {
             int res = -1;
             try
-            {
+            {;
+                (string?, Boolean) validacionPropietarioRepetido = await this.validarQueNoEsteAgregadoElPropietario(idPersona);
+                if (validacionPropietarioRepetido.Item1 != null) return (validacionPropietarioRepetido.Item1, validacionPropietarioRepetido.Item2);
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
                     string query = @"INSERT INTO propietario (idPersona, estado) VALUES (@idPersona, @estado);
@@ -202,15 +204,17 @@ namespace project.Services
                         await conn.OpenAsync();
                         object? idGenerated = await cmd.ExecuteScalarAsync();
                         res = Convert.ToInt32(idGenerated);
+                        if (res == -1 || res == 0) return ("No se dio de alta al propietario", false);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error en Alta Propietario: {ex.Message}");
-
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(PropietarioService), nameof(Alta));
+                return (ex.Message, false);
             }
-            return res;
+            
+            return ("Propietario dado de alta correctamente", true);
         }
 
         

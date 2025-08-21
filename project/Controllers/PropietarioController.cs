@@ -17,7 +17,7 @@ namespace project.Controllers
         }
 
         [HttpPost("Propietario/Add")]
-        public async Task<IActionResult> AgregarPropietario([FromBody] Persona persona) //testar
+        public async Task<IActionResult> AgregarPropietario([FromBody] Persona persona) //testear
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (persona.Dni <= 0) return BadRequest("Se requiere dni y debe ser mayor que 0");
@@ -26,39 +26,33 @@ namespace project.Controllers
             if (personaRegistrada == null)
             {
                 int codeResult = await personaService.Alta(persona);
-                if (codeResult == -1) return Problem("No se registro a la persona");
+                if (codeResult == -1) return BadRequest("No se registro a la persona");
                 persona.IdPersona = codeResult;
             }
             else
             {
                 persona.IdPersona = personaRegistrada.IdPersona;
             }
-            var propietario = await propietarioService.Alta(persona.IdPersona);
-            if (propietario == -1)
-            {
-                return Problem("No se creo el propietario");
-            }
+            (string?,Boolean) propietario = await propietarioService.Alta(persona.IdPersona);
+            if (propietario.Item1 != null && !propietario.Item2 ) return BadRequest(propietario.Item1);
 
-            return Ok(persona);
+            return Ok(propietario.Item1 + persona.ToString());
         }
         [HttpPost("Propietario/Update")]
         public async Task<IActionResult> ActualizarPropietario([FromBody] Persona personaEnviadaDesdeElFront) //testear
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (personaEnviadaDesdeElFront.Dni <= 0) return BadRequest("Se requiere dni y debe ser mayor que 0");
-            Persona? personaDesdeDB = await personaService.ObtenerPorDni(personaEnviadaDesdeElFront.Dni);
+            if (personaEnviadaDesdeElFront.IdPersona <= 0) return BadRequest("Se requiere idPersona y debe ser mayor que 0");
+            (string?, Persona?) personaDesdeDB = await personaService.GetPersonaById(personaEnviadaDesdeElFront.IdPersona,true);
+            if (personaDesdeDB.Item1 != null) return BadRequest(personaDesdeDB.Item1);
 
-            if (personaDesdeDB == null) return NotFound("No se encuentra registrada la persona");
-
-            personaEnviadaDesdeElFront.IdPersona = personaDesdeDB.IdPersona;
+            
             int codeResult = await personaService.Editar(personaEnviadaDesdeElFront);
             if (codeResult == -1) return Problem("No se actualizo al propietario");
 
             (string?, Propietario?) propietario = await propietarioService.getPropietarioByIdPersona(personaEnviadaDesdeElFront.IdPersona);
-            if (propietario.Item1 != null)
-            {
-                return Problem(propietario.Item1);
-            }
+            if (propietario.Item1 != null) return Problem(propietario.Item1);
+            
             return Ok(propietario.Item2);
         }
 
