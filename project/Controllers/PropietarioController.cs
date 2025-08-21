@@ -67,10 +67,18 @@ namespace project.Controllers
         {
 
             if (idPropietario <= 0) return BadRequest("Se requiere idPropietario y debe ser mayor a 0");
-            int codeResult = await propietarioService.BajaLogica(idPropietario);
-            if(codeResult == -1) return Problem("No se pudo dar de baja al propietario");
+            (string?,Boolean) codeResult = await propietarioService.BajaLogica(idPropietario);
+            if(!codeResult.Item2) return Problem(codeResult.Item1);
             
             return Ok("El propietario fue dado de baja correctamente");
+        }
+        [HttpPost("Propietario/Alta")]
+        public async Task<IActionResult> AltaPropietario([FromBody] int idPropietario) //testear
+        {
+            if (idPropietario <= 0) return BadRequest("Se requiere idPropietario y debe ser mayor a 0");
+            (string?,Boolean) codeResult = await propietarioService.AltaLogica(idPropietario);
+            if (!codeResult.Item2) return Problem(codeResult.Item1);
+            return Ok("El propietario fue dado de alta correctamente");
         }
     }
 }
