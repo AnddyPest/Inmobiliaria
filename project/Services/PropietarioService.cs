@@ -86,7 +86,7 @@ namespace project.Services
                         }
                         if (propietarioFromDatabase.IdPropietario == 0 || propietarioFromDatabase == null)
                         {
-                            return ($"No se encontró un propietario con ID {idPropietario}", null);
+                            return ($"No se encontrï¿½ un propietario con ID {idPropietario}", null);
                         }
                         await connection.CloseAsync();
                         return (null, propietarioFromDatabase);
@@ -171,7 +171,7 @@ namespace project.Services
                         }
                         if (propietarioFromDatabase.IdPropietario == 0 || propietarioFromDatabase == null)
                         {
-                            return ($"No se encontró un propietario con ID de persona {idPersona}", null);
+                            return ($"No se encontrï¿½ un propietario con ID de persona {idPersona}", null);
                         }
                         await connection.CloseAsync();
                         return (null, propietarioFromDatabase);
