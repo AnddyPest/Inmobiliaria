@@ -11,9 +11,9 @@ namespace project.Services
     {
         private string _connectionString = config.GetConnectionString("Connection") ?? throw new InvalidOperationException("Connection string 'Connection' not found.");
         private IPersonaService personaService = personaService;
-        public async Task<IList<Propietario>> ObtenerTodos()
+        public async Task<(string?,List<Propietario>)> ObtenerTodos()
         {
-            IList<Propietario> propietarios = new List<Propietario>();
+            List<Propietario> propietarios = new List<Propietario>();
             try
             {
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
@@ -49,7 +49,7 @@ namespace project.Services
             {
                 Console.WriteLine($"Error en ObtenerTodos Propietario: {ex.Message}");
             }
-            return propietarios;
+            return (null,propietarios);
         }
         public async Task<(string?, Propietario?)> getPropietarioById(int idPropietario)
         {
