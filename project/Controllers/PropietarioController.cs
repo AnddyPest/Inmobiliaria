@@ -20,7 +20,7 @@ namespace project.Controllers
         public async Task<IActionResult> ObtenerTodos() //Testeado y funcional
         {
 
-            (string?, List<Propietario>?) propietarios = await propietarioService.ObtenerTodos();
+            (string?, List<Propietario>) propietarios = await propietarioService.ObtenerTodos();
             if (propietarios.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(propietarios.Item1, nameof(PropietarioController), nameof(ObtenerTodos));

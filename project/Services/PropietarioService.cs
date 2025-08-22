@@ -18,9 +18,9 @@ namespace project.Services
             {
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
-                    string query = @"SELECT p.*, per.* FROM propietario p
-                                     JOIN persona per ON p.idPersona = per.idPersona
-                                     WHERE p.estado = true;";
+                    string query = @"Select p.*, prop.estado as estado_propietario, prop.idPropietario
+                                from persona as p 
+                                inner join propietario prop On p.idPersona = prop.idPersona";
                     using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
                         await conn.OpenAsync();
@@ -31,13 +31,18 @@ namespace project.Services
                                 Propietario propietario = new Propietario
                                 {
                                     IdPropietario = reader.GetInt32("idPropietario"),
-                                    Persona = new Persona
-                                    {
+                                    
+                                    
+                                        Telefono = reader.GetString("telefono"),
+                                        Email = reader.GetString("email"),
+                                        Direccion = reader.GetString("direccion"),
+                                        Estado = reader.GetBoolean("estado"),
+                                        EstadoPropietario = reader.GetBoolean("estado_propietario"),
                                         IdPersona = reader.GetInt32("idPersona"),
                                         Nombre = reader.GetString("nombre"),
                                         Apellido = reader.GetString("apellido"),
                                         Dni = reader.GetInt32("dni")
-                                    }
+                                    
                                 };
                                 propietarios.Add(propietario);
                             }

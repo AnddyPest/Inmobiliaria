@@ -240,7 +240,7 @@ namespace project.Services
                     string query = @"SELECT * FROM Persona WHERE Estado = @Estado";
                     using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@Estado", true);
+                        
                         await conn.OpenAsync();
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
