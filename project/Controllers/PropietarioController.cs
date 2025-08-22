@@ -50,7 +50,7 @@ namespace project.Controllers
             (string?, Boolean) propietario = await propietarioService.Alta(persona.IdPersona);
             if (propietario.Item1 != null && !propietario.Item2) return BadRequest(propietario.Item1);
 
-            return Ok(propietario.Item1 + persona.ToString());
+            return RedirectToAction("ObtenerTodos");
         }
         [HttpPost("Propietario/Update")]
         public async Task<IActionResult> ActualizarPropietario([FromBody] Persona personaEnviadaDesdeElFront) //testear

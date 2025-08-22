@@ -1,0 +1,228 @@
+@model List<project.Models.Propietario>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Font Awesome CDN -->
+    <script src="https://kit.fontawesome.com/ba328774a1.js" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inquilinos</title>
+<style>
+    /* Placeholder de DNI rojo y negrita cuando hay error texto: "SOLO NUMEROS"*/
+    #dniInput.placeholder-error::placeholder {
+        color: #dc3545 !important;
+        font-weight: bold;
+        opacity: 1;
+    }
+</style>
+
+    
+</head>
+<body>
+    <div class="d-flex flex-column p-2 border border-success-subtle rounded" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
+        <div class="row w-100">
+            <div class="col w-75">
+                <h3 class="text-primary mb-2 ms-3">Listado de Inquilinos</h3>
+            </div>
+            <!--SELECTOR TRIPLE PARA "TODOS" "ACTIVOS" "INACTIVOS"-->
+            <div class="col w-25 mt-2">
+                <div class="d-flex justify-content-end gap-3">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="estadoInquilino" id="estadoTodos" value="todos" checked>
+                        <label class="form-check-label" for="estadoTodos">Todos</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="estadoInquilino" id="estadoActivos" value="activos">
+                        <label class="form-check-label" for="estadoActivos">Activos</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="estadoInquilino" id="estadoInactivos" value="inactivos">
+                        <label class="form-check-label" for="estadoInactivos">Inactivos</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive p-2" style="min-height: 600px;">
+        <table class="table table-dark table-stripped" style="overflow-x: auto;">
+            <thead>
+                <tr class="text-center">
+                    <th style="width: 20%;">Nombre</th>
+                    
+                    <th style="width: 10%;">DNI</th>
+                    <th style="width: 10%;">Teléfono</th>
+                    <th style="width: 10%;">Dirección</th>
+                    <th style="width: 15%;">Email</th>
+                    <th style="width: 10%;">Estado</th>
+                    <th style="width: 10%;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var propietario in Model)
+                {
+                    <tr class="text-center">
+                        <td>@propietario.Nombre @propietario.Apellido</td>
+                        
+                        <td>@propietario.Dni</td>
+                        <td>@propietario.Telefono</td>
+                        <td>@propietario.Direccion</td>
+                        <td>@propietario.Email</td>
+                        <td>
+                            @if (@propietario.EstadoPropietario)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactivo</span>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary me-1" onclick="window.location.href='/Propietario/Update?id=@propietario.IdPersona'"><i class="fa-solid fa-pen-to-square"></i></button>
+                            @if (propietario.EstadoPropietario)
+                            {
+                                <button class="btn btn-sm btn-danger me-1" onclick="bajaEstadoPropietario(@propietario.IdPropietario)"><i class="fa-solid fa-trash"></i></button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-success me-1" onclick="altaEstadoPropietario(@propietario.IdPropietario)"><i class="fa-solid fa-recycle"></i></button>
+                            }
+
+                            <button class="btn btn-sm btn-warning" onclick="verContratosPropietario(@propietario.IdPropietario)"><i class="fa-solid fa-key"></i></button>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        </div>
+        <div class="row justify-content-end w-100">
+            <!--Filtro para buscar por DNI-->
+            <div class="col input w-25">
+                <input type="text" class="form-control" placeholder="Buscar por DNI" id="dniInput">
+                
+            </div>
+            <!--Filtro para buscar por nombre-->
+            <div class="col input w-25">
+                <input type="text" class="form-control" placeholder="Buscar por Nombre" id="nombreInput">
+                
+            </div>
+            <!--Boton de resetear filtros-->
+            <div class="col w-25">
+            <button type="button" class="btn btn-secondary shadow ms-1 me-1 w-100" onclick="window.location.reload()">Resetear</button>
+            </div>
+            <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/Inquilino'">Cancelar</button>
+        </div>
+    </div>
+
+   
+</body>
+</html>
+<script>
+// Filtro por estado con radio buttons tipo radiobuttons
+//Funcion para evitar que se ingresen NaN en el filtro por DNI, Solo adminte numeros del 0 - 9
+const dniInput = document.getElementById("dniInput");
+dniInput.addEventListener("input", function() {
+    const original = this.value;
+    const filtered = original.replace(/[^0-9]/g, '');
+    if (original !== filtered) {
+        // Feedback visual TEXTO EN ROJO Y BORDE EN ROJO "SOLO NÚMEROS"
+        const prevPlaceholder = this.placeholder;
+        this.value = filtered;
+        this.placeholder = "SOLO NÚMEROS";
+        this.classList.add("placeholder-error");
+        this.style.color = "#dc3545";
+        this.style.fontWeight = "bold";
+        this.style.borderColor = "#dc3545";
+        setTimeout(() => {
+            this.classList.remove("placeholder-error");
+            this.placeholder = prevPlaceholder;
+            this.style.color = "";
+            this.style.fontWeight = "";
+            this.style.borderColor = "";
+        }, 900);
+    }
+});
+
+
+// FILTROS ACUMULATIVOS PARA DNI Y NOMBRE y APELLIDO y AHORA TAMBIEN LOS RADIO BUTNS
+document.getElementById("dniInput").addEventListener("keyup", function() {
+    filtrarTabla();
+});
+document.getElementById("nombreInput").addEventListener("keyup", function() {
+    filtrarTabla();
+});
+document.querySelectorAll('input[name="estadoPropietario"]').forEach(function(radio) {
+    radio.addEventListener('change', filtrarTabla);
+});
+
+function filtrarTabla() {
+    var dni = document.getElementById("dniInput").value;
+    var nombre = document.getElementById("nombreInput").value.toLowerCase();
+    var estado = document.querySelector('input[name="estadoPropietario"]:checked').value;
+    var rows = document.querySelectorAll("table tbody tr");
+    rows.forEach(function(row) {
+        var cellNombre = row.querySelector("td:nth-child(1)");
+        var cellDni = row.querySelector("td:nth-child(2)");
+        var cellEstado = row.querySelector("td:nth-child(6) span");
+        var matchNombre = true;
+        var matchDni = true;
+        var matchEstado = true;
+        if (cellNombre) {
+            var cellNombreValue = cellNombre.textContent || cellNombre.innerText;
+            if (nombre && !cellNombreValue.toLowerCase().startsWith(nombre)) {
+                matchNombre = false;
+            }
+        }
+        if (cellDni) {
+            var cellDniValue = cellDni.textContent || cellDni.innerText;
+            if (dni && cellDniValue.indexOf(dni) === -1) {
+                matchDni = false;
+            }
+        }
+        if (cellEstado && estado !== 'todos') {
+            var estadoText = cellEstado.textContent.trim().toLowerCase();
+            if ((estado === 'activos' && estadoText !== 'activo') || (estado === 'inactivos' && estadoText !== 'inactivo')) {
+                matchEstado = false;
+            }
+        }
+        if (matchNombre && matchDni && matchEstado) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+
+//CONTROLADORES PARA METODOS DE ALTA Y BAJA A ENDPOINTS DEL CONTROLLER
+function bajaEstadoPropietario(idPropietario) {
+    fetch('/propietario/Baja', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(idPropietario)
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.reload();
+        }
+    });
+}
+
+function altaEstadoPropietario(idPropietario) {
+
+    fetch('/Propietario/Alta', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(idPropietario)
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.reload();
+        }
+    });
+}
+
+</script>
