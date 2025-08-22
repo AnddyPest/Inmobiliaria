@@ -11,7 +11,7 @@ namespace project.Models.Interfaces
         Task<(string?, Boolean)> AltaLogica(int idPropietario);
         Task<(string?, Propietario?)> getPropietarioPorDni(int dni);
 
-        Task<List<Propietario>> ObtenerTodos();
+        Task<(string?, List<Propietario>?)> ObtenerTodos();
         Task<int> ObtenerCantidad();
     }
 }
