@@ -119,9 +119,6 @@
 </html>
 <script>
 // Filtro por estado con radio buttons tipo radiobuttons
-document.querySelectorAll('input[name="estadoInquilino"]').forEach(function(radio) {
-    radio.addEventListener('change', filtrarTabla);
-});
 //Funcion para evitar que se ingresen NaN en el filtro por DNI, Solo adminte numeros del 0 - 9
 const dniInput = document.getElementById("dniInput");
 dniInput.addEventListener("input", function() {
@@ -147,12 +144,15 @@ dniInput.addEventListener("input", function() {
 });
 
 
-// FILTROS ACUMULATIVOS PARA DNI Y NOMBRE y APELLIDO
+// FILTROS ACUMULATIVOS PARA DNI Y NOMBRE y APELLIDO y AHORA TAMBIEN LOS RADIO BUTNS
 document.getElementById("dniInput").addEventListener("keyup", function() {
     filtrarTabla();
 });
 document.getElementById("nombreInput").addEventListener("keyup", function() {
     filtrarTabla();
+});
+document.querySelectorAll('input[name="estadoInquilino"]').forEach(function(radio) {
+    radio.addEventListener('change', filtrarTabla);
 });
 
 function filtrarTabla() {
