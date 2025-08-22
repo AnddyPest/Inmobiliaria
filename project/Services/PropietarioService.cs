@@ -11,9 +11,9 @@ namespace project.Services
     {
         private string _connectionString = config.GetConnectionString("Connection") ?? throw new InvalidOperationException("Connection string 'Connection' not found.");
         private IPersonaService personaService = personaService;
-        public async Task<IList<Propietario>> ObtenerTodos()
+        public async Task<List<Propietario>> ObtenerTodos()
         {
-            IList<Propietario> propietarios = new List<Propietario>();
+            List<Propietario> propietarios = new List<Propietario>();
             try
             {
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
@@ -86,7 +86,7 @@ namespace project.Services
                         }
                         if (propietarioFromDatabase.IdPropietario == 0 || propietarioFromDatabase == null)
                         {
-                            return ($"No se encontró un propietario con ID {idPropietario}", null);
+                            return ($"No se encontrï¿½ un propietario con ID {idPropietario}", null);
                         }
                         await connection.CloseAsync();
                         return (null, propietarioFromDatabase);
@@ -171,7 +171,7 @@ namespace project.Services
                         }
                         if (propietarioFromDatabase.IdPropietario == 0 || propietarioFromDatabase == null)
                         {
-                            return ($"No se encontró un propietario con ID de persona {idPersona}", null);
+                            return ($"No se encontrï¿½ un propietario con ID de persona {idPersona}", null);
                         }
                         await connection.CloseAsync();
                         return (null, propietarioFromDatabase);

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
+using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
 using System.Threading.Tasks;
@@ -16,8 +16,22 @@ namespace project.Controllers
             this.personaService = personaService;
         }
 
-        [HttpPost("Propietario/Add")]
-        public async Task<IActionResult> AgregarPropietario([FromBody] Persona persona) //testear
+        [HttpGet("inquilino/listar")]
+        public async Task<IActionResult> ObtenerTodos() //Testeado y funcional
+        {
+
+            (string?, List<Propietario>) propietarios = await propietarioService.ObtenerTodos();
+            if (propietarios.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(propietarios.Item1, nameof(PropietarioController), nameof(ObtenerTodos));
+                return BadRequest(propietarios.Item1);
+            }
+            Console.WriteLine(propietarios.Item2);
+            return View("~/Views/Propietarios/GestionPropietarios.cshtml", propietarios.Item2);
+        }
+
+        [HttpPost("Propietario/Create")]
+        public async Task<IActionResult> AgregarPropietario(Persona persona) //testear
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (persona.Dni <= 0) return BadRequest("Se requiere dni y debe ser mayor que 0");
@@ -78,6 +92,11 @@ namespace project.Controllers
         public IActionResult VistaPropietarios()
         {
             return View("~/Views/Propietarios/IndexPropietarios.cshtml");
+        }
+        [HttpGet("Propietario/New")]
+        public IActionResult NuevoPropietario()
+        {
+            return View("~/Views/Propietarios/NewPropietario.cshtml");
         }
     }
 }
