@@ -1,7 +1,8 @@
-using System.Data;
 using MySql.Data.MySqlClient;
+using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
+using System.Data;
 
 namespace project.Services
 {
@@ -15,6 +16,16 @@ namespace project.Services
             int res = -1;
             try
             {
+                if(await validarQueElDniNoEsteDuplicado(persona.Dni, null) is (string msg, Boolean valido) && !valido)
+                {
+                    HelperFor.imprimirMensajeDeError(msg, nameof(PersonaService), nameof(Alta));
+                    return -1;
+                }
+                if(await validarQueElGmailNoEsteDuplicado(persona.Email, null) is (string errorMessageGmail, Boolean gmailValido) && !gmailValido)
+                {
+                    HelperFor.imprimirMensajeDeError(errorMessageGmail, nameof(PersonaService), nameof(Alta));
+                    return -1;
+                }
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
                     string query = @"INSERT INTO Persona (Nombre, Apellido, Dni, Telefono, Direccion, Email, Estado) 
@@ -77,6 +88,16 @@ namespace project.Services
             }
             try
             {
+                if( await validarQueElDniNoEsteDuplicado(persona.Dni, persona.IdPersona) is (string msg, Boolean valido) && !valido)
+                {
+                    HelperFor.imprimirMensajeDeError(msg, nameof(PersonaService), nameof(Editar));
+                    return -1;
+                }
+                if(await validarQueElGmailNoEsteDuplicado(persona.Email, persona.IdPersona) is (string errorMessageGmail, Boolean gmailValido) && !gmailValido)
+                {
+                    HelperFor.imprimirMensajeDeError(errorMessageGmail, nameof(PersonaService), nameof(Editar));
+                    return -1;
+                }
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
                     string query = @"UPDATE Persona SET Nombre = @Nombre, Apellido = @Apellido, Dni = @Dni, Telefono = @Telefono, Direccion = @Direccion, Email = @Email WHERE IdPersona = @idPersona";
@@ -313,6 +334,89 @@ namespace project.Services
                 return ($"Error al obtener la persona con ID {idPersona}: {ex.Message}", null);
             }
             return (null,persona);
+        }
+        public async Task<(string?, Boolean)> validarQueElDniNoEsteDuplicado(int dni, int? idPersona)
+        {
+            try
+            {
+                if (dni <= 0) return ("El dni debe ser mayor que 0", false);
+                if (idPersona != null && idPersona <= 0) return ("El idPersona debe ser mayor que 0", false);
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = "";
+                    if(idPersona == null)
+                    {
+                        query = @"SELECT * FROM persona WHERE dni = @dni";
+                    }
+                    else
+                    {
+                        query = @"SELECT * FROM persona WHERE dni = @dni AND idPersona != @idPersona";
+                    }
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@dni", dni);
+                        if (idPersona != null)
+                            command.Parameters.AddWithValue("@idPersona", idPersona);
+                        await connection.OpenAsync();
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                return ("Ya existe una persona con ese DNI", false);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(PropietarioService), nameof(validarQueElDniNoEsteDuplicado));
+                return (ex.Message, false);
+            }
+            return (null, true);
+        }
+        public async Task<(string?, Boolean)> validarQueElGmailNoEsteDuplicado(string gmail, int? idPersona)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(gmail)) return ("El gmail no puede ser nulo o vacio", false);
+                if(idPersona.HasValue && idPersona.Value <= 0) return ("El idPersona debe ser mayor que 0", false);
+                
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = "";
+                    if(idPersona == null)
+                    {
+                        query = @"SELECT * FROM persona WHERE email = @gmail";
+                    }
+                    else
+                    {
+                        query = @"SELECT * FROM persona WHERE email = @gmail AND idPersona != @idPersona";
+                    }
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@gmail", gmail);
+                        if (idPersona != null)
+                            command.Parameters.AddWithValue("@idPersona", idPersona);
+                        await connection.OpenAsync();
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                return ("Ya existe una persona con ese Gmail", false);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(PropietarioService), nameof(validarQueElGmailNoEsteDuplicado));
+                return (ex.Message, false);
+            }
+            return (null, true);
         }
     }
 }

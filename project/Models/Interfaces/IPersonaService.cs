@@ -11,5 +11,7 @@ namespace project.Models.Interfaces
         Task<IList<Persona?>> ObtenerTodos();
         Task<int> Reestablecer(int idPersona);
         Task<(string?, Persona?)> GetPersonaById(int idPersona, bool estado);
+        Task<(string?, Boolean)> validarQueElDniNoEsteDuplicado(int dni, int? idPersona);
+        Task<(string?, Boolean)> validarQueElGmailNoEsteDuplicado(string gmail, int? idPersona);
     }
 }
