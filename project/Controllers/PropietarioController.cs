@@ -53,7 +53,7 @@ namespace project.Controllers
             return RedirectToAction("ObtenerTodos");
         }
         [HttpPost("Propietario/Update")]
-        public async Task<IActionResult> ActualizarPropietario([FromBody] Persona personaEnviadaDesdeElFront) //testear
+        public async Task<IActionResult> ActualizarPropietario(Persona personaEnviadaDesdeElFront) //testear
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (personaEnviadaDesdeElFront.IdPersona <= 0) return BadRequest("Se requiere idPersona y debe ser mayor que 0");
@@ -97,6 +97,13 @@ namespace project.Controllers
         public IActionResult NuevoPropietario()
         {
             return View("~/Views/Propietarios/NewPropietario.cshtml");
+        }
+        [HttpGet("Propietario/Update")]
+        public async Task<IActionResult> ActualizarPropietario(int id)
+        {
+            var persona = await propietarioService.getPropietarioByIdPersona(id);
+            if (persona.Item1 != null) return NotFound(persona.Item1);
+            return View("~/Views/Propietarios/editPropietarios.cshtml", persona.Item2);
         }
     }
 }
