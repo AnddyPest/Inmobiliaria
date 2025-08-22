@@ -11,7 +11,7 @@ namespace project.Services
     {
         private string _connectionString = config.GetConnectionString("Connection") ?? throw new InvalidOperationException("Connection string 'Connection' not found.");
         private IPersonaService personaService = personaService;
-        public async Task<(string?,List<Propietario>)> ObtenerTodos()
+        public async Task<(string?,List<Propietario>?)> ObtenerTodos()
         {
             List<Propietario> propietarios = new List<Propietario>();
             try
