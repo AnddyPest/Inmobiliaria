@@ -33,8 +33,8 @@ namespace project.Controllers
             {
                 persona.IdPersona = personaRegistrada.IdPersona;
             }
-            (string?,Boolean) propietario = await propietarioService.Alta(persona.IdPersona);
-            if (propietario.Item1 != null && !propietario.Item2 ) return BadRequest(propietario.Item1);
+            (string?, Boolean) propietario = await propietarioService.Alta(persona.IdPersona);
+            if (propietario.Item1 != null && !propietario.Item2) return BadRequest(propietario.Item1);
 
             return Ok(propietario.Item1 + persona.ToString());
         }
@@ -43,16 +43,16 @@ namespace project.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (personaEnviadaDesdeElFront.IdPersona <= 0) return BadRequest("Se requiere idPersona y debe ser mayor que 0");
-            (string?, Persona?) personaDesdeDB = await personaService.GetPersonaById(personaEnviadaDesdeElFront.IdPersona,true);
+            (string?, Persona?) personaDesdeDB = await personaService.GetPersonaById(personaEnviadaDesdeElFront.IdPersona, true);
             if (personaDesdeDB.Item1 != null) return BadRequest(personaDesdeDB.Item1);
 
-            
+
             int codeResult = await personaService.Editar(personaEnviadaDesdeElFront);
             if (codeResult == -1) return Problem("No se actualizo al propietario");
 
             (string?, Propietario?) propietario = await propietarioService.getPropietarioByIdPersona(personaEnviadaDesdeElFront.IdPersona);
             if (propietario.Item1 != null) return Problem(propietario.Item1);
-            
+
             return Ok(propietario.Item2);
         }
 
@@ -61,18 +61,23 @@ namespace project.Controllers
         {
 
             if (idPropietario <= 0) return BadRequest("Se requiere idPropietario y debe ser mayor a 0");
-            (string?,Boolean) codeResult = await propietarioService.BajaLogica(idPropietario);
-            if(!codeResult.Item2) return Problem(codeResult.Item1);
-            
+            (string?, Boolean) codeResult = await propietarioService.BajaLogica(idPropietario);
+            if (!codeResult.Item2) return Problem(codeResult.Item1);
+
             return Ok("El propietario fue dado de baja correctamente");
         }
         [HttpPost("Propietario/Alta")]
         public async Task<IActionResult> AltaPropietario([FromBody] int idPropietario) //testear
         {
             if (idPropietario <= 0) return BadRequest("Se requiere idPropietario y debe ser mayor a 0");
-            (string?,Boolean) codeResult = await propietarioService.AltaLogica(idPropietario);
+            (string?, Boolean) codeResult = await propietarioService.AltaLogica(idPropietario);
             if (!codeResult.Item2) return Problem(codeResult.Item1);
             return Ok("El propietario fue dado de alta correctamente");
+        }
+        [HttpGet("Propietario")]
+        public IActionResult VistaPropietarios()
+        {
+            return View("~/Views/Propietarios/IndexPropietarios.cshtml");
         }
     }
 }
