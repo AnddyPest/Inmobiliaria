@@ -20,7 +20,7 @@ namespace project.Controllers
         public async Task<IActionResult> ObtenerTodos() //Testeado y funcional
         {
 
-            (string?, List<Propietario>) propietarios = await propietarioService.ObtenerTodos();
+            (string?, List<Propietario>?) propietarios = await propietarioService.ObtenerTodos();
             if (propietarios.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(propietarios.Item1, nameof(PropietarioController), nameof(ObtenerTodos));
@@ -53,21 +53,36 @@ namespace project.Controllers
             return RedirectToAction("ObtenerTodos");
         }
         [HttpPost("Propietario/Update")]
-        public async Task<IActionResult> ActualizarPropietario(Persona personaEnviadaDesdeElFront) //testear
+        public async Task<IActionResult> ActualizarPropietario(Persona model) //testear
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (personaEnviadaDesdeElFront.IdPersona <= 0) return BadRequest("Se requiere idPersona y debe ser mayor que 0");
-            (string?, Persona?) personaDesdeDB = await personaService.GetPersonaById(personaEnviadaDesdeElFront.IdPersona, true);
-            if (personaDesdeDB.Item1 != null) return BadRequest(personaDesdeDB.Item1);
+             if (!ModelState.IsValid) return BadRequest(ModelState);
+            
+            if (model.IdPersona <= 0) return BadRequest("Se requiere el idPersona de la persona");
 
+            var existingPersona = await personaService.GetPersonaById(model.IdPersona, true);
+            if (existingPersona.Item1 != null) return BadRequest(existingPersona.Item1);
 
-            int codeResult = await personaService.Editar(personaEnviadaDesdeElFront);
-            if (codeResult == -1) return Problem("No se actualizo al propietario");
+            (string?, Propietario?) propietarioResult = await propietarioService.getPropietarioByIdPersona(existingPersona.Item2!.IdPersona);
+            if (propietarioResult.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(propietarioResult.Item1, nameof(PropietarioController), nameof(ActualizarPropietario));
+                return BadRequest(propietarioResult.Item1);
+            }
+            model.IdPersona = existingPersona.Item2.IdPersona!;
+            int result = await personaService.Editar(model);
+            if (result == -1)
+            {
+                HelperFor.imprimirMensajeDeError("No se actualizo la persona", nameof(PropietarioController), nameof(ActualizarPropietario));
+                return BadRequest("No se actualizo la persona");
+            }
+            (string?, Propietario?) propietarioUpdate = await propietarioService.getPropietarioByIdPersona(existingPersona.Item2.IdPersona!);
+            if (propietarioUpdate.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(propietarioUpdate.Item1, nameof(PropietarioController), nameof(ActualizarPropietario));
+                return BadRequest(propietarioUpdate.Item1);
+            }
 
-            (string?, Propietario?) propietario = await propietarioService.getPropietarioByIdPersona(personaEnviadaDesdeElFront.IdPersona);
-            if (propietario.Item1 != null) return Problem(propietario.Item1);
-
-            return Ok(propietario.Item2);
+            return RedirectToAction("ObtenerTodos");
         }
 
         [HttpPost("Propietario/Baja")]
@@ -97,13 +112,6 @@ namespace project.Controllers
         public IActionResult NuevoPropietario()
         {
             return View("~/Views/Propietarios/NewPropietario.cshtml");
-        }
-        [HttpGet("Propietario/Update")]
-        public async Task<IActionResult> ActualizarPropietario(int id)
-        {
-            var persona = await propietarioService.getPropietarioByIdPersona(id);
-            if (persona.Item1 != null) return NotFound(persona.Item1);
-            return View("~/Views/Propietarios/editPropietarios.cshtml", persona.Item2);
         }
     }
 }
