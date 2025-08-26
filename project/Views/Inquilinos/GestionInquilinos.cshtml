@@ -175,7 +175,7 @@ function filtrarTabla() {
         }
         if (cellDni) {
             var cellDniValue = cellDni.textContent || cellDni.innerText;
-            if (dni && cellDniValue.indexOf(dni) === -1) {
+            if (dni && !cellDniValue.startsWith(dni)) {
                 matchDni = false;
             }
         }

@@ -127,10 +127,10 @@
 
                 let mensajes = [];
                 if (inq.esInquilino) {
-                    mensajes.push(`El cliente ${nombre} ${apellido} ya es Inquilino, no puede guardarse nuevamente.`);
+                    mensajes.push(`El cliente ${nombre} ${apellido} aparece en nuestras bases de datos como Inquilino, no puede guardarse nuevamente.`);
                 }
                 if (prop.esPropietario) {
-                    mensajes.push(`El cliente ${nombre} ${apellido} ya es Propietario.`);
+                    mensajes.push(`${nombre} ${apellido} figura como Propietario de uno o mas Inmuebles.`);
                 }
                 if (mensajes.length > 0) {
                     showPersonaModal(mensajes.join('\n'));
@@ -190,15 +190,36 @@
             modal.style.justifyContent = 'center';
             modal.style.zIndex = '9999';
             modal.innerHTML = `
-                <div style="background: #fff; padding: 2rem 2.5rem; border-radius: 1rem; box-shadow: 0 0 30px #0005; text-align: center; min-width: 320px; max-width: 90vw;">
+                <div id="jsPersonaModalContent" style="background: #fff; padding: 2rem 2.5rem; border-radius: 1rem; box-shadow: 0 0 30px #0005; text-align: center; min-width: 320px; max-width: 90vw;">
                     <h4 style="color: #b85c00; margin-bottom: 1.5rem;">Atención</h4>
-                    <div style="font-size: 1.15rem; margin-bottom: 1.5rem; white-space: pre-line;">${msg}</div>
-                    <button onclick="document.getElementById('jsPersonaModal').remove()" class="btn btn-secondary">Cerrar</button>
+                    <div id="jsPersonaModalMsg" style="font-size: 1.15rem; margin-bottom: 1.5rem; white-space: pre-line;">${msg}</div>
+                    <button id="jsPersonaModalClose" class="btn btn-secondary">Cerrar</button>
                 </div>
             `;
             document.body.appendChild(modal);
+            document.getElementById('jsPersonaModalClose').onclick = function() {
+                document.getElementById('jsPersonaModal').remove();
+            };
         } else {
-            modal.querySelector('div > div').innerText = msg;
+           
+            let msgDiv = document.getElementById('jsPersonaModalMsg');
+            if (msgDiv) {
+                msgDiv.innerText = msg;
+            }
+            let closeBtn = document.getElementById('jsPersonaModalClose');
+            if (!closeBtn) {
+                let contentDiv = document.getElementById('jsPersonaModalContent');
+                if (contentDiv) {
+                    let btn = document.createElement('button');
+                    btn.id = 'jsPersonaModalClose';
+                    btn.className = 'btn btn-secondary';
+                    btn.innerText = 'Cerrar';
+                    btn.onclick = function() {
+                        document.getElementById('jsPersonaModal').remove();
+                    };
+                    contentDiv.appendChild(btn);
+                }
+            }
             modal.style.display = 'flex';
         }
     }
