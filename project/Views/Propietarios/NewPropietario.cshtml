@@ -121,7 +121,7 @@
                 fetch(`/Propietario/BuscarPorDni?dni=${dni}`).then(r => r.ok ? r.json() : {}),
                 fetch(`/Inquilino/BuscarPorDni?dni=${dni}`).then(r => r.ok ? r.json() : {})
             ]).then(([prop, inq]) => {
-                // Completa los campos si la persona existe en propietario
+                // Completa los campos si la persona existe en propietario o inquilino
                 let nombre = prop.nombre || inq.nombre || '';
                 let apellido = prop.apellido || inq.apellido || '';
                 document.getElementById('nombre').value = nombre;
@@ -179,7 +179,7 @@
         }
     });
 
-    // Modal JS centrado, sin Bootstrap
+    
     function showPersonaModal(msg) {
         let modal = document.getElementById('jsPersonaModal');
         if (!modal) {
