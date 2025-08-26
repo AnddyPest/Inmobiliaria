@@ -25,32 +25,32 @@
         <form action="/Inquilino/Create" method="POST" class="p-3 border border-success mb-2 rounded">
             <div class="row mb-3">
                 <div class="col">
-                    <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" class="form-control" required>
-                </div>
-                <div class="col">
-                    <label for="apellido">Apellido:</label>
-                    <input type="text" id="apellido" name="apellido" class="form-control" required>
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col">
                     <label for="dni">DNI:</label>
                     <input type="text" id="dni" name="dni" class="form-control" required>
                 </div>
                 <div class="col">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" class="form-control" required disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="apellido">Apellido:</label>
+                    <input type="text" id="apellido" name="apellido" class="form-control" required disabled>
+                </div>
+                <div class="col">
                     <label for="telefono">Teléfono:</label>
-                    <input type="text" id="telefono" name="telefono" class="form-control" required>
+                    <input type="text" id="telefono" name="telefono" class="form-control" required disabled>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col">
                     <label for="direccion">Dirección:</label>
-                    <input type="text" id="direccion" name="direccion" class="form-control" required>
+                    <input type="text" id="direccion" name="direccion" class="form-control" required disabled>
                 </div>
                 <div class="col">
                     <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
+                    <input type="email" id="email" name="email" class="form-control" required disabled>
                 </div>
             </div>
 
@@ -81,3 +81,129 @@
    
 </body>
 </html>
+
+<script>
+    const dniInput = document.getElementById("dni");
+    dniInput.addEventListener("input", function() {
+        const original = this.value;
+        const filtered = original.replace(/[^0-9]/g, '');
+        if (original !== filtered) {
+            // Feedback visual TEXTO EN ROJO Y BORDE EN ROJO "SOLO NÚMEROS"
+            const prevPlaceholder = this.placeholder;
+            this.value = filtered;
+            this.placeholder = "SOLO NÚMEROS";
+            this.classList.add("placeholder-error");
+            this.style.color = "#dc3545";
+            this.style.fontWeight = "bold";
+            this.style.borderColor = "#dc3545";
+            setTimeout(() => {
+                this.classList.remove("placeholder-error");
+                this.placeholder = prevPlaceholder;
+                this.style.color = "";
+                this.style.fontWeight = "";
+                this.style.borderColor = "";
+            }, 900);
+        }
+    });
+
+
+    dniInput.addEventListener("keyup", function() {
+        const dni = this.value;
+        if (dni.length >= 8) {
+            // Consultar ambos endpoints en paralelo
+            Promise.all([
+                fetch(`/Propietario/BuscarPorDni?dni=${dni}`).then(r => r.ok ? r.json() : {}),
+                fetch(`/Inquilino/BuscarPorDni?dni=${dni}`).then(r => r.ok ? r.json() : {})
+            ]).then(([prop, inq]) => {
+                // Completa los campos si la persona existe en propietario
+                let nombre = prop.nombre || inq.nombre || '';
+                let apellido = prop.apellido || inq.apellido || '';
+                document.getElementById('nombre').value = nombre;
+                document.getElementById('apellido').value = apellido;
+                document.getElementById('telefono').value = prop.telefono || inq.telefono || '';
+                document.getElementById('direccion').value = prop.direccion || inq.direccion || '';
+                document.getElementById('email').value = prop.email || inq.email || '';
+                
+
+                let mensajes = [];
+                if (inq.esInquilino) {
+                    mensajes.push(`El cliente ${nombre} ${apellido} ya es Inquilino, no puede guardarse nuevamente.`);
+                }
+                if (prop.esPropietario) {
+                    mensajes.push(`El cliente ${nombre} ${apellido} ya es Propietario.`);
+                }
+                if (mensajes.length > 0) {
+                    showPersonaModal(mensajes.join('\n'));
+                    if(inq.esInquilino) {
+                    document.querySelector('button[type="submit"]').disabled = true;
+                    }
+                } else {
+                    hidePersonaModal();
+                    document.querySelector('button[type="submit"]').disabled = false;
+                }
+            }).catch(() => {
+                // Si no existe, limpia y habilita los campos
+                document.getElementById('nombre').value = '';
+                document.getElementById('apellido').value = '';
+                document.getElementById('telefono').value = '';
+                document.getElementById('direccion').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('nombre').disabled = false;
+                document.getElementById('apellido').disabled = false;
+                document.getElementById('telefono').disabled = false;
+                document.getElementById('direccion').disabled = false;
+                document.getElementById('email').disabled = false;
+                hidePersonaModal();
+                document.querySelector('button[type="submit"]').disabled = false;
+            });
+        } else {
+            // Si la longitud es menor a 8, limpia y deshabilita los campos
+            document.getElementById('nombre').value = '';
+            document.getElementById('apellido').value = '';
+            document.getElementById('telefono').value = '';
+            document.getElementById('direccion').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('nombre').disabled = true;
+            document.getElementById('apellido').disabled = true;
+            document.getElementById('telefono').disabled = true;
+            document.getElementById('direccion').disabled = true;
+            document.getElementById('email').disabled = true;
+            hidePersonaModal();
+            
+        }
+    });
+
+    // Modal JS centrado, sin Bootstrap
+    function showPersonaModal(msg) {
+        let modal = document.getElementById('jsPersonaModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'jsPersonaModal';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100vw';
+            modal.style.height = '100vh';
+            modal.style.background = 'rgba(0,0,0,0.4)';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.style.zIndex = '9999';
+            modal.innerHTML = `
+                <div style="background: #fff; padding: 2rem 2.5rem; border-radius: 1rem; box-shadow: 0 0 30px #0005; text-align: center; min-width: 320px; max-width: 90vw;">
+                    <h4 style="color: #b85c00; margin-bottom: 1.5rem;">Atención</h4>
+                    <div style="font-size: 1.15rem; margin-bottom: 1.5rem; white-space: pre-line;">${msg}</div>
+                    <button onclick="document.getElementById('jsPersonaModal').remove()" class="btn btn-secondary">Cerrar</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        } else {
+            modal.querySelector('div > div').innerText = msg;
+            modal.style.display = 'flex';
+        }
+    }
+    function hidePersonaModal() {
+        let modal = document.getElementById('jsPersonaModal');
+        if (modal) modal.remove();
+    }
+</script>

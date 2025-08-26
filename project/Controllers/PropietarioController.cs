@@ -105,5 +105,29 @@ namespace project.Controllers
             if (persona.Item1 != null) return NotFound(persona.Item1);
             return View("~/Views/Propietarios/editPropietarios.cshtml", persona.Item2);
         }
+
+        //METODO ESPECIFICO PARA BUSCAR PERSONA POR DNI Y DETERMINAR SI ES PROPIETARIO
+        [HttpGet("Propietario/BuscarPorDni")]
+        public async Task<IActionResult> BuscarPorDni(int dni)
+        {
+            var persona = await personaService.ObtenerPorDni(dni);
+            if (persona == null || persona.IdPersona == 0)
+                return NotFound();
+
+            // Comprobar si ya es propietario
+            var propietario = await propietarioService.getPropietarioByIdPersona(persona.IdPersona);
+            bool esPropietario = propietario.Item2 != null;
+
+            // Devolver persona + info de propietario
+            return Json(new
+            {
+                nombre = persona.Nombre,
+                apellido = persona.Apellido,
+                telefono = persona.Telefono,
+                direccion = persona.Direccion,
+                email = persona.Email,
+                esPropietario = esPropietario
+            });
+        }
     }
 }

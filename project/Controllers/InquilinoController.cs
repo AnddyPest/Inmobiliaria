@@ -91,14 +91,14 @@ namespace project.Controllers
         {
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            
+
             if (model.IdPersona <= 0) return BadRequest("Se requiere el idPersona de la persona");
 
             var existingPersona = await personaService.GetPersonaById(model.IdPersona, true);
             if (existingPersona.Item1 != null) return BadRequest(existingPersona.Item1);
-            
-            (string?,Inquilino?) inquilinoResult = await inquilinoService.getInquilinoByIdPersona(existingPersona.Item2!.IdPersona);
-            if(inquilinoResult.Item1 != null)
+
+            (string?, Inquilino?) inquilinoResult = await inquilinoService.getInquilinoByIdPersona(existingPersona.Item2!.IdPersona);
+            if (inquilinoResult.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inquilinoResult.Item1, nameof(InquilinoController), nameof(UpdateInquilino));
                 return BadRequest(inquilinoResult.Item1);
@@ -123,7 +123,7 @@ namespace project.Controllers
         public async Task<IActionResult> LogicalDeleteInquilino([FromBody] int idInquilino) //Testeado y funcional
         {
             if (idInquilino <= 0) return BadRequest("Error Message: Se requiere idInquilino y debe ser mayor a 0");
-            
+
             (string?, bool?) result = await inquilinoService.LogicalDeleteInquilino(idInquilino);
             if (result.Item1 != null)
             {
@@ -163,7 +163,7 @@ namespace project.Controllers
         //New
         [HttpGet("inquilino/New")]
         public IActionResult VistaNuevoInquilino()
-        { 
+        {
             return View("~/Views/Inquilinos/NewInquilino.cshtml");
         }
         [HttpGet("inquilino/Update")]
@@ -175,6 +175,29 @@ namespace project.Controllers
                 return NotFound("No se encontró la persona.");
             }
             return View("~/Views/Inquilinos/EditInquilinos.cshtml", persona.Item2);
+        }
+        //METODO ESPECIFICO PARA BUSCAR PERSONA POR DNI Y DETERMINAR SI ES INQUILINO
+        [HttpGet("Inquilino/BuscarPorDni")]
+        public async Task<IActionResult> BuscarPorDni(int dni)
+        {
+            var persona = await personaService.ObtenerPorDni(dni);
+            if (persona == null || persona.IdPersona == 0)
+                return NotFound();
+
+            // Comprobar si ya es inquilino
+            var inquilino = await inquilinoService.getInquilinoByIdPersona(persona.IdPersona);
+            bool esInquilino = inquilino.Item2 != null;
+
+            // Devolver persona + info de inquilino
+            return Json(new
+            {
+                nombre = persona.Nombre,
+                apellido = persona.Apellido,
+                telefono = persona.Telefono,
+                direccion = persona.Direccion,
+                email = persona.Email,
+                esInquilino = esInquilino
+            });
         }
         
     }
