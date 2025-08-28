@@ -9,7 +9,11 @@ namespace project.Models
 
         public string nombre { get; set; }
 
-       
+        public Tipo_Inmueble()
+        {
+            id_tipo_inmueble = 0;
+            nombre = string.Empty;
+        }
         public Tipo_Inmueble(int id_tipo_inmueble, string nombre)
         {
             this.id_tipo_inmueble = id_tipo_inmueble;
