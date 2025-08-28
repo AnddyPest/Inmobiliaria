@@ -116,10 +116,10 @@
     dniInput.addEventListener("keyup", function() {
         const dni = this.value;
         if (dni.length >= 8) {
-            // Consultar ambos endpoints en paralelo
+            // Consultar ambos endpoints en paralelo (rutas absolutas)
             Promise.all([
-                fetch(`/Propietario/BuscarPorDni?dni=${dni}`).then(r => r.ok ? r.json() : {}),
-                fetch(`/Inquilino/BuscarPorDni?dni=${dni}`).then(r => r.ok ? r.json() : {})
+                fetch('/Propietario/BuscarPorDni?dni=' + dni).then(r => r.ok ? r.json() : {}),
+                fetch('/Inquilino/BuscarPorDni?dni=' + dni).then(r => r.ok ? r.json() : {})
             ]).then(([prop, inq]) => {
                 // Completa los campos si la persona existe en propietario o inquilino
                 let nombre = prop.nombre || inq.nombre || '';
@@ -129,7 +129,6 @@
                 document.getElementById('telefono').value = prop.telefono || inq.telefono || '';
                 document.getElementById('direccion').value = prop.direccion || inq.direccion || '';
                 document.getElementById('email').value = prop.email || inq.email || '';
-                
 
                 let mensajes = [];
                 if (prop.esPropietario) {
@@ -141,11 +140,15 @@
                 if (mensajes.length > 0) {
                     showPersonaModal(mensajes.join('\n'));
                     if(prop.esPropietario) {
-                    document.querySelector('button[type="submit"]').disabled = true;
+                        document.querySelector('button[type="submit"]').disabled = true;
                     }
                 } else {
                     hidePersonaModal();
                     document.querySelector('button[type="submit"]').disabled = false;
+                    // Habilitar campos para alta manual
+                    ['nombre','apellido','telefono','direccion','email'].forEach(id => {
+                        document.getElementById(id).removeAttribute('disabled');
+                    });
                 }
             }).catch(() => {
                 // Si no existe, limpia y habilita los campos
@@ -154,11 +157,9 @@
                 document.getElementById('telefono').value = '';
                 document.getElementById('direccion').value = '';
                 document.getElementById('email').value = '';
-                document.getElementById('nombre').disabled = false;
-                document.getElementById('apellido').disabled = false;
-                document.getElementById('telefono').disabled = false;
-                document.getElementById('direccion').disabled = false;
-                document.getElementById('email').disabled = false;
+                ['nombre','apellido','telefono','direccion','email'].forEach(id => {
+                    document.getElementById(id).removeAttribute('disabled');
+                });
                 hidePersonaModal();
                 document.querySelector('button[type="submit"]').disabled = false;
             });
@@ -169,13 +170,10 @@
             document.getElementById('telefono').value = '';
             document.getElementById('direccion').value = '';
             document.getElementById('email').value = '';
-            document.getElementById('nombre').disabled = true;
-            document.getElementById('apellido').disabled = true;
-            document.getElementById('telefono').disabled = true;
-            document.getElementById('direccion').disabled = true;
-            document.getElementById('email').disabled = true;
+            ['nombre','apellido','telefono','direccion','email'].forEach(id => {
+                document.getElementById(id).setAttribute('disabled', 'disabled');
+            });
             hidePersonaModal();
-            
         }
     });
 

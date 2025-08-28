@@ -84,7 +84,7 @@ namespace project.Controllers
             if (errorInq != null)
                 return BadRequest(errorInq);
 
-            return RedirectToAction("");
+            return RedirectToAction("GetAllInquilinos");
         }
         [HttpPost("inquilino/Update")]
         public async Task<IActionResult> UpdateInquilino(Persona model)//Testeado y funcional
