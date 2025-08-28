@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3307
--- Tiempo de generación: 20-08-2025 a las 02:35:00
+-- Tiempo de generación: 28-08-2025 a las 22:03:32
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `inmobiliariaoo`
+-- Base de datos: `inmobiliaria`
 --
 
 -- --------------------------------------------------------
@@ -97,7 +97,8 @@ CREATE TABLE `inmueble` (
   `disponible` tinyint(1) DEFAULT 1,
   `idCiudad` int(11) NOT NULL,
   `idPropietario` int(11) NOT NULL,
-  `estado` tinyint(1) DEFAULT 1
+  `estado` tinyint(1) DEFAULT 1,
+  `id_tipo_inmueble` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -183,6 +184,17 @@ CREATE TABLE `rol` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tipo_inmueble`
+--
+
+CREATE TABLE `tipo_inmueble` (
+  `id_tipo_inmueble` int(11) NOT NULL,
+  `nombre` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `usuario`
 --
 
@@ -237,7 +249,8 @@ ALTER TABLE `empleado`
 ALTER TABLE `inmueble`
   ADD PRIMARY KEY (`idInmueble`),
   ADD KEY `idPropietario` (`idPropietario`),
-  ADD KEY `idCiudad` (`idCiudad`);
+  ADD KEY `idCiudad` (`idCiudad`),
+  ADD KEY `inmueble` (`id_tipo_inmueble`);
 
 --
 -- Indices de la tabla `inquilino`
@@ -278,6 +291,13 @@ ALTER TABLE `propietario`
 --
 ALTER TABLE `rol`
   ADD PRIMARY KEY (`idRol`),
+  ADD UNIQUE KEY `nombre` (`nombre`);
+
+--
+-- Indices de la tabla `tipo_inmueble`
+--
+ALTER TABLE `tipo_inmueble`
+  ADD PRIMARY KEY (`id_tipo_inmueble`),
   ADD UNIQUE KEY `nombre` (`nombre`);
 
 --
@@ -358,6 +378,12 @@ ALTER TABLE `rol`
   MODIFY `idRol` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `tipo_inmueble`
+--
+ALTER TABLE `tipo_inmueble`
+  MODIFY `id_tipo_inmueble` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
@@ -395,6 +421,7 @@ ALTER TABLE `empleado`
 -- Filtros para la tabla `inmueble`
 --
 ALTER TABLE `inmueble`
+  ADD CONSTRAINT `inmueble` FOREIGN KEY (`id_tipo_inmueble`) REFERENCES `tipo_inmueble` (`id_tipo_inmueble`),
   ADD CONSTRAINT `inmueble_ibfk_3` FOREIGN KEY (`idPropietario`) REFERENCES `propietario` (`idPropietario`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `inmueble_ibfk_4` FOREIGN KEY (`idCiudad`) REFERENCES `ciudad` (`idCiudad`) ON DELETE NO ACTION ON UPDATE CASCADE;
 

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace project.Models
 {
-    public class Inmueble(string uso, string tipo, int superficie, int cantAmbientes, decimal coordenadas, decimal precio, string direccion, int idCiudad, int idPropietario, bool estado)
+    public class Inmueble(string uso, string tipo, int superficie, int cantAmbientes, decimal coordenadas, decimal precio, string direccion, string ciudad, int idPropietario, bool estado)
     {
         [Key]
         public int IdInmueble { get; set; }
@@ -31,9 +31,8 @@ namespace project.Models
 
         [Required(ErrorMessage = "La dirección es requerida")]
         public string Direccion { get; set; } = direccion;
-
-        [ForeignKey("Ciudad")]
-        public int IdCiudad { get; set; } = idCiudad;
+        [Required(ErrorMessage = "La ciudad es requerida")]
+        public string ciudad { get; set; } = ciudad;
 
         [ForeignKey("Propietario")]
         public int IdPropietario { get; set; } = idPropietario;
