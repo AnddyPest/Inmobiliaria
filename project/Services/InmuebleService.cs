@@ -156,8 +156,26 @@ namespace project.Services
                             while ( await reader.ReadAsync() )
                             {
                                 Inmueble inmueble = new Inmueble();
-                                inmueble.IdInmueble = reader.GetInt32()
+                                Tipo_Inmueble tipo_Inmueble = new Tipo_Inmueble();
+                                inmueble.IdInmueble = reader.GetInt32("idInmueble");
+                                inmueble.Uso = reader.GetString("Uso");
+                                inmueble.Superficie = reader.GetInt32("Superficie");
+                                inmueble.CantAmbientes = reader.GetInt32("CantAmbientes");
+                                inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
+                                inmueble.Precio = reader.GetDecimal("Precio");
+                                inmueble.Direccion = reader.GetString("Direccion");
+                                inmueble.ciudad = reader.GetString("ciudad");
+                                inmueble.IdPropietario = reader.GetInt32("IdPropietario");
+                                inmueble.Disponible = reader.GetBoolean("Disponible");
+                                inmueble.estado = reader.GetBoolean("estado");
+                                tipo_Inmueble.id_tipo_inmueble = reader.GetInt32("id_tipo_inmueble");
+                                inmueble.Tipo = tipo_Inmueble;
+                                inmuebles.Add(inmueble);
+
                             }
+                            await connection.CloseAsync();
+                            if (inmuebles.Count == 0) return ("No se encontraron inmuebles", null);
+                            return (null, inmuebles);
                         }
                     }
                 }

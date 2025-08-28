@@ -12,6 +12,7 @@ namespace project.Models
         public string Uso { get; set; } = uso;
 
         [Required(ErrorMessage = "El tipo es requerido")]
+        
         public Tipo_Inmueble Tipo { get; set; } = tipo;
 
         [Required(ErrorMessage = "La superficie es requerida")]
