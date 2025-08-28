@@ -2,13 +2,13 @@
 {
     public interface IInmuebleService
     {
-        public (string?,Boolean) AgregarInmueble(Inmueble inmueble);
-        public (string?,Boolean) ActualizarInmueble(Inmueble inmueble);
-        public (string?,Boolean) DarDeBajaInmueble(int idInmueble);
-        public (string?,Inmueble?) BuscarInmueblePorDireccion(string direccion);
-        public (string?, Inmueble?) ObtenerInmueblePorId(int idInmueble);
-        public (string?, List<Inmueble>?) ObtenerTodosLosInmuebles();
-        public (string?, List<Inmueble>?) ObtenerInmueblesPorPropietario(int dniPropietario);
-        public (string?, List<Inmueble>?) ObtenerInmueblePorContrato(int idContrato);
+        public Task<(string?, Inmueble?)> AgregarInmueble(Inmueble inmueble);
+        public Task<(string?, bool)> ActualizarInmueble(Inmueble inmueble);
+        public Task<(string?, bool)> DarDeBajaInmueble(int idInmueble);
+        public Task<(string?, Inmueble?)> BuscarInmueblePorDireccion(string direccion);
+        public Task<(string?, Inmueble?)> ObtenerInmueblePorId(int idInmueble);
+        public Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmuebles();
+        public Task<(string?, List<Inmueble>?)> ObtenerInmueblesPorPropietario(int dniPropietario);
+        public Task<(string?, Inmueble?)> ObtenerInmueblePorContrato(int idContrato);
     }
 }
