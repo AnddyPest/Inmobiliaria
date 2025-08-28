@@ -27,7 +27,7 @@
     <div class="d-flex flex-column p-2 border border-success-subtle shadow rounded" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
 
         <h3 class="text-primary mb-3">Registrar Nuevo Propietario</h3>
-    <form action="/Propietario/Create" method="POST" class="p-3 border border-success mb-2 rounded">
+    <form action="/Propietario/Create" method="POST" class="p-3 border border-success mb-2 rounded" id="formPropietario">
             <div class="row mb-3">
                 <div class="col">
                     <label for="dni">DNI:</label>
@@ -91,6 +91,13 @@
 <script>
     const dniInput = document.getElementById("dni");
     dniInput.addEventListener("input", function() {
+    // Siempre habilitar campos antes de enviar el formulario ESTO ES IMPORTANTISIMO
+    document.getElementById('formPropietario').addEventListener('submit', function(e) {
+        ['nombre','apellido','telefono','direccion','email'].forEach(id => {
+            document.getElementById(id).removeAttribute('disabled');
+        });
+    });
+
         const original = this.value;
         const filtered = original.replace(/[^0-9]/g, '');
         if (original !== filtered) {

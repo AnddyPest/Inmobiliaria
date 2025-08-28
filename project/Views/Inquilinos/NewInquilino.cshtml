@@ -85,11 +85,11 @@
 <script>
     const dniInput = document.getElementById("dni");
     dniInput.addEventListener("input", function() {
-    
     document.getElementById('formInquilino').addEventListener('submit', function(e) {
         ['nombre','apellido','telefono','direccion','email'].forEach(id => {
             document.getElementById(id).removeAttribute('disabled');
         });
+    
     });
         const original = this.value;
         const filtered = original.replace(/[^0-9]/g, '');
