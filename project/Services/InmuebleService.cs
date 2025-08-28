@@ -104,7 +104,7 @@ namespace project.Services
                             {
                                 Inmueble inmueble = new Inmueble();
                                 Tipo_Inmueble tipo = new Tipo_Inmueble();
-                                Propietario propietario = new Propietario();
+                                
                                 inmueble.IdInmueble = reader.GetInt32("IdInmueble");
                                 inmueble.Uso = reader.GetString("Uso");
                                 inmueble.Superficie = reader.GetInt32("Superficie");
@@ -118,7 +118,7 @@ namespace project.Services
                                 inmueble.estado = reader.GetBoolean("estado");
                                 tipo.id_tipo_inmueble = reader.GetInt32("ti.id_tipo_inmueble");
                                 tipo.nombre = reader.GetString("ti.nombre");
-                                propietario.IdPropietario = reader.GetInt32("p.idPropietario");
+                                
                                 inmueble.Tipo = tipo;
                                 inmuebles.Add(inmueble);
                             }
@@ -139,9 +139,33 @@ namespace project.Services
             }
         }
 
-        public Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmuebles()
+        public async Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmuebles()
         {
-            throw new NotImplementedException();
+            try
+            {
+                
+                using(MySqlConnection connection = new MySqlConnection())
+                {
+                    string query = @"Select i.* 
+                                 from inmueble as i";
+                    List<Inmueble> inmuebles = new();
+                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        using (DbDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while ( await reader.ReadAsync() )
+                            {
+                                Inmueble inmueble = new Inmueble();
+                                inmueble.IdInmueble = reader.GetInt32()
+                            }
+                        }
+                    }
+                }
+            }catch(Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleService), nameof(ObtenerTodosLosInmuebles));
+                return (ex.Message, null);
+            }
         }
 
         public Task<(string?, Inmueble?)> BuscarInmueblePorDireccion(string direccion)
