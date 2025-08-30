@@ -22,6 +22,8 @@ if (builder.Environment.IsDevelopment())
 builder.Services.AddSingleton<IInquilinoService, InquilinoService>();
 builder.Services.AddSingleton<IPersonaService, PersonaService>();
 builder.Services.AddSingleton<IPropietarioService, PropietarioService>();
+builder.Services.AddSingleton<IContratoService, ContratoService>();
+builder.Services.AddSingleton<IInmuebleService, InmuebleService>();
 
 
 var app = builder.Build();

@@ -5,14 +5,21 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace project.Models
 {
-    public class Contrato(int idInquilino, int idInmueble, decimal monto, DateTime fechaInicio, DateTime fechaFin, bool estado)
+    public class Contrato(int idInquilino, int idInmueble, int idPropietario, decimal monto, DateTime fechaInicio, DateTime fechaFin, bool estado)
     {
         [Key]
         public int IdContrato { get; set; }
 
+        [Required(ErrorMessage ="Se requiere idInquilino")]
         [ForeignKey("Inquilino")]
         public int IdInquilino { get; set; } = idInquilino;
 
+        [Required(ErrorMessage ="Se requiere idPropietario")]
+        [ForeignKey("propietario")]
+
+        public int IdPropietario { get; set; } = idPropietario;
+
+        [Required(ErrorMessage = "Se requiere idInmueble")]
         [ForeignKey("Inmueble")]
         public int IdInmueble { get; set; } = idInmueble;
 
@@ -21,10 +28,10 @@ namespace project.Models
         public decimal Monto { get; set; } = monto;
 
         [Required(ErrorMessage = "La fecha de inicio es requerida")]
-        public DateTime FechaI { get; set; } = fechaInicio;
+        public DateTime FechaInicio { get; set; } = fechaInicio;
 
         [Required(ErrorMessage = "La fecha de fin es requerida")]
-        public DateTime FechaF { get; set; } = fechaFin;
+        public DateTime FechaFin { get; set; } = fechaFin;
 
         public bool estado { get; set; } = estado;
         public List<Pago> Pagos { get; set; } = [];
@@ -36,7 +43,7 @@ namespace project.Models
     private readonly bool validarFechas = ValidarFechas(fechaInicio, fechaFin);
 
     // Constructor vacío
-    public Contrato() : this(default, default, default, default, default, default) { }
+    public Contrato() : this(default, default,default, default, default, default, default) { }
 
         public void AgregarPago(Pago pago)
         {
