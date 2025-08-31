@@ -7,6 +7,7 @@
         Task<(string?, List<Contrato>?)> GetAllContratos();
 
         Task<(string?,Contrato?)> GetContratoById(int idContrato);
+        Task<(string?,bool)> DarAltaContrato(int idContrato);
         Task<(string?, bool)> DarBajaContrato(int idContrato);
         Task<(string?,bool)> ComprobarContratoActivoPorIdInmueble(int idInmueble);
         Task<(string?, List<Contrato>?)> GetContratosByIdInquilino(int idCliente);

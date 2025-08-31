@@ -20,6 +20,10 @@ namespace project.Services
                 if(contrato == null) return ("El contrato no puede ser nulo.", false);
                 if(this.ComprobarContratoActivoPorIdInmueble(contrato.IdInmueble).Result.Item2)
                     return ($"El inmueble con Id {contrato.IdInmueble} ya tiene un contrato activo.", false);
+                if((await _inquilinoService.GetInquilinoById(contrato.IdInquilino)).Item1 != null)
+                    return ($"No se encontró un inquilino con Id {contrato.IdInquilino}.", false);
+                if((await _propietarioService.getPropietarioById(contrato.IdPropietario)).Item1 != null)
+                    return ($"No se encontró un propietario con Id {contrato.IdPropietario}.", false);
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     string query = @"INSERT INTO Contrato (IdInquilino, IdInmueble, IdPropietario, Monto, FechaInicio, FechaFin, estado) 
@@ -56,6 +60,17 @@ namespace project.Services
         {
             if(contrato == null) return ("El contrato no puede ser nulo.", false);
             if(contrato.IdContrato <= 0) return ("El id del contrato debe ser un número positivo.", false);
+            (string?, Contrato?) contratoExistente = await GetContratoById(contrato.IdContrato);
+            if(contratoExistente.Item1 != null) return (contratoExistente.Item1, false);
+            if(contratoExistente.Item2 == null) return ($"No se encontró un contrato con Id {contrato.IdContrato}.", false);
+            if(contratoExistente.Item2.estado == false) return ("No se puede actualizar un contrato que está dado de baja.", false);
+            if(contratoExistente.Item2.IdInmueble != contrato.IdInmueble)
+            {
+                if(this.ComprobarContratoActivoPorIdInmueble(contrato.IdInmueble).Result.Item2)
+                    return ($"El inmueble con Id {contrato.IdInmueble} ya tiene un contrato activo.", false);
+            }
+
+
             try
             {
                 if((await GetContratoById(contrato.IdContrato)).Item2 == null)
@@ -97,6 +112,37 @@ namespace project.Services
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, nameof(ContratoService), nameof(UpdateContrato));
                 return (ex.Message, false);
+            }
+        }
+        public async Task<(string?, bool)> DarAltaContrato(int idContrato) //testear
+        {
+            if(idContrato <= 0) return ("El id del contrato debe ser un número positivo.", false);
+            try
+            {
+                if((await GetContratoById(idContrato)).Item2 == null)
+                    return ($"No se encontró un contrato con Id {idContrato}.", false);
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                 {
+                    string query = "UPDATE Contrato SET estado = 1 WHERE IdContrato = @IdContrato";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@IdContrato", idContrato);
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        await connection.CloseAsync();
+                        if (rowsAffected == 0)
+                        {
+                            return ($"No se pudo dar de alta el contrato con Id {idContrato}.", false);
+                        }
+                        return (null, true);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(ContratoService), nameof(DarAltaContrato));
+                return (ex.Message, false);
+                
             }
         }
         public async Task<(string?, bool)> DarBajaContrato(int idContrato) //testear
