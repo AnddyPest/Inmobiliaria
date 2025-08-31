@@ -65,8 +65,14 @@ namespace project.Services
             try
             {
                 if( inmueble.IdInmueble <= 0) return ("El id del inmueble debe ser un valor positivo", false);
-                if (await this.ObtenerInmueblePorId(inmueble.IdInmueble) is (string error, null)) return (error, false);
-                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                (string?,Inmueble?) inmuebleSearched = await this.ObtenerInmueblePorId(inmueble.IdInmueble);
+                if(inmuebleSearched.Item1 != null) return (inmuebleSearched.Item1, false);
+                if(inmuebleSearched.Item2 == null) return ($"No se encontró ningún inmueble con el id {inmueble.IdInmueble}", false);
+                if(inmueble.IdPropietario != inmuebleSearched.Item2.IdPropietario)
+                {
+                    if( await _propietarioService.getPropietarioById(inmueble.IdPropietario) is (string errorServicio, null) ) return (errorServicio, false);
+                }
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = @" UPDATE inmueble 
