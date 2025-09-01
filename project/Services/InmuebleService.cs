@@ -11,6 +11,8 @@ namespace project.Services
     {
         private readonly string _connectionString = configuration.GetConnectionString("Connection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         private readonly IPropietarioService _propietarioService = propietarioService;
+        private readonly string _ClassName = nameof(InmuebleService);
+        
         public async Task<(string?, Inmueble?)> AgregarInmueble(Inmueble inmueble) //TESTEAR
         {
             try
@@ -113,12 +115,10 @@ namespace project.Services
                         }
                     }
                 }
-
-
             }
             catch (Exception ex)
             {
-                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleService), nameof(ActualizarInmueble));
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ActualizarInmueble));
                 return (ex.Message, false);
             }
         }
@@ -127,6 +127,18 @@ namespace project.Services
         {
             try
             {
+                if (idInmueble <= 0)
+                {
+                    HelperFor.imprimirMensajeDeError("El idInmueble debe ser mayor a 0", nameof(InmuebleService), nameof(DarDeBajaInmueble));
+                    return ("El idInmueble debe ser mayor a 0", false);
+
+                }
+                (string?, Inmueble?) inmuebleSearched = await this.ObtenerInmueblePorId(idInmueble);
+                if(inmuebleSearched.Item1 != null && inmuebleSearched.Item2 == null)
+                {
+                    HelperFor.imprimirMensajeDeError(inmuebleSearched.Item1, _ClassName, nameof(DarDeBajaInmueble));
+                    return (inmuebleSearched.Item1, false);
+                }
                 using(MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
@@ -150,7 +162,7 @@ namespace project.Services
             }
             catch(Exception ex)
             {
-                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleService), nameof(DarDeBajaInmueble));
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(DarDeBajaInmueble));
                 return (ex.Message, false);
             }
         }
@@ -199,7 +211,7 @@ namespace project.Services
             }
             catch(Exception ex)
             {
-                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleService), nameof(ObtenerInmueblePorContrato));
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerInmueblePorContrato));
                 return (ex.Message, null);
             }
         }
@@ -242,15 +254,13 @@ namespace project.Services
                                 return (null, inmueble);
                             }
                             return ($"No se encontró ningún inmueble con el id {idInmueble}", null);
-                            
                         }
-                        
                     }
                 }
             }
             catch (Exception ex)
             {
-                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleService), nameof(ObtenerInmueblePorId));
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerInmueblePorId));
                 return (ex.Message, null);
             }
         }
@@ -298,17 +308,14 @@ namespace project.Services
                             }
                             await connection.CloseAsync();
                             if (inmuebles.Count == 0) return ($"No se encontraron inmuebles para el propietario con dni {dniPropietario}", null);
-                            
                             return (null, inmuebles);
-                            
                         }
-                        
                     }
                 }
             }
             catch(Exception ex)
             {
-                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleService), nameof(ObtenerInmueblesPorPropietario));
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerInmueblesPorPropietario));
                 return (ex.Message, null);
             }
         }
@@ -318,13 +325,14 @@ namespace project.Services
             try
             {
                 
-                using(MySqlConnection connection = new MySqlConnection())
+                using(MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     string query = @"Select i.* 
                                  from inmueble as i";
                     List<Inmueble> inmuebles = new();
                     using(MySqlCommand command = new MySqlCommand(query, connection))
                     {
+                        await connection.OpenAsync();
                         using (DbDataReader reader = await command.ExecuteReaderAsync())
                         {
                             while ( await reader.ReadAsync() )
@@ -355,7 +363,7 @@ namespace project.Services
                 }
             }catch(Exception ex)
             {
-                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleService), nameof(ObtenerTodosLosInmuebles));
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerTodosLosInmuebles));
                 return (ex.Message, null);
             }
         }
@@ -366,7 +374,7 @@ namespace project.Services
             {
                 using(MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    connection.Open();
+                    await connection.OpenAsync();
                     string query = @" SELECT i.* ,ti.*
                                       FROM inmueble as i
                                       inner join tipo_inmueble as ti on ti.id_tipo_inmueble = i.id_tipo_inmueble
@@ -396,6 +404,7 @@ namespace project.Services
                                 inmueble.Tipo = tipo;
                                 return (null, inmueble);
                             }
+                            HelperFor.imprimirMensajeDeError($"No se encontró ningún inmueble con la dirección {direccion}", _ClassName, nameof(BuscarInmueblePorDireccion));
                             return ($"No se encontró ningún inmueble con la dirección {direccion}", null);
                         }
                     }
@@ -403,7 +412,7 @@ namespace project.Services
             }
             catch(Exception ex)
             {
-                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleService), nameof(BuscarInmueblePorDireccion));
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(BuscarInmueblePorDireccion));
                 return (ex.Message, null);
             }
         }

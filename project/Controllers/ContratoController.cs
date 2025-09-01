@@ -56,7 +56,7 @@ namespace project.Controllers
                 return BadRequest("No se pudo actualizar el contrato.");
             return Ok(true);
         }
-        [HttpPost("contrato/darDeBaja/{idContrato}")]
+        [HttpGet("contrato/darDeBaja/{idContrato}")]
         public async Task<IActionResult> DarDeBajaContrato(int idContrato)
         {
             (string?, bool) contratoDeleted = await _contratoService.DarBajaContrato(idContrato);
@@ -66,7 +66,7 @@ namespace project.Controllers
                 return BadRequest("No se pudo dar de baja el contrato.");
             return Ok(true);
         }
-        [HttpPost("contrato/activar/{idContrato}")]
+        [HttpGet("contrato/activar/{idContrato}")]
         public async Task<IActionResult> ActivarContrato(int idContrato)
         {
             (string?, bool) contratoActivated = await _contratoService.DarAltaContrato(idContrato);

@@ -26,6 +26,7 @@ namespace project.Controllers
                 HelperFor.imprimirMensajeDeError(inquilinos.Item1, nameof(InquilinoController), nameof(GetAllInquilinos));
                 return BadRequest(inquilinos.Item1);
             }
+            
             Console.WriteLine(inquilinos.Item2);
             return View("~/Views/Inquilinos/GestionInquilinos.cshtml", inquilinos.Item2);
         }

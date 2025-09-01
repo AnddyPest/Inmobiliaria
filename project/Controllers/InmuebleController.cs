@@ -1,14 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
 
 namespace project.Controllers
 {
-    public class InmuebleController(IInmuebleService inmuebleService) : ControllerBase
+    public class InmuebleController(IInmuebleService inmuebleService) : Controller
     {
         private IInmuebleService _inmuebleService = inmuebleService;
-
+        [HttpGet("Inmueble")]
+        public IActionResult Index()
+        {
+            return View("~/Views/Inmuebles/IndexInmueble.cshtml");
+        }
+        [HttpGet("Inmueble/Agregar")]
+        public IActionResult Agregar()
+        {
+            return View("~/Views/Inmuebles/VistaRegistrarInmueble.cshtml");
+        }
         [HttpGet("inmueble/listar")]
         public async Task<IActionResult> GetAllInmuebles()
         {
