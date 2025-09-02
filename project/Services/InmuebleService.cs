@@ -19,22 +19,22 @@ namespace project.Services
             {
                 if(inmueble == null) return ("El inmueble no puede ser nulo", null);
                 if( await _propietarioService.getPropietarioById(inmueble.IdPropietario) is (string errorServicio, null) ) return (errorServicio, null);
-                if( await BuscarInmueblePorDireccion(inmueble.Direccion) is (string error, Inmueble foundInmueble) && foundInmueble != null ) 
+                if( await BuscarInmueblePorDireccion(inmueble.Direccion) is (null, Inmueble ) ) 
                     return ($"Ya existe un inmueble con la dirección {inmueble.Direccion}", null);
                 using(MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     string query = @" INSERT INTO inmueble 
-                                      (Uso, id_tipo_inmueble, Superficie, CantAmbientes, Coordenadas, Precio, Direccion, ciudad, IdPropietario, Disponible, estado) 
+                                      (Uso, id_tipo_inmueble, Superficie, CantidadAmbientes, Coordenadas, Precio, Direccion, ciudad, IdPropietario, Disponible, estado) 
                                       VALUES 
-                                      (@Uso, @id_tipo_inmueble, @Superficie, @CantAmbientes, @Coordenadas, @Precio, @Direccion, @ciudad, @IdPropietario, @Disponible, @estado);
+                                      (@Uso, @id_tipo_inmueble, @Superficie, @CantidadAmbientes, @Coordenadas, @Precio, @Direccion, @ciudad, @IdPropietario, @Disponible, @estado);
                                       SELECT LAST_INSERT_ID(); ";
                     connection.Open();
                     using(MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Uso", inmueble.Uso);
-                        command.Parameters.AddWithValue("@id_tipo_inmueble", inmueble.Tipo.id_tipo_inmueble);
+                        command.Parameters.AddWithValue("@id_tipo_inmueble", inmueble.idTipo);
                         command.Parameters.AddWithValue("@Superficie", inmueble.Superficie);
-                        command.Parameters.AddWithValue("@CantAmbientes", inmueble.CantAmbientes);
+                        command.Parameters.AddWithValue("@CantidadAmbientes", inmueble.CantidadAmbientes);
                         command.Parameters.AddWithValue("@Coordenadas", inmueble.Coordenadas);
                         command.Parameters.AddWithValue("@Precio", inmueble.Precio);
                         command.Parameters.AddWithValue("@Direccion", inmueble.Direccion);
@@ -72,7 +72,13 @@ namespace project.Services
                 if(inmuebleSearched.Item2 == null) return ($"No se encontró ningún inmueble con el id {inmueble.IdInmueble}", false);
                 if(inmueble.IdPropietario != inmuebleSearched.Item2.IdPropietario)
                 {
-                    if( await _propietarioService.getPropietarioById(inmueble.IdPropietario) is (string errorServicio, null) ) return (errorServicio, false);
+                    if( await _propietarioService.getPropietarioById(inmueble.IdPropietario) is (string errorServicio, null) ) 
+                        return (errorServicio, false);
+                }
+                if(inmueble.Direccion != inmuebleSearched.Item2.Direccion)
+                {
+                    if (await BuscarInmueblePorDireccion(inmueble.Direccion) is (null, Inmueble))
+                        return ("No se puede agregar un inmueble con dicha direccion ya que hay uno registrado", false);
                 }
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
@@ -81,7 +87,7 @@ namespace project.Services
                                       SET Uso = @Uso, 
                                           id_tipo_inmueble = @id_tipo_inmueble, 
                                           Superficie = @Superficie, 
-                                          CantAmbientes = @CantAmbientes, 
+                                          CantidadAmbientes = @CantidadAmbientes, 
                                           Coordenadas = @Coordenadas, 
                                           Precio = @Precio, 
                                           Direccion = @Direccion, 
@@ -96,7 +102,7 @@ namespace project.Services
                         command.Parameters.AddWithValue("@Uso", inmueble.Uso);
                         command.Parameters.AddWithValue("@id_tipo_inmueble", inmueble.Tipo.id_tipo_inmueble);
                         command.Parameters.AddWithValue("@Superficie", inmueble.Superficie);
-                        command.Parameters.AddWithValue("@CantAmbientes", inmueble.CantAmbientes);
+                        command.Parameters.AddWithValue("@CantidadAmbientes", inmueble.CantidadAmbientes);
                         command.Parameters.AddWithValue("@Coordenadas", inmueble.Coordenadas);
                         command.Parameters.AddWithValue("@Precio", inmueble.Precio);
                         command.Parameters.AddWithValue("@Direccion", inmueble.Direccion);
@@ -191,7 +197,7 @@ namespace project.Services
                                 inmueble.IdInmueble = reader.GetInt32("IdInmueble");
                                 inmueble.Uso = reader.GetString("Uso");
                                 inmueble.Superficie = reader.GetInt32("Superficie");
-                                inmueble.CantAmbientes = reader.GetInt32("CantAmbientes");
+                                inmueble.CantidadAmbientes = reader.GetInt32("CantidadAmbientes");
                                 inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
                                 inmueble.Precio = reader.GetDecimal("Precio");
                                 inmueble.Direccion = reader.GetString("Direccion");
@@ -240,7 +246,7 @@ namespace project.Services
                                 inmueble.IdInmueble = reader.GetInt32("IdInmueble");
                                 inmueble.Uso = reader.GetString("Uso");
                                 inmueble.Superficie = reader.GetInt32("Superficie");
-                                inmueble.CantAmbientes = reader.GetInt32("CantAmbientes");
+                                inmueble.CantidadAmbientes = reader.GetInt32("CantidadAmbientes");
                                 inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
                                 inmueble.Precio = reader.GetDecimal("Precio");
                                 inmueble.Direccion = reader.GetString("Direccion");
@@ -292,7 +298,7 @@ namespace project.Services
                                 inmueble.IdInmueble = reader.GetInt32("IdInmueble");
                                 inmueble.Uso = reader.GetString("Uso");
                                 inmueble.Superficie = reader.GetInt32("Superficie");
-                                inmueble.CantAmbientes = reader.GetInt32("CantAmbientes");
+                                inmueble.CantidadAmbientes = reader.GetInt32("CantidadAmbientes");
                                 inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
                                 inmueble.Precio = reader.GetDecimal("Precio");
                                 inmueble.Direccion = reader.GetString("Direccion");
@@ -342,7 +348,7 @@ namespace project.Services
                                 inmueble.IdInmueble = reader.GetInt32("idInmueble");
                                 inmueble.Uso = reader.GetString("Uso");
                                 inmueble.Superficie = reader.GetInt32("Superficie");
-                                inmueble.CantAmbientes = reader.GetInt32("CantAmbientes");
+                                inmueble.CantidadAmbientes = reader.GetInt32("CantidadAmbientes");
                                 inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
                                 inmueble.Precio = reader.GetDecimal("Precio");
                                 inmueble.Direccion = reader.GetString("Direccion");
@@ -391,7 +397,7 @@ namespace project.Services
                                 inmueble.IdInmueble = reader.GetInt32("IdInmueble");
                                 inmueble.Uso = reader.GetString("Uso");
                                 inmueble.Superficie = reader.GetInt32("Superficie");
-                                inmueble.CantAmbientes = reader.GetInt32("CantAmbientes");
+                                inmueble.CantidadAmbientes = reader.GetInt32("CantidadAmbientes");
                                 inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
                                 inmueble.Precio = reader.GetDecimal("Precio");
                                 inmueble.Direccion = reader.GetString("Direccion");

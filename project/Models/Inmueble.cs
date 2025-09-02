@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace project.Models
 {
-    public class Inmueble(string uso, Tipo_Inmueble tipo, int superficie, int cantAmbientes, decimal coordenadas, decimal precio, string direccion, string ciudad, int idPropietario, bool estado)
+    public class Inmueble(string uso,Tipo_Inmueble tipo, int superficie, int cantAmbientes, decimal coordenadas, decimal precio, string direccion, string ciudad, int idPropietario, bool estado)
     {
         [Key]
         public int IdInmueble { get; set; }
@@ -12,8 +12,9 @@ namespace project.Models
         public string Uso { get; set; } = uso;
 
         [Required(ErrorMessage = "El tipo es requerido")]
-        
-        public Tipo_Inmueble Tipo { get; set; } = tipo;
+        [ForeignKey("Tipo")]
+        public int idTipo { get; set; }
+        public Tipo_Inmueble? Tipo { get; set; } = tipo;
 
         [Required(ErrorMessage = "La superficie es requerida")]
         [Range(1, int.MaxValue, ErrorMessage = "La superficie debe ser un valor positivo")]
@@ -21,7 +22,7 @@ namespace project.Models
 
         [Required(ErrorMessage = "La cantidad de ambientes es requerida")]
         [Range(1, int.MaxValue, ErrorMessage = "La cantidad de ambientes debe ser un valor positivo")]
-        public int CantAmbientes { get; set; } = cantAmbientes;
+        public int CantidadAmbientes { get; set; } = cantAmbientes;
 
         [Required(ErrorMessage = "Las coordenadas son requeridas")]
         public decimal Coordenadas { get; set; } = coordenadas;

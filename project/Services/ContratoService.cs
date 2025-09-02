@@ -27,7 +27,7 @@ namespace project.Services
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     string query = @"INSERT INTO Contrato (IdInquilino, IdInmueble, IdPropietario, Monto, FechaInicio, FechaFin, estado) 
-                                     VALUES (@IdInquilino, @IdInmueble, @IdPropietario, @Monto, @FechaInicio, @FechaFin, @estado)";
+                                     VALUES (@IdInquilino, @IdInmueble, @IdPropietario, @Monto, @FechaInicio, @FechaFin, 1)";
                     using(MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@IdInquilino", contrato.IdInquilino);
@@ -36,7 +36,7 @@ namespace project.Services
                         command.Parameters.AddWithValue("@Monto", contrato.Monto);
                         command.Parameters.AddWithValue("@FechaInicio", contrato.FechaInicio);
                         command.Parameters.AddWithValue("@FechaFin", contrato.FechaFin);
-                        command.Parameters.AddWithValue("@estado", contrato.estado);
+                        
                         await connection.OpenAsync();
                         int rowsAffected = await command.ExecuteNonQueryAsync();
                         if (rowsAffected == 0)

@@ -24,6 +24,7 @@ builder.Services.AddSingleton<IPersonaService, PersonaService>();
 builder.Services.AddSingleton<IPropietarioService, PropietarioService>();
 builder.Services.AddSingleton<IContratoService, ContratoService>();
 builder.Services.AddSingleton<IInmuebleService, InmuebleService>();
+builder.Services.AddSingleton<ITipo_InmuebleService, Tipo_InmuebleService>();
 
 
 var app = builder.Build();

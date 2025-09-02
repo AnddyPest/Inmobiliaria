@@ -4,21 +4,32 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
+using project.Models.ViewModels;
+using System.Threading.Tasks;
 
 namespace project.Controllers
 {
-    public class InmuebleController(IInmuebleService inmuebleService) : Controller
+    public class InmuebleController(IInmuebleService inmuebleService, ITipo_InmuebleService iTipoInmuebleService,IPropietarioService iPropietarioService) : Controller
     {
         private IInmuebleService _inmuebleService = inmuebleService;
+        private ITipo_InmuebleService _tipoInmuebleService = iTipoInmuebleService;
+        private IPropietarioService _propietarioService = iPropietarioService;
         [HttpGet("Inmueble")]
         public IActionResult Index()
         {
             return View("~/Views/Inmuebles/IndexInmueble.cshtml");
         }
         [HttpGet("Inmueble/Agregar")]
-        public IActionResult Agregar()
+        public async Task<IActionResult> Agregar()
         {
-            return View("~/Views/Inmuebles/VistaRegistrarInmueble.cshtml");
+            InmuebleViewModel viewModel = new();
+            (string?, List<Tipo_Inmueble>?) listaInmueblesFromService = await _tipoInmuebleService.getAllTipoInmueble();
+            if (listaInmueblesFromService.Item2 != null) viewModel.tipo_Inmueble = listaInmueblesFromService.Item2;
+            (string?, List<Propietario>?) propietariosFromService = await _propietarioService.ObtenerTodos();
+            if (propietariosFromService.Item2 != null) viewModel.propietarios = propietariosFromService.Item2;
+
+                
+            return View("~/Views/Inmuebles/VistaRegistrarInmueble.cshtml", viewModel);
         }
         [HttpGet("inmueble/listar")]
         public async Task<IActionResult> GetAllInmuebles()
@@ -47,7 +58,7 @@ namespace project.Controllers
             }
             return Ok(inmueble.Item2);
         }
-        [HttpPost("inmueble/crear")]
+        [HttpPost("/Inmueble/crear")]
         public async Task<IActionResult> AddInmueble(Inmueble model)
         {
             if (!ModelState.IsValid)
@@ -60,7 +71,7 @@ namespace project.Controllers
             return Ok(inmuebleCreated.Item2);
         }
 
-        [HttpPost("inmueble/actualizar")]
+        [HttpPost("Inmueble/actualizar")]
         public async Task<IActionResult> UpdateInmueble(Inmueble model)
         {
             if (!ModelState.IsValid)
