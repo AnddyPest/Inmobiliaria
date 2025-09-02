@@ -4,9 +4,14 @@ using project.Models.Interfaces;
 
 namespace project.Controllers
 {
-    public class ContratoController(IContratoService contratoService) : ControllerBase
+    public class ContratoController : Controller
     {
-        private IContratoService _contratoService = contratoService;
+        private IContratoService _contratoService;
+
+        public ContratoController(IContratoService contratoService)
+        {
+            _contratoService = contratoService;
+        }
 
         [HttpGet("contrato/listar")]
         public async Task<IActionResult> GetAllContratos()
@@ -75,6 +80,18 @@ namespace project.Controllers
             if (!contratoActivated.Item2)
                 return BadRequest("No se pudo activar el contrato.");
             return Ok(true);
+        }
+
+        //VISTAS
+        [HttpGet("contrato")]
+        public IActionResult VistaContratos()
+        {
+            return View("~/Views/Contratos/IndexContratos.cshtml");
+        }
+        [HttpGet("contrato/new")]
+        public IActionResult VistaNuevoContrato()
+        {
+            return View("~/Views/Contratos/NewContrato.cshtml");
         }
 
     }

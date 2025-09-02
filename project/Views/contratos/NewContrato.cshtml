@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Contrato</title>
+
+    <style>
+        .img-shadow {
+            box-shadow: 0 10px 28px rgba(0,0,0,0.20);
+            border-radius: 0.5rem;
+            transition: box-shadow .18s ease, transform .18s ease;
+            transform-origin: center;
+        }
+        .img-shadow:hover {
+            box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+            transform: scale(0.98);
+        }
+        #dni.placeholder-error::placeholder {
+            color: #dc3545 !important;
+            font-weight: bold;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex flex-column p-2 border border-success-subtle shadow rounded" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
+
+        <h3 class="text-primary mb-3">Registrar Nuevo Contrato</h3>
+        <form action="/Contrato/Create" method="POST" class="p-3 border border-success mb-2 rounded" id="formContrato">
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="dniInquilino">DNI Inquilino:</label>
+                    <input type="text" id="dniInquilino" name="dniInquilino" class="form-control" required>
+                </div>
+                <div class="col">
+                    <label for="nombreInquilino">Nombre Inquilino:</label>
+                    <input type="text" id="nombreInquilino" name="nombreInquilino" class="form-control" required disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="apellidoInquilino">Apellido Inquilino:</label>
+                    <input type="text" id="apellidoInquilino" name="apellidoInquilino" class="form-control" required disabled>
+                </div>
+                <div class="col">
+                    <label for="telefonoInquilino">Teléfono Inquilino:</label>
+                    <input type="text" id="telefonoInquilino" name="telefonoInquilino" class="form-control" required disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="direccionInquilino">Dirección Inquilino:</label>
+                    <input type="text" id="direccionInquilino" name="direccionInquilino" class="form-control" required disabled>
+                </div>
+                <div class="col">
+                    <label for="emailInquilino">Email Inquilino:</label>
+                    <input type="email" id="emailInquilino" name="emailInquilino" class="form-control" required disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="direccionInmueble">Dirección Inmueble:</label>
+                    <input type="text" id="direccionInmueble" name="direccionInmueble" class="form-control" list="inmueblesList" required>
+                    <datalist id="inmueblesList"></datalist>
+                    <input type="hidden" id="idInmueble" name="idInmueble">
+                </div>
+                <div class="col">
+                    <label for="fechaInicio">Fecha Inicio:</label>
+                    <input type="date" id="fechaInicio" name="fechaInicio" class="form-control" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="montoAlquiler">Monto Alquiler:</label>
+                    <input type="number" id="montoAlquiler" name="montoAlquiler" class="form-control" required>
+                </div>
+                <div class="col">
+                    <label for="observaciones">Observaciones:</label>
+                    <textarea id="observaciones" name="observaciones" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="mb-3 p-3 row border border-dark rounded w-100 ms-1">
+                <div class="col w-25">
+                    <button class="btn btn-warning shadow ms-1 me-1 w-100" type="reset" onclick="window.location.reload()">Limpiar Formulario</button>
+                </div>
+                <div class="col w-25"></div>
+                <div class="col w-25"></div>
+                <div class="col w-25">
+                    <button type="submit" class="btn btn-primary shadow ms-1 me-1 w-100">Registrar Contrato</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Modal -->
+        <div class="modal fade" id="personaModal" tabindex="-1" aria-labelledby="personaModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="personaModalLabel">Atención</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body" id="personaModalBody">
+                        <!-- Mensaje dinámico -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row border-dark mb-2 rounded">
+            <div style="height:25vh; display:flex; align-items:center; justify-content:center; overflow:hidden; width:100%;">
+                <img src="@Url.Content("~/images/inmobiliaria.png")" alt="Inmobiliaria" class="img-fluid img-shadow me-5" style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
+                <img src="@Url.Content("~/images/elegant.png")" alt="Inmobiliaria" class="img-fluid img-shadow ms-5 me-5" style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
+                <img src="@Url.Content("~/images/key.png")" alt="Inmobiliaria" class="img-fluid img-shadow ms-5" style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
+            </div>
+        </div>
+        <div class="row justify-content-end w-100">
+            <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/Contrato'">Cancelar</button>
+        </div>
+    </div>
+
+</body>
+</html>
+
+<script>
+    const dniInput = document.getElementById("dniInquilino");
+    dniInput.addEventListener("input", function() {
+        const original = this.value;
+        const filtered = original.replace(/[^0-9]/g, '');
+        if (original !== filtered) {
+            // Feedback visual TEXTO EN ROJO Y BORDE EN ROJO "SOLO NÚMEROS"
+            const prevPlaceholder = this.placeholder;
+            this.value = filtered;
+            this.placeholder = "SOLO NÚMEROS";
+            this.classList.add("placeholder-error");
+            this.style.color = "#dc3545";
+            this.style.fontWeight = "bold";
+            this.style.borderColor = "#dc3545";
+            setTimeout(() => {
+                this.classList.remove("placeholder-error");
+                this.placeholder = prevPlaceholder;
+                this.style.color = "";
+                this.style.fontWeight = "";
+                this.style.borderColor = "";
+            }, 900);
+        }
+    });
+
+    dniInput.addEventListener("keyup", function() {
+        const dni = this.value;
+        if (dni.length >= 8) {
+            // Consultar inquilino
+            fetch('/Inquilino/BuscarPorDni?dni=' + dni)
+                .then(response => {
+                    if (!response.ok) throw new Error('No se encontró el inquilino');
+                    return response.json();
+                })
+                .then(data => {
+                    // Completa los campos del inquilino
+                    document.getElementById('nombreInquilino').value = data.nombre || '';
+                    document.getElementById('apellidoInquilino').value = data.apellido || '';
+                    document.getElementById('telefonoInquilino').value = data.telefono || '';
+                    document.getElementById('direccionInquilino').value = data.direccion || '';
+                    document.getElementById('emailInquilino').value = data.email || '';
+                    // Habilita los campos
+                    ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+                        document.getElementById(id).removeAttribute('disabled');
+                    });
+                    // Si ya es inquilino, mostrar mensaje
+                    if (data.esInquilino) {
+                        showPersonaModal('El inquilino ya está registrado.');
+                    } else {
+                        hidePersonaModal();
+                    }
+                })
+                .catch(() => {
+                    // Si no existe, limpia y habilita los campos
+                    document.getElementById('nombreInquilino').value = '';
+                    document.getElementById('apellidoInquilino').value = '';
+                    document.getElementById('telefonoInquilino').value = '';
+                    document.getElementById('direccionInquilino').value = '';
+                    document.getElementById('emailInquilino').value = '';
+                    ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+                        document.getElementById(id).removeAttribute('disabled');
+                    });
+                    hidePersonaModal();
+                });
+        } else {
+            // Si la longitud es menor a 8, limpia y deshabilita los campos
+            document.getElementById('nombreInquilino').value = '';
+            document.getElementById('apellidoInquilino').value = '';
+            document.getElementById('telefonoInquilino').value = '';
+            document.getElementById('direccionInquilino').value = '';
+            document.getElementById('emailInquilino').value = '';
+            ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+                document.getElementById(id).setAttribute('disabled', 'disabled');
+            });
+            hidePersonaModal();
+        }
+    });
+
+    // Fetch inmuebles on load
+    window.addEventListener('load', function() {
+        fetch('/inmueble/listar')
+            .then(response => response.json())
+            .then(data => {
+                const datalist = document.getElementById('inmueblesList');
+                data.forEach(inmueble => {
+                    const option = document.createElement('option');
+                    option.value = inmueble.direccion;
+                    option.setAttribute('data-id', inmueble.idInmueble);
+                    datalist.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching inmuebles:', error));
+    });
+
+    // Handle selection from datalist
+    document.getElementById('direccionInmueble').addEventListener('input', function() {
+        const selectedOption = Array.from(document.querySelectorAll('#inmueblesList option')).find(option => option.value === this.value);
+        if (selectedOption) {
+            document.getElementById('idInmueble').value = selectedOption.getAttribute('data-id');
+        } else {
+            document.getElementById('idInmueble').value = '';
+        }
+    });
+
+    // Siempre habilitar campos antes de enviar el formulario
+    document.getElementById('formContrato').addEventListener('submit', function(e) {
+        ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+            document.getElementById(id).removeAttribute('disabled');
+        });
+    });
+
+    function showPersonaModal(msg) {
+        document.getElementById('personaModalBody').innerText = msg;
+        var modal = new bootstrap.Modal(document.getElementById('personaModal'));
+        modal.show();
+    }
+    function hidePersonaModal() {
+        var modalEl = document.getElementById('personaModal');
+        var modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+    }
+</script>
