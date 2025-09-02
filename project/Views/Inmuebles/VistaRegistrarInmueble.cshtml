@@ -102,8 +102,8 @@
             </div>
             <div class="mb-3">
                 <label for="estado" class="form-label  fw-bold fs-4 ms-1">Estado</label>
-                <select name="estado" class="form-select " required>
-                    <option selected>Seleccione el estado del inmueble</option>
+                <select name="estado" id="estado" class="form-select " required>
+                    <option selected value="">Seleccione el estado del inmueble</option>
                     <option value="true">Disponible</option>
                     <option value="false">No Disponible</option>
                 </select>
@@ -122,7 +122,7 @@
         let inputHiddenPropietario = document.getElementById("idPropietarioHidden");
         let inputNoHiddenPropietario = document.getElementById("idPropietarioNoHidden");
         let inputListaPropietarios = document.getElementById("propietarios");
-
+        let inputEstado = document.getElementById("estado");
         let inputHiddenCiudad = document.getElementById("ciudadHidden");
         let inputNoHiddenCiudad = document.getElementById("ciudadNoHidden");
         let listaCiudades = document.getElementById("ciudades");
@@ -161,13 +161,23 @@
                 inputNoHiddenCiudad.setCustomValidity("Debes seleccionar un elemento de la lista");
             }
         })
+        function comprobarSelectEstado(){
+            if(inputEstado.value === ""){
+                console.log(inputEstado.value);
+                this.setCustomValidity = "Seleccione el estado inicial";
+            }else{
+                inputEstado.setCustomValidity = "";
+            }
+        }
         function comprobarCamposValidos(){
             console.log(!form.checkValidity())
             boton.disabled = !form.checkValidity();
         }
         form.addEventListener("input", comprobarCamposValidos);
         form.addEventListener("change", comprobarCamposValidos);
+        inputEstado.addEventListener("select", comprobarSelectEstado());
         comprobarCamposValidos();
+        comprobarSelectEstado();
         form.addEventListener("submit", function(event){
             if(!form.checkValidity()){
                 event.preventDefault();
