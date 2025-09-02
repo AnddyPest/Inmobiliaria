@@ -31,17 +31,21 @@ namespace project.Controllers
                 
             return View("~/Views/Inmuebles/VistaRegistrarInmueble.cshtml", viewModel);
         }
+        
+
         [HttpGet("inmueble/listar")]
         public async Task<IActionResult> GetAllInmuebles()
         {
+            InmuebleViewModel viewModel = new();
             (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles();
             if (inmuebles.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
                 return BadRequest(inmuebles.Item1);
             }
-            Console.WriteLine(inmuebles.Item2);
-            return Ok(inmuebles.Item2);
+            viewModel.inmueble = inmuebles.Item2;
+            
+            return View("~/Views/Inmuebles/VistaLIstaInmuebles.cshtml", viewModel);
         }
         [HttpGet("inmueble/find/{idInmueble}")]
         public async Task<IActionResult> GetInmuebleById(int idInmueble)
@@ -83,15 +87,50 @@ namespace project.Controllers
                 return BadRequest("No se pudo actualizar el inmueble.");
             return Ok("Inmueble actualizado correctamente.");
         }
-        [HttpPost("inmueble/darDeBaja/{idInmueble}")]
-        public async Task<IActionResult> DeleteInmueble(int idInmueble)
+        [HttpGet]
+        public async Task<IActionResult> DarBajaLogica(int idInmueble)
         {
             (string?, bool) inmuebleDeleted = await _inmuebleService.DarDeBajaInmueble(idInmueble);
             if (inmuebleDeleted.Item1 != null)
                 return BadRequest(inmuebleDeleted.Item1);
             if (!inmuebleDeleted.Item2)
                 return BadRequest("No se pudo dar de baja el inmueble.");
-            return Ok("Inmueble dado de baja correctamente.");
+            return Redirect("/inmueble/listar");
+        }
+        [HttpGet]
+        public async Task<IActionResult> DarAltaLogica(int idInmueble)
+        {
+            
+            (string?, bool) inmuebleUp = await _inmuebleService.DarAltaLogica(idInmueble);
+            if(inmuebleUp.Item1 != null && !inmuebleUp.Item2)
+            {
+                HelperFor.imprimirMensajeDeError(inmuebleUp.Item1, nameof(InmuebleController), nameof(DarAltaLogica));
+                return BadRequest(inmuebleUp.Item1);
+            }
+            return Redirect("/inmueble/listar");
+
+        }
+        [HttpGet]
+        public async Task<IActionResult> MarcarAlquilado(int idInmueble)
+        {
+            (string?, bool) inmuebleLow = await _inmuebleService.MarcarAlquilado(idInmueble);
+            if(inmuebleLow.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(inmuebleLow.Item1, nameof(InmuebleController), nameof(MarcarAlquilado));
+                //AGREGAR MENSAJE 
+            }
+            return Redirect("/inmueble/listar");
+        }
+        [HttpGet]
+        public async Task<IActionResult> MarcarLibre(int idInmueble)
+        {
+            (string?, bool) inmuebleUp = await _inmuebleService.MarcarLibre(idInmueble);
+            if (inmuebleUp.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(inmuebleUp.Item1, nameof(InmuebleController), nameof(MarcarAlquilado));
+                //AGREGAR MENSAJE 
+            }
+            return Redirect("/inmueble/listar");
         }
 
     }

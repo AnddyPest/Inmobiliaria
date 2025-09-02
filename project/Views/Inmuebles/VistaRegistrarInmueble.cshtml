@@ -28,7 +28,6 @@
                     {
                         @foreach (var tipo in Model.tipo_Inmueble)
                         {
-                            
                             <option value="@tipo.id_tipo_inmueble">@tipo.nombre</option>
                         }
                     }
@@ -70,7 +69,6 @@
                     {
                         @foreach (var ciudad in Model.ciudades)
                         {
-                            
                             <option value="@ciudad" data-id="@ciudad"></option>
                         }
                     }
@@ -131,9 +129,9 @@
             let valido= false;
             for(const option of inputListaPropietarios.options){
                 if(option.value === inputNoHiddenPropietario.value){
-                    console.log(option)
+                    
                     inputHiddenPropietario.value = option.dataset.id;
-                    console.log(inputHiddenPropietario)
+                    
                     valido = true;
                     break;
                 }
@@ -146,11 +144,11 @@
         })
         inputNoHiddenCiudad.addEventListener("input", function(){
             let valido = false;
-            console.log(listaCiudades);
+            
             for(const option of listaCiudades.options){
                 if(option.value === inputNoHiddenCiudad.value){
                     inputHiddenCiudad.value = option.dataset.id
-                    console.log(option);
+                    
                     valido= true;
                     break;
                 }
@@ -163,14 +161,14 @@
         })
         function comprobarSelectEstado(){
             if(inputEstado.value === ""){
-                console.log(inputEstado.value);
+                
                 this.setCustomValidity = "Seleccione el estado inicial";
             }else{
                 inputEstado.setCustomValidity = "";
             }
         }
         function comprobarCamposValidos(){
-            console.log(!form.checkValidity())
+            
             boton.disabled = !form.checkValidity();
         }
         form.addEventListener("input", comprobarCamposValidos);
