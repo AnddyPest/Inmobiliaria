@@ -80,13 +80,16 @@
                                         <a class="btn btn-success p-1 m-1" href="@Url.Action("MarcarLibre", "Inmueble", new { idInmueble = inmueble.IdInmueble })">Marcar como libre</a>
                                     }
                                 }
-                                @if (inmueble.estado)
+                                @if (inmueble.Disponible && inmueble.estado || (!inmueble.Disponible && !inmueble.estado))
                                 {
-                                    <a class="btn btn-danger p-1 m-1" href="@Url.Action("DarBajaLogica","Inmueble", new {idInmueble = inmueble.IdInmueble})">Dar Baja</a>
-                                }
-                                else
-                                {
-                                    <a class="btn btn-success p-1 m-1" href="@Url.Action("DarAltaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">Dar Alta</a>
+                                    @if (inmueble.estado)
+                                    {
+                                        <a class="btn btn-danger p-1 m-1" href="@Url.Action("DarBajaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">Dar Baja</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="btn btn-success p-1 m-1" href="@Url.Action("DarAltaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">Dar Alta</a>
+                                    }
                                 }
 
                             </td>

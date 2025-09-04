@@ -15,10 +15,23 @@
 
     <div class="row card-body">
         <form action="/Inmueble/actualizar" method="post" id="formulario">
-            <input type="hidden" name="idInmueble" value="@Model.InmuebleOnly.IdInmueble" />
+            <input type="hidden" name="idInmueble" value="@Model!.InmuebleOnly!.IdInmueble" />
             <div class="mb-3">
                 <label for="Uso" class="form-label fw-bold fs-4 ms-1 rounded-5">Uso</label>
-                <input class="form-control" type="text" name="Uso" placeholder="Ingrese el uso del inmueble" value="@Model.InmuebleOnly.Uso" required />
+                @* <input class="form-control" type="text" name="Uso" placeholder="Ingrese el uso del inmueble" value="@Model.InmuebleOnly.Uso" required /> *@
+                <select class="form-select" name="Uso">
+                    <option value="">Seleccione una opcion</option>
+                    @if(Model.InmuebleOnly.Uso.ToLower() == "comercial")
+                    {
+                        <option value="Comercial" selected>Comercial</option>
+                        <option value="Residencial">Residencial</option>
+                    }
+                    else if (Model.InmuebleOnly.Uso.ToLower() == "residencial")
+                    {
+                        <option value="Comercial">Comercial</option>
+                        <option value="Residencial" selected>Residencial</option>
+                    }
+                </select>
             </div>
             
             <div class="mb-3">

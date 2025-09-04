@@ -18,7 +18,12 @@
         <form action="/Inmueble/crear" method="post" id="formulario">
             <div class="mb-3">
                 <label for="Uso" class="form-label fw-bold fs-4 ms-1 rounded-5" >Uso</label>
-                <input class="form-control" type="text" name="Uso" placeholder="Ingrese el uso del inmueble" required />
+                @* <input class="form-control" type="text" name="Uso" placeholder="Ingrese el uso del inmueble" required /> *@
+                <select class="form-select" name="Uso" required>
+                    <option value="" selected>Seleccione el uso del inmueble</option>
+                    <option value="Comercial">Comercial</option>
+                    <option value="Residencial">Residencial</option>
+                </select>
             </div>
             <div class="mb-3">
                 <label for="idTipo" class="form-label  fw-bold fs-4 ms-1">Tipo de Inmueble</label>
