@@ -1,0 +1,215 @@
+﻿@model project.Models.ViewModels.InmuebleViewModel
+@{
+    ViewData["Title"] = "Actualizar inmueble";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .fuente {
+    }
+</style>
+<div class="container-fluid card  p-4 mt-5 mb-5" style="max-width:600px; border-radius: 40px;">
+    <div class="card-header text-center p-3 bg-transparent" style="border-radius:20px;  border-block-color:black;">
+        <h2 class="card-title fs-1">Actualizar Inmueble</h2>
+        <p class="card-text fs-5">Aquí puedes actualizar un inmueble.</p>
+    </div>
+
+    <div class="row card-body">
+        <form action="/Inmueble/actualizar" method="post" id="formulario">
+            <input type="hidden" name="idInmueble" value="@Model.InmuebleOnly.IdInmueble" />
+            <div class="mb-3">
+                <label for="Uso" class="form-label fw-bold fs-4 ms-1 rounded-5">Uso</label>
+                <input class="form-control" type="text" name="Uso" placeholder="Ingrese el uso del inmueble" value="@Model.InmuebleOnly.Uso" required />
+            </div>
+            
+            <div class="mb-3">
+                <label for="idTipo" class="form-label  fw-bold fs-4 ms-1">Tipo de Inmueble</label>
+                <select class="form-select" name="idTipo" required>
+
+                    <option value="" selected>Seleccione el Tipo de Inmueble</option>
+
+                    @if (Model != null && Model.tipo_Inmueble != null)
+                    {
+                        @foreach (var tipo in Model.tipo_Inmueble)
+                        {
+                            
+                            
+                            if(Model.InmuebleOnly.idTipo == tipo.id_tipo_inmueble)
+                            {
+                                <option value="@tipo.id_tipo_inmueble" selected>@tipo.nombre</option>
+                            }
+                            else
+                            {
+                                <option value="@tipo.id_tipo_inmueble">@tipo.nombre</option>
+                            }
+                        }
+                    }
+                    
+
+
+                    )
+                </select>
+                @if (Model == null || Model.tipo_Inmueble == null)
+                {
+                    <p class="text-danger mt-1">No hay tipos registrados en base de datos</p>
+                }
+            </div>
+            <div class="mb-3">
+                <label for="Superficie" class="form-label  fw-bold fs-4 ms-1">Superficie (m²)</label>
+                <input type="number" name="Superficie" class="form-control" placeholder="Ingrese la superficie" value="@Model!.InmuebleOnly!.Superficie" required />
+            </div>
+            <div class="mb-3">
+                <label for="CantAmbientes" class="form-label  fw-bold fs-4 ms-1">Cantidad de Ambientes</label>
+                <input type="number" name="CantidadAmbientes" class="form-control" placeholder="Ingrese la cantidad de ambientes" value="@Model.InmuebleOnly.CantidadAmbientes" required />
+            </div>
+            <div class="mb-3">
+                <label for="Coordenadas" class="form-label  fw-bold fs-4 ms-1">Coordenadas</label>
+                <input class="form-control" type="number" step="0.01" min="0" name="Coordenadas" placeholder="Ingrese las coordenadas del inmueble" value="@Model.InmuebleOnly.Coordenadas" required />
+            </div>
+            <div class="mb-3">
+                <label for="Precio" class="form-label  fw-bold fs-4 ms-1">Precio</label>
+                <input class="form-control" type="number" step="0.01" min="0" name="Precio" placeholder="Ingrese el precio del inmueble" value="@Model.InmuebleOnly.Precio" required />
+            </div>
+            <div class="mb-3">
+                <label for="Direccion" class="form-label  fw-bold fs-4 ms-1">Direccion</label>
+                <input class="form-control" type="text" name="Direccion" placeholder="Ingrese la dirección del inmueble" value="@Model.InmuebleOnly.Direccion" required />
+            </div>
+            <div class="mb-3">
+                <label for="ciudadNoHidden" class="form-label  fw-bold fs-4 ms-1">Elige tu ciudad:</label>
+                <input list="ciudades" id="ciudadNoHidden" class="form-control" value="@Model.InmuebleOnly.ciudad" required autocomplete="off" />
+                <input type="hidden" name="ciudad" value="@Model.InmuebleOnly.ciudad" id="ciudadHidden" />
+                <datalist id="ciudades">
+                    @if (Model != null && Model.ciudades != null)
+                    {
+                        @foreach (var ciudad in Model.ciudades)
+                        {
+                            <option value="@ciudad" data-id="@ciudad"></option>
+                        }
+                    }
+
+                </datalist>
+                @if (Model == null || Model.ciudades == null)
+                {
+                    <p class="text-danger mt-1">No hay ciudades registradas en la base de datos</p>
+                }
+            </div>
+            <div class="mb-3">
+                @{
+                    var propietarioEncontrado = Model.propietarios!.FirstOrDefault(prop => prop.IdPropietario == Model.InmuebleOnly.IdPropietario);
+                    var message = propietarioEncontrado != null ?
+                    $"{propietarioEncontrado.Nombre} {propietarioEncontrado.Apellido} - Dni: {propietarioEncontrado.Dni}" :
+                    "Seleccione propietario";
+                }
+                <label for="idPropietarioNoHidden" class="form-label  fw-bold fs-4 ms-1">Selecciona el propietario</label>
+                <input list="propietarios" id="idPropietarioNoHidden" class="form-control" value="@message" required autocomplete="off" />
+                <input type="hidden" id="idPropietarioHidden" value="@Model.InmuebleOnly.IdPropietario" name="idPropietario" />
+                <datalist id="propietarios">
+                    @if (Model != null && Model.propietarios != null)
+                    {
+                        @foreach (var propietario in Model.propietarios)
+                        {
+                            <option value="@propietario.Nombre @propietario.Apellido - Dni: @propietario.Dni" data-id="@propietario.IdPropietario"></option>
+                        }
+                    }
+
+                </datalist>
+                @if (Model == null || Model.propietarios == null)
+                {
+                    <p class="text-danger mt-1">No hay propietarios registrados en la base de datos</p>
+                }
+            </div>
+            <div class="mb-3">
+                <label for="estado" class="form-label  fw-bold fs-4 ms-1">Estado</label>
+                <select name="estado" id="estado" class="form-select " required>
+                    <option value="">Seleccione el estado del inmueble</option>
+
+                    @if (Model!.InmuebleOnly.estado)
+                    {
+                        <option value="true" selected >Disponible</option>
+                        <option value="false" >No Disponible</option>
+                    }
+                    else
+                    {
+                        <option value="false" selected>No Disponible</option>
+                        <option value="true" >Disponible</option>
+                    }
+                </select>
+            </div>
+            <div class="mt-3 mb-1 float-end">
+                <button type="submit" class="btn btn-primary" id="BotonDeEnviar">Registrar Inmueble</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        let form = document.getElementById("formulario");
+        let boton = document.getElementById("BotonDeEnviar");
+        let inputHiddenPropietario = document.getElementById("idPropietarioHidden");
+        let inputNoHiddenPropietario = document.getElementById("idPropietarioNoHidden");
+        let inputListaPropietarios = document.getElementById("propietarios");
+        let inputEstado = document.getElementById("estado");
+        let inputHiddenCiudad = document.getElementById("ciudadHidden");
+        let inputNoHiddenCiudad = document.getElementById("ciudadNoHidden");
+        let listaCiudades = document.getElementById("ciudades");
+
+        inputNoHiddenPropietario.addEventListener("input",function(){
+            let valido= false;
+            for(const option of inputListaPropietarios.options){
+                if(option.value === inputNoHiddenPropietario.value){
+
+                    inputHiddenPropietario.value = option.dataset.id;
+
+                    valido = true;
+                    break;
+                }
+            }
+            if(valido){
+                inputNoHiddenPropietario.setCustomValidity("");
+            }else{
+                inputNoHiddenPropietario.setCustomValidity("Debes seleccionar un elemento de la lista");
+            }
+        })
+        inputNoHiddenCiudad.addEventListener("input", function(){
+            let valido = false;
+
+            for(const option of listaCiudades.options){
+                if(option.value === inputNoHiddenCiudad.value){
+                    inputHiddenCiudad.value = option.dataset.id
+
+                    valido= true;
+                    break;
+                }
+            }
+            if(valido){
+                inputNoHiddenCiudad.setCustomValidity("");
+            }else{
+                inputNoHiddenCiudad.setCustomValidity("Debes seleccionar un elemento de la lista");
+            }
+        })
+        function comprobarSelectEstado(){
+            if(inputEstado.value === ""){
+
+                this.setCustomValidity = "Seleccione el estado inicial";
+            }else{
+                inputEstado.setCustomValidity = "";
+            }
+        }
+        function comprobarCamposValidos(){
+
+            boton.disabled = !form.checkValidity();
+        }
+        form.addEventListener("input", comprobarCamposValidos);
+        form.addEventListener("change", comprobarCamposValidos);
+        inputEstado.addEventListener("select", comprobarSelectEstado());
+        comprobarCamposValidos();
+        comprobarSelectEstado();
+        form.addEventListener("submit", function(event){
+            if(!form.checkValidity()){
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        })
+    });
+
+</script>

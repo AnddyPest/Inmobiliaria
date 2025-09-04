@@ -100,7 +100,7 @@ namespace project.Services
                     {
                         command.Parameters.AddWithValue("@IdInmueble", inmueble.IdInmueble);
                         command.Parameters.AddWithValue("@Uso", inmueble.Uso);
-                        command.Parameters.AddWithValue("@id_tipo_inmueble", inmueble.Tipo.id_tipo_inmueble);
+                        command.Parameters.AddWithValue("@id_tipo_inmueble", inmueble.idTipo);
                         command.Parameters.AddWithValue("@Superficie", inmueble.Superficie);
                         command.Parameters.AddWithValue("@CantidadAmbientes", inmueble.CantidadAmbientes);
                         command.Parameters.AddWithValue("@Coordenadas", inmueble.Coordenadas);
@@ -254,8 +254,10 @@ namespace project.Services
                                 inmueble.IdPropietario = reader.GetInt32("IdPropietario");
                                 inmueble.Disponible = reader.GetBoolean("Disponible");
                                 inmueble.estado = reader.GetBoolean("estado");
-                                tipo.id_tipo_inmueble = reader.GetInt32("id_tipo_inmueble");
+                                inmueble.idTipo = reader.GetInt32("id_tipo_inmueble");
+                                tipo.id_tipo_inmueble = inmueble.idTipo;
                                 tipo.nombre = reader.GetString("nombre");
+
                                 inmueble.Tipo = tipo;
                                 return (null, inmueble);
                             }

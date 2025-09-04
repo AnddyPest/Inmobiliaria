@@ -47,5 +47,18 @@ namespace project.Models
 
         // Constructor vacío
         public Inmueble() : this(default!, default!, default, default, default, default, default!, default, default, default) { }
+        public override string ToString()
+        {
+            return @$"idInmueble: {this.IdInmueble}
+                      idPropietario: {this.IdPropietario}
+                      Uso: {this.Uso}
+                      idTipo: {this.idTipo}
+                      Superficie: {this.Superficie}
+                      Coordenadas: {this.Coordenadas}
+                      Direccion: {this.Direccion}
+                      Ciudad: {this.ciudad}
+                      Disponible: {this.Disponible}
+                      Estado: {this.estado}";
+        }
     }
 }

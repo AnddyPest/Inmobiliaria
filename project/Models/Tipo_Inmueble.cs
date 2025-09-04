@@ -19,5 +19,10 @@ namespace project.Models
             this.id_tipo_inmueble = id_tipo_inmueble;
             this.nombre = nombre;
         }
+        public override string ToString()
+        {
+            return @$"id_tipo_inmueble: {this.id_tipo_inmueble}
+                      nombre: {this.nombre}";
+        }
     }
 }

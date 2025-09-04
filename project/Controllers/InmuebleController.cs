@@ -5,6 +5,7 @@ using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
 using project.Models.ViewModels;
+using project.Services;
 using System.Threading.Tasks;
 
 namespace project.Controllers
@@ -19,6 +20,33 @@ namespace project.Controllers
         {
             return View("~/Views/Inmuebles/IndexInmueble.cshtml");
         }
+        [HttpGet("Inmueble/{idInmueble}")]
+        public async Task<IActionResult> Actualizar(int idInmueble)
+        {
+            InmuebleViewModel viewModel = new();
+            (string?,Inmueble?) inmuebleFromService =  await _inmuebleService.ObtenerInmueblePorId(idInmueble);
+            if(inmuebleFromService.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(inmuebleFromService.Item1, nameof(InmuebleController), nameof(Actualizar));
+                return BadRequest(inmuebleFromService.Item1);
+            }
+            if (inmuebleFromService.Item2 != null)
+                viewModel.InmuebleOnly = inmuebleFromService.Item2;
+            
+            (string?, List<Tipo_Inmueble>?) typesFromService = await _tipoInmuebleService.getAllTipoInmueble();
+            if (typesFromService.Item2 != null)
+            {
+                viewModel.tipo_Inmueble = typesFromService.Item2;
+            }
+            (string?, List<Propietario>?) propietarioFromService = await _propietarioService.ObtenerTodos();
+            if(propietarioFromService.Item2 != null)
+            {
+                viewModel.propietarios = propietarioFromService.Item2;
+            }
+
+
+            return View("~/Views/Inmuebles/VistaActualizarInmueble.cshtml", viewModel);
+        }
         [HttpGet("Inmueble/Agregar")]
         public async Task<IActionResult> Agregar()
         {
@@ -27,7 +55,6 @@ namespace project.Controllers
             if (listaInmueblesFromService.Item2 != null) viewModel.tipo_Inmueble = listaInmueblesFromService.Item2;
             (string?, List<Propietario>?) propietariosFromService = await _propietarioService.ObtenerTodos();
             if (propietariosFromService.Item2 != null) viewModel.propietarios = propietariosFromService.Item2;
-
                 
             return View("~/Views/Inmuebles/VistaRegistrarInmueble.cshtml", viewModel);
         }
@@ -85,7 +112,7 @@ namespace project.Controllers
                 return BadRequest(inmuebleUpdated.Item1);
             if (!inmuebleUpdated.Item2)
                 return BadRequest("No se pudo actualizar el inmueble.");
-            return Ok("Inmueble actualizado correctamente.");
+            return Redirect("/inmueble/listar");
         }
         [HttpGet]
         public async Task<IActionResult> DarBajaLogica(int idInmueble)
