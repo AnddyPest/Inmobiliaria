@@ -99,7 +99,7 @@ namespace project.Controllers
                 return BadRequest(inmuebleCreated.Item1);
             if (inmuebleCreated.Item2?.IdInmueble == null || inmuebleCreated.Item2.IdInmueble == 0)
                 return BadRequest("No se pudo crear el inmueble.");
-            return Ok(inmuebleCreated.Item2);
+            return Redirect("/inmueble/listar");
         }
 
         [HttpPost("Inmueble/actualizar")]
