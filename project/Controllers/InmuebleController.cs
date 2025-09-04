@@ -43,7 +43,10 @@ namespace project.Controllers
             {
                 viewModel.propietarios = propietarioFromService.Item2;
             }
-
+            foreach(var prop in propietarioFromService.Item2)
+            {
+                Console.WriteLine(prop.ToString());
+            }
 
             return View("~/Views/Inmuebles/VistaActualizarInmueble.cshtml", viewModel);
         }

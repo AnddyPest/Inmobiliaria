@@ -120,7 +120,10 @@
                     {
                         @foreach (var propietario in Model.propietarios)
                         {
-                            <option value="@propietario.Nombre @propietario.Apellido - Dni: @propietario.Dni" data-id="@propietario.IdPropietario"></option>
+                            if (propietario.EstadoPropietario)
+                            {
+                                <option value="@propietario.Nombre @propietario.Apellido - Dni: @propietario.Dni" data-id="@propietario.IdPropietario"></option>
+                            }
                         }
                     }
 
