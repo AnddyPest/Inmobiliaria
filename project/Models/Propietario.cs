@@ -1,3 +1,4 @@
+using Microsoft.DotNet.Scaffolding.Shared.T4Templating;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -23,6 +24,10 @@ namespace project.Models
         {
             if (inmueble == null) throw new ArgumentNullException(nameof(inmueble));
             Inmuebles.Add(inmueble);
+        }
+        public override string ToString()
+        {
+            return $"{base.ToString()} + EstadoPropietario: ${this.EstadoPropietario}";
         }
     }
 
