@@ -9,18 +9,19 @@
         <table class="table table-striped table-bordered mt-4 table-dark mb-3 ">
             <thead class="table-dark">
                 <tr>
-                    <th>ID</th>
-                    <th>Uso</th>
-                    <th>Tipo de Inmueble</th>
-                    <th>Superficie (m²)</th>
-                    <th>Cantidad de Ambientes</th>
-                    <th>Coordenadas</th>
-                    <th>Precio</th>
-                    <th>Dirección</th>
-                    <th>Propietario</th>
-                    <th>Alquilado</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+                    <th style="width: 3%;">ID</th>
+                    <th style="width: 5%;">Uso</th>
+                    <th style="width: 5%;">Tipo</th>
+                    <th style="width: 3%;">Sup</th>
+                    <th style="width: 3%;">Amb</th>
+                    <th style="width: 5%;">Coord</th>
+                    <th style="width: 5%;">Precio</th>
+                    <th style="width: 10%;">Dirección</th>
+                    <th style="width: 10%;">Propietario</th>
+                    <th style="width: 5%;">DNI Prop</th>
+                    <th style="width: 5%;">Alquilado</th>
+                    <th style="width: 5%;">Estado</th>
+                    <th style="width: 12%;">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -30,65 +31,76 @@
                     {
                         
                         <tr>
-                            <td class="text-center p-3">@inmueble.IdInmueble</td>
-                            <td class="text-center p-3">@inmueble.Uso</td>
-                            <td class="text-center p-3">@inmueble.Tipo.nombre</td>
-                            <td class="text-center p-3">@inmueble.Superficie</td>
-                            <td class="text-center p-3">@inmueble.CantidadAmbientes</td>
-                            <td class="text-center p-3">@inmueble.Coordenadas</td>
-                            <td class="text-center p-3">$@inmueble.Precio</td>
-                            <td class="text-center p-3">@inmueble.Direccion</td>
-                            <td class="text-center p-3">@inmueble.Propietario!.Nombre @inmueble.Propietario.Apellido - @inmueble.Propietario.Dni</td>
-                            <td class="text-center p-3">
+                            <td class="text-center ">@inmueble.IdInmueble</td>
+                            <td class="text-center ">@inmueble.Uso</td>
+                            <td class="text-center ">@inmueble.Tipo.nombre</td>
+                            <td class="text-center ">@inmueble.Superficie</td>
+                            <td class="text-center ">@inmueble.CantidadAmbientes</td>
+                            <td class="text-center ">@inmueble.Coordenadas</td>
+                            <td class="text-center ">$@inmueble.Precio</td>
+                            <td class="text-center ">@inmueble.Direccion</td>
+                            <td class="text-center ">@inmueble.Propietario!.Nombre @inmueble.Propietario.Apellido</td>
+                            <td class="text-center ">@inmueble.Propietario!.Dni</td>
+                            <td class="text-center flex">
                                 @if (!inmueble.estado)
                                 {
-                                    <i class="bi bi-house-slash-fill text-danger fs-3" title="No disponible - Dado de baja"></i>
+                                    <i class="bi bi-house-slash-fill text-danger fs-4" title="No disponible - Dado de baja"></i>
                                 }
                                 else
                                 {
                                     @if (inmueble.Disponible)
                                     {
-                                        <i class="bi bi-house text-secondary fs-3" title="Disponible - No alquilado"></i>
+                                        <i class="bi bi-house text-secondary fs-4" title="Disponible - No alquilado"></i>
                                     }
                                     else
                                     {
-                                        <i class="bi bi-house-check-fill text-success fs-3" title="Alquilado"></i>
+                                        <i class="bi bi-house-check-fill text-success fs-4" title="Alquilado"></i>
                                     }
                                 }
 
                             </td>
-                            <td class="text-center p-3">
+                            <td class="text-center flex">
                                 @if (inmueble.estado)
                                 {
-                                    <i class= "bi bi-check-circle-fill text-success fs-3" title = "Activo" ></i>
+                                    <i class= "bi bi-check-circle-fill text-success fs-4" title = "Activo" ></i>
                                 }
                                 else
                                 {
-                                    <i class="bi bi-x-circle-fill text-danger fs-3" title="Inactivo - Dado de baja"></i>
+                                    <i class="bi bi-x-circle-fill text-danger fs-4" title="Inactivo - Dado de baja"></i>
                                 }
                             </td>
-                            <td class="text-center p-3 d-flex d-inline-flex">
-                                <a class="btn btn-warning p-1 m-1" href="@Url.Action("Actualizar", "Inmueble", new { idInmueble = inmueble.IdInmueble })">Actualizar</a>
+                            <td class="text-center d-flex justify-content-space-between pb-4">
+                                <a class="btn btn-warning p-1 m-1 w-25" href="@Url.Action("Actualizar", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
                                 @if (inmueble.estado)
                                 {
                                     @if (inmueble.Disponible)
                                     {
-                                        <a class="btn btn-danger p-1 m-1" href="@Url.Action("MarcarAlquilado", "Inmueble", new { idInmueble = inmueble.IdInmueble })">Marcar alquilado</a>
+                                        <a class="btn btn-info p-1 m-1 w-25" href="@Url.Action("MarcarAlquilado", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
+                                            <i class="bi bi-door-closed-fill"></i>
+                                        </a>
                                     }
                                     else
                                     {
-                                        <a class="btn btn-success p-1 m-1" href="@Url.Action("MarcarLibre", "Inmueble", new { idInmueble = inmueble.IdInmueble })">Marcar como libre</a>
+                                        <a class="btn btn-success p-1 m-1 w-25" href="@Url.Action("MarcarLibre", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
+                                            <i class="bi bi-door-open-fill"></i>
+                                        </a>
                                     }
                                 }
                                 @if (inmueble.Disponible && inmueble.estado || (!inmueble.Disponible && !inmueble.estado))
                                 {
                                     @if (inmueble.estado)
                                     {
-                                        <a class="btn btn-danger p-1 m-1" href="@Url.Action("DarBajaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">Dar Baja</a>
+                                        <a class="btn btn-danger p-1 m-1 w-25" href="@Url.Action("DarBajaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
                                     }
                                     else
                                     {
-                                        <a class="btn btn-success p-1 m-1" href="@Url.Action("DarAltaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">Dar Alta</a>
+                                        <a class="btn btn-success p-1 m-1 w-25" href="@Url.Action("DarAltaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </a>
                                     }
                                 }
 
