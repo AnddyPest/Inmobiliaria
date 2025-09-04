@@ -114,7 +114,7 @@ namespace project.Controllers
                 return BadRequest("No se pudo actualizar el inmueble.");
             return Redirect("/inmueble/listar");
         }
-        [HttpGet]
+        [HttpGet("Inmueble/DarBajaLogica/{idInmueble}")]
         public async Task<IActionResult> DarBajaLogica(int idInmueble)
         {
             (string?, bool) inmuebleDeleted = await _inmuebleService.DarDeBajaInmueble(idInmueble);
@@ -124,7 +124,7 @@ namespace project.Controllers
                 return BadRequest("No se pudo dar de baja el inmueble.");
             return Redirect("/inmueble/listar");
         }
-        [HttpGet]
+        [HttpGet("Inmueble/DarAltaLogica/{idInmueble}")]
         public async Task<IActionResult> DarAltaLogica(int idInmueble)
         {
             
@@ -137,9 +137,10 @@ namespace project.Controllers
             return Redirect("/inmueble/listar");
 
         }
-        [HttpGet]
+        [HttpGet("Inmueble/MarcarAlquilado/{idInmueble}")]
         public async Task<IActionResult> MarcarAlquilado(int idInmueble)
         {
+
             (string?, bool) inmuebleLow = await _inmuebleService.MarcarAlquilado(idInmueble);
             if(inmuebleLow.Item1 != null)
             {
@@ -148,7 +149,7 @@ namespace project.Controllers
             }
             return Redirect("/inmueble/listar");
         }
-        [HttpGet]
+        [HttpGet("Inmueble/MarcarLibre/{idInmueble}")]
         public async Task<IActionResult> MarcarLibre(int idInmueble)
         {
             (string?, bool) inmuebleUp = await _inmuebleService.MarcarLibre(idInmueble);
