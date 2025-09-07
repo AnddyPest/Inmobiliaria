@@ -2,6 +2,12 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@using Newtonsoft.Json
+<script>
+    window.Model = {
+        inmueble: @Html.Raw(JsonConvert.SerializeObject(Model.inmueble))
+    };
+</script>
 
 <div>
     <h2 class="text-center mt-4 text-white fs-2 mt-1">Lista de Inmuebles Registrados</h2>
@@ -33,7 +39,7 @@
                         <tr>
                             <td class="text-center ">@inmueble.IdInmueble</td>
                             <td class="text-center ">@inmueble.Uso</td>
-                            <td class="text-center ">@inmueble.Tipo.nombre</td>
+                            <td class="text-center ">@(inmueble.Tipo != null ? inmueble.Tipo.nombre : "")</td>
                             <td class="text-center ">@inmueble.Superficie</td>
                             <td class="text-center ">@inmueble.CantidadAmbientes</td>
                             <td class="text-center ">@inmueble.Coordenadas</td>
@@ -77,9 +83,9 @@
                                 {
                                     @if (inmueble.Disponible)
                                     {
-                                        <a class="btn btn-info p-1 m-1 w-25" href="@Url.Action("MarcarAlquilado", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
-                                            <i class="bi bi-door-closed-fill"></i>
-                                        </a>
+                                                                        <button type="button" class="btn btn-info p-1 m-1 w-25" onclick="abrirNuevoContratoModal('@inmueble.IdInmueble', '@inmueble.Direccion')">
+                                                                            <i class="bi bi-door-closed-fill"></i>
+                                                                        </button>
                                     }
                                     else
                                     {
@@ -115,3 +121,300 @@
 
     </div>
 </div>
+
+    <!-- Modal Nuevo Contrato -->
+    <div class="modal fade" id="nuevoContratoModal" tabindex="-1" aria-labelledby="nuevoContratoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nuevoContratoModalLabel">Registrar Nuevo Contrato</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/contrato/crear" method="POST" class="p-3 border border-success mb-2 rounded" id="formContrato">
+                        <input type="hidden" id="IdInquilino" name="IdInquilino">
+                        <input type="hidden" id="IdPropietario" name="IdPropietario">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="dniInquilino">DNI Inquilino:</label>
+                                <input type="text" id="dniInquilino" name="dniInquilino" class="form-control" required>
+                            </div>
+                            <div class="col">
+                                <label for="nombreInquilino">Nombre Inquilino:</label>
+                                <input type="text" id="nombreInquilino" name="nombreInquilino" class="form-control" required disabled>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="apellidoInquilino">Apellido Inquilino:</label>
+                                <input type="text" id="apellidoInquilino" name="apellidoInquilino" class="form-control" required disabled>
+                            </div>
+                            <div class="col">
+                                <label for="telefonoInquilino">Teléfono Inquilino:</label>
+                                <input type="text" id="telefonoInquilino" name="telefonoInquilino" class="form-control" required disabled>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="direccionInquilino">Dirección Inquilino:</label>
+                                <input type="text" id="direccionInquilino" name="direccionInquilino" class="form-control" required disabled>
+                            </div>
+                            <div class="col">
+                                <label for="emailInquilino">Email Inquilino:</label>
+                                <input type="email" id="emailInquilino" name="emailInquilino" class="form-control" required disabled>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="direccionInmueble">Dirección Inmueble:</label>
+                                <input type="text" id="direccionInmueble" name="direccionInmueble" class="form-control" required disabled>
+                                <input type="hidden" id="idInmueble" name="idInmueble">
+                            </div>
+                            <div class="col">
+                                <label for="fechaInicio">Fecha Inicio:</label>
+                                <input type="date" id="fechaInicio" name="fechaInicio" class="form-control" required>
+                            </div>
+                            <div class="col">
+                                <label for="fechaFin">Fecha Fin:</label>
+                                <input type="date" id="fechaFin" name="fechaFin" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="Monto">Monto Alquiler:</label>
+                                <input type="number" id="Monto" name="Monto" class="form-control" required>
+                            </div>
+                            <div class="col">
+                                <label for="observaciones">Observaciones:</label>
+                                <textarea id="observaciones" name="observaciones" class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <div class="mb-3 p-3 row border border-dark rounded w-100 ms-1">
+                            <div class="col w-25">
+                                <button class="btn btn-warning shadow ms-1 me-1 w-100" type="reset">Limpiar Formulario</button>
+                            </div>
+                            <div class="col w-25"></div>
+                            <div class="col w-25"></div>
+                            <div class="col w-25">
+                                <button type="submit" class="btn btn-primary shadow ms-1 me-1 w-100">Registrar Contrato</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            // MODAL SE RELLENA CON LOS DATOS DEL INMUEBLE SELECCIONADO IDPROP - MONTO - IDINMUEBLE
+            function abrirNuevoContratoModal(id, direccion) {
+                var modal = new bootstrap.Modal(document.getElementById('nuevoContratoModal'));
+                document.getElementById('idInmueble').value = id;
+                document.getElementById('direccionInmueble').value = direccion;
+                // BUSCA EL INMUEBLE Y ASIGNA IDPROPIETARIO Y MONTO
+                if (window.Model && window.Model.inmueble) {
+                    var inmueble = window.Model.inmueble.find(i => i.IdInmueble == id);
+                    console.log('Inmueble seleccionado al abrir modal:', inmueble);
+                    if (inmueble && inmueble.IdPropietario) {
+                        document.getElementById('IdPropietario').value = inmueble.IdPropietario;
+                        console.log('IdPropietario asignado al abrir modal:', inmueble.IdPropietario);
+                    } else {
+                        document.getElementById('IdPropietario').value = '';
+                        console.warn('No se encontró IdPropietario para el inmueble seleccionado');
+                    }
+                    // AUTORRELLENA MONTO CON EL PRECIO DEL INMUEBLE
+                    var montoInput = document.getElementById('Monto');
+                    if (montoInput && inmueble && inmueble.Precio) {
+                        montoInput.value = inmueble.Precio;
+                        console.log('Monto alquiler autorellenado con precio:', inmueble.Precio);
+                    } else if (montoInput) {
+                        montoInput.value = '';
+                        console.warn('No se encontró precio para el inmueble seleccionado');
+                    } else {
+                        console.error("No se encontró el input 'Monto' en el DOM");
+                    }
+                } else {
+                    console.warn('window.Model.inmueble no está disponible');
+                }
+                modal.show();
+            }
+
+            // GESTION DEL DNI DEL INQUILINO - FUNCIONA BIEN
+            document.addEventListener('DOMContentLoaded', function() {
+                const dniInput = document.getElementById("dniInquilino");
+                if (!dniInput) return;
+                let inquilinoExiste = false;
+                let idInquilinoActual = null;
+                dniInput.addEventListener("input", function() {
+                    const original = this.value;
+                    const filtrado = original.replace(/[^0-9]/g, '');
+                    if (original !== filtrado) {
+                        const prevPlaceholder = this.placeholder;
+                        this.value = filtrado;
+                        this.placeholder = "SOLO NÚMEROS";
+                        this.classList.add("placeholder-error");
+                        this.style.color = "#dc3545";
+                        this.style.fontWeight = "bold";
+                        this.style.borderColor = "#dc3545";
+                        setTimeout(() => {
+                            this.classList.remove("placeholder-error");
+                            this.placeholder = prevPlaceholder;
+                            this.style.color = "";
+                            this.style.fontWeight = "";
+                            this.style.borderColor = "";
+                        }, 900);
+                    }
+                });
+
+                dniInput.addEventListener("keyup", function() {
+                    const dni = this.value;
+                    if (dni.length >= 8) {
+                        fetch('/Inquilino/BuscarPorDni?dni=' + dni)
+                            .then(response => {
+                                if (!response.ok) throw new Error('No se encontró la persona');
+                                return response.json();
+                            })
+                            .then(data => {
+                                document.getElementById('nombreInquilino').value = data.nombre || '';
+                                document.getElementById('apellidoInquilino').value = data.apellido || '';
+                                document.getElementById('telefonoInquilino').value = data.telefono || '';
+                                document.getElementById('direccionInquilino').value = data.direccion || '';
+                                document.getElementById('emailInquilino').value = data.email || '';
+                                ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+                                    document.getElementById(id).removeAttribute('disabled');
+                                });
+                                // SI ENCONTRAMOS EL INQUILINO POR DNI ASIGNAMOS SU ID AL CAMPO OCULTO Y RELLENAMOS LOS CAMPOS|
+                                if (data.esInquilino) {
+                                    if (data.idInquilino) {
+                                        document.getElementById('IdInquilino').value = data.idInquilino;
+                                        console.log('IdInquilino asignado al campo oculto (existente):', data.idInquilino);
+                                    } else {
+                                        document.getElementById('IdInquilino').value = '';
+                                        console.warn('No se recibió idInquilino para el inquilino existente');
+                                    }
+                                    inquilinoExiste = true;
+                                    idInquilinoActual = true;
+                                } else {
+                                    document.getElementById('IdInquilino').value = '';
+                                    inquilinoExiste = false;
+                                    idInquilinoActual = null;
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('nombreInquilino').value = '';
+                                document.getElementById('apellidoInquilino').value = '';
+                                document.getElementById('telefonoInquilino').value = '';
+                                document.getElementById('direccionInquilino').value = '';
+                                document.getElementById('emailInquilino').value = '';
+                                ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+                                    document.getElementById(id).removeAttribute('disabled');
+                                });
+                                document.getElementById('IdInquilino').value = '';
+                                inquilinoExiste = false;
+                                idInquilinoActual = null;
+                            });
+                    } else {
+                        document.getElementById('nombreInquilino').value = '';
+                        document.getElementById('apellidoInquilino').value = '';
+                        document.getElementById('telefonoInquilino').value = '';
+                        document.getElementById('direccionInquilino').value = '';
+                        document.getElementById('emailInquilino').value = '';
+                        ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+                            document.getElementById(id).setAttribute('disabled', 'disabled');
+                        });
+                        document.getElementById('IdInquilino').value = '';
+                        inquilinoExiste = false;
+                        idInquilinoActual = null;
+                    }
+                });
+
+                // HABILITAMOS LOS CAMPOS PARA ENVIAR EL FORMULARIO
+                document.getElementById('formContrato').addEventListener('submit', async function(e) {
+                    ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+                        document.getElementById(id).removeAttribute('disabled');
+                    });
+                    // ASIGNA IDPROPIETARIO AL CAMPO OCULTO
+                    var idProp = null;
+                    if (window.Model && window.Model.inmueble) {
+                        var idInmueble = document.getElementById('idInmueble').value;
+                        var inmueble = window.Model.inmueble.find(i => i.IdInmueble == idInmueble);
+                        console.log('Objeto inmueble seleccionado:', inmueble);
+                        if (inmueble && inmueble.IdPropietario) {
+                            idProp = inmueble.IdPropietario;
+                        }
+                    }
+                    document.getElementById('IdPropietario').value = idProp || '';
+                    console.log('IdPropietario asignado al campo oculto:', document.getElementById('IdPropietario').value);
+
+                    // SI NO EXISTE EL INQUILINO, LO CREA Y ESPERA PARA OBTENER SU ID
+                    if (!inquilinoExiste) {
+                        e.preventDefault();
+                        // CREAMOS EL INQUILINO CON PREVENT REDIRECT PARA NO CORTAR EL FLUJO
+                        const formData = new FormData();
+                        formData.append('Dni', document.getElementById('dniInquilino').value);
+                        formData.append('Nombre', document.getElementById('nombreInquilino').value);
+                        formData.append('Apellido', document.getElementById('apellidoInquilino').value);
+                        formData.append('Telefono', document.getElementById('telefonoInquilino').value);
+                        formData.append('Direccion', document.getElementById('direccionInquilino').value);
+                        formData.append('Email', document.getElementById('emailInquilino').value);
+                        console.log('Enviando datos para crear inquilino:', Object.fromEntries(formData.entries()));
+                        fetch('/inquilino/Create?preventRedirect=true', {
+                            method: 'POST',
+                            body: formData
+                        }).then(async resp => {
+                            // AWAITEA Q SE CREE Y LUEGO BUSCA EL ID
+                            const dni = document.getElementById('dniInquilino').value;
+                            setTimeout(async () => {
+                                try {
+                                    const resp2 = await fetch('/Inquilino/BuscarPorDni?dni=' + dni);
+                                    if (resp2.ok) {
+                                        const data = await resp2.json();
+                                        console.log('Respuesta de BuscarPorDni:', data);
+                                        if (data.esInquilino && data.idInquilino) {
+                                            document.getElementById('IdInquilino').value = data.idInquilino;
+                                            inquilinoExiste = true;
+                                            console.log('IdInquilino obtenido y asignado al campo oculto:', document.getElementById('IdInquilino').value);
+                                            // REENVIA EL FORMULARIO CONTRATO
+                                            document.getElementById('formContrato').submit();
+                                        } else {
+                                            console.error('No se pudo obtener el id del nuevo inquilino. Verifique que el backend devuelva idInquilino en /Inquilino/BuscarPorDni');
+                                        }
+                                    } else {
+                                        console.error('Error al buscar el nuevo inquilino.');
+                                    }
+                                } catch (err) {
+                                    console.error('Error inesperado al buscar el nuevo inquilino.', err);
+                                }
+                            }, 1000);
+                        }).catch(() => {
+                            console.error('Error al crear el inquilino.');
+                        });
+                    } else {
+                        // SI EL INQUILINO YA EXISTE, ASEGURA LA ASIGNACION DEL ID
+                        if (!document.getElementById('IdInquilino').value) {
+                            const dni = document.getElementById('dniInquilino').value;
+                            const resp = await fetch('/Inquilino/BuscarPorDni?dni=' + dni);
+                            if (resp.ok) {
+                                const data = await resp.json();
+                                console.log('Respuesta de BuscarPorDni (inquilino ya existe):', data);
+                                if (data.idInquilino) {
+                                    document.getElementById('IdInquilino').value = data.idInquilino;
+                                    console.log('IdInquilino asignado al campo oculto:', document.getElementById('IdInquilino').value);
+                                } else {
+                                    console.error('No se encontró idInquilino en la respuesta.');
+                                }
+                            } else {
+                                console.error('Error al buscar el inquilino existente.');
+                            }
+                        } else {
+                            console.log('IdInquilino ya presente en el campo oculto:', document.getElementById('IdInquilino').value);
+                        }
+                    }
+                    // ANTES DE ENVIAR EL FORMULARIO, CONSOLOGUEA LOS VALORES FINALES ENVIADOS AL BACKEND
+                    console.log('Valores finales antes de enviar el contrato:', {
+                        IdInquilino: document.getElementById('IdInquilino').value,
+                        IdPropietario: document.getElementById('IdPropietario').value
+                    });
+                });
+            });
+    </script>

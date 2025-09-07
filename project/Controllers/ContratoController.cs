@@ -40,6 +40,10 @@ namespace project.Controllers
         [HttpPost("contrato/crear")]
         public async Task<IActionResult> AddContrato(Contrato model)
         {
+            Console.WriteLine($"[CONTRATO] IdInquilino recibido: {model.IdInquilino}");
+            Console.WriteLine($"[CONTRATO] IdPropietario recibido: {model.IdPropietario}");
+            Console.WriteLine($"[CONTRATO] IdInmueble recibido: {model.IdInmueble}");
+            Console.WriteLine($"[CONTRATO] Monto recibido: {model.Monto}");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             (string?, bool) contratoCreated = await _contratoService.CreateContrato(model);

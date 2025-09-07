@@ -185,11 +185,12 @@ namespace project.Controllers
             if (persona == null || persona.IdPersona == 0)
                 return NotFound();
 
-            // Comprobar si ya es inquilino
+            // ESTO COMPRUEBA Q EL INQUILINO EXISTA
             var inquilino = await inquilinoService.getInquilinoByIdPersona(persona.IdPersona);
             bool esInquilino = inquilino.Item2 != null;
+            int? idInquilino = (inquilino.Item2 != null) ? inquilino.Item2.IdInquilino : (int?)null;
 
-            // Devolver persona + info de inquilino
+            // DEVOLVEMOS EL JSON CON LA INFO PARA USAR EN EL FRONT -- LO NECESITO ASI PARA EL FORMULARIO
             return Json(new
             {
                 nombre = persona.Nombre,
@@ -197,7 +198,9 @@ namespace project.Controllers
                 telefono = persona.Telefono,
                 direccion = persona.Direccion,
                 email = persona.Email,
-                esInquilino = esInquilino
+                esInquilino = esInquilino,
+                idInquilino = idInquilino,
+                idPersona = persona.IdPersona
             });
         }
         
