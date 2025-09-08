@@ -66,6 +66,7 @@ namespace project.Controllers
         public async Task<IActionResult> GetAllInmuebles(int nroPagina = 1)
         {
             InmuebleViewModel viewModel = new();
+            ViewBag.nroPagina = nroPagina;
             (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), 10);
             if (inmuebles.Item1 != null)
             {
