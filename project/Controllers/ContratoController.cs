@@ -7,10 +7,13 @@ namespace project.Controllers
     public class ContratoController : Controller
     {
         private IContratoService _contratoService;
+        private IInmuebleService _inmuebleService;
 
-        public ContratoController(IContratoService contratoService)
+        // Elimina el constructor duplicado y deja solo el que recibe ambos servicios
+        public ContratoController(IContratoService contratoService, IInmuebleService inmuebleService)
         {
             _contratoService = contratoService;
+            _inmuebleService = inmuebleService;
         }
 
         [HttpGet("contrato/listar")]
@@ -51,7 +54,11 @@ namespace project.Controllers
                 return BadRequest(contratoCreated.Item1);
             if (!contratoCreated.Item2)
                 return BadRequest("No se pudo crear el contrato.");
-            return Ok(contratoCreated.Item2);
+            // Marcar inmueble como alquilado en el backend
+            (string?, bool) alquiladoResult = await _inmuebleService.MarcarAlquilado(model.IdInmueble);
+            if (alquiladoResult.Item1 != null || !alquiladoResult.Item2)
+                Console.WriteLine($"[CONTRATO] Error al marcar inmueble como alquilado: {alquiladoResult.Item1}");
+            return Redirect("/inmueble/listar");
         }
         [HttpPost("contrato/actualizar")]
         public async Task<IActionResult> UpdateContrato(Contrato model)

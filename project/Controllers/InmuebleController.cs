@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using project.Helpers;
 using project.Models;
@@ -117,7 +116,7 @@ namespace project.Controllers
                 return BadRequest("No se pudo actualizar el inmueble.");
             return Redirect("/inmueble/listar");
         }
-        [HttpGet("Inmueble/DarBajaLogica/{idInmueble}")]
+        [HttpPost("Inmueble/DarBajaLogica/{idInmueble}")]
         public async Task<IActionResult> DarBajaLogica(int idInmueble)
         {
             (string?, bool) inmuebleDeleted = await _inmuebleService.DarDeBajaInmueble(idInmueble);
@@ -140,11 +139,12 @@ namespace project.Controllers
             return Redirect("/inmueble/listar");
 
         }
-        [HttpGet("Inmueble/MarcarAlquilado/{idInmueble}")]
+        [HttpPost("Inmueble/MarcarAlquilado/{idInmueble}")]
         public async Task<IActionResult> MarcarAlquilado(int idInmueble)
         {
-
+            Console.WriteLine($"[INMUEBLE] MarcarAlquilado llamado con idInmueble: {idInmueble}");
             (string?, bool) inmuebleLow = await _inmuebleService.MarcarAlquilado(idInmueble);
+            Console.WriteLine($"[INMUEBLE] Respuesta de MarcarAlquilado: error={inmuebleLow.Item1}, exito={inmuebleLow.Item2}");
             if(inmuebleLow.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inmuebleLow.Item1, nameof(InmuebleController), nameof(MarcarAlquilado));
@@ -152,7 +152,7 @@ namespace project.Controllers
             }
             return Redirect("/inmueble/listar");
         }
-        [HttpGet("Inmueble/MarcarLibre/{idInmueble}")]
+        [HttpPost("Inmueble/MarcarLibre/{idInmueble}")]
         public async Task<IActionResult> MarcarLibre(int idInmueble)
         {
             (string?, bool) inmuebleUp = await _inmuebleService.MarcarLibre(idInmueble);
