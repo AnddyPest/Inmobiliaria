@@ -12,7 +12,36 @@ namespace project.Services
         private readonly string _connectionString = configuration.GetConnectionString("Connection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         private readonly IPropietarioService _propietarioService = propietarioService;
         private readonly string _ClassName = nameof(InmuebleService);
-        
+
+        public async Task<(string?, int?)> obtenerCantidadDeRegistros()
+        {
+            try
+            {
+                int response = 0;
+                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @"Select count(idInmueble) from inmueble";
+                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        await connection.OpenAsync();
+                        DbDataReader reader = await command.ExecuteReaderAsync();
+                        if (await reader.ReadAsync())
+                        {
+                            response = reader.GetInt32(0);
+                        }
+                        await connection.CloseAsync();
+                        return (null, response);
+                    }
+
+                }
+            }catch(Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleService), nameof(obtenerCantidadDeRegistros));
+                return (ex.Message, null);
+            }
+        }
+
         public async Task<(string?, Inmueble?)> AgregarInmueble(Inmueble inmueble) //TESTEAR
         {
             try
@@ -328,14 +357,14 @@ namespace project.Services
             }
         }
 
-        public async Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmuebles()//TESTEAR
+        public async Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmuebles(int paginaNro = 1, int tamPagina = 10)//TESTEAR
         {
             try
             {
                 
                 using(MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    string query = @"SELECT 
+                    string query = @$"SELECT 
                                     i.*,
                                     p.idPropietario as PropietarioId,
                                     p.idPersona as IDPersona,
@@ -352,7 +381,8 @@ namespace project.Services
                                     FROM inmueble as i
                                     INNER JOIN propietario p ON p.idPropietario = i.idPropietario
                                     INNER JOIN persona perso ON perso.idPersona = p.idPersona
-                                    INNER JOIN tipo_inmueble as tipoI ON i.id_tipo_inmueble = tipoI.id_tipo_inmueble";
+                                    INNER JOIN tipo_inmueble as tipoI ON i.id_tipo_inmueble = tipoI.id_tipo_inmueble
+                                    LIMIT {tamPagina} OFFSET {(paginaNro - 1 ) * 10}";
                     List<Inmueble> inmuebles = new();
                     using(MySqlCommand command = new MySqlCommand(query, connection))
                     {

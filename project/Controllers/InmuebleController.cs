@@ -63,15 +63,19 @@ namespace project.Controllers
         
 
         [HttpGet("inmueble/listar")]
-        public async Task<IActionResult> GetAllInmuebles()
+        public async Task<IActionResult> GetAllInmuebles(int nroPagina = 1)
         {
             InmuebleViewModel viewModel = new();
-            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles();
+            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), 10);
             if (inmuebles.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
                 return BadRequest(inmuebles.Item1);
             }
+            (string?, int?) cantidadRegistros = await _inmuebleService.obtenerCantidadDeRegistros();
+            if (cantidadRegistros.Item1 != null)
+                HelperFor.imprimirMensajeDeError(cantidadRegistros.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
+            viewModel.cantidadTotalDePaginas = cantidadRegistros.Item2 % 10 == 0 ? cantidadRegistros.Item2 / 10 : cantidadRegistros.Item2 / 10 + 1;
             viewModel.inmueble = inmuebles.Item2;
             
             return View("~/Views/Inmuebles/VistaLIstaInmuebles.cshtml", viewModel);

@@ -9,7 +9,8 @@
         public List<Inmueble>? inmueble { get; set; } = [];
         public Contrato? contrato { get; set; }
         public List<Tipo_Inmueble>? tipo_Inmueble { get; set; } = new List<Tipo_Inmueble>();
-        
+        public string? errorMessage { get; set; }
+        public int? cantidadTotalDePaginas { get; set; }
         public List<string> ciudades { get; set; } = ["Buenos Aires", "Córdoba", "Santa Fe", "Mendoza", "Tucumán", "Salta", "Jujuy", "La Rioja", "San Juan", "San Luis", "Neuquén", "Tierra del fuego", "Chaco", "Corrientes", "Entre Ríos", "Formosa", "Misiones"];
         
     }
