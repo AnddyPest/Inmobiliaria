@@ -28,7 +28,7 @@ namespace project.Services
                         await connection.OpenAsync();
                         using(var reader = await command.ExecuteReaderAsync())
                         {
-                            Tipo_Inmueble tipo_Inmueble = null;
+                            Tipo_Inmueble? tipo_Inmueble = null;
                             if(await reader.ReadAsync())
                             {
                                 tipo_Inmueble = new();
