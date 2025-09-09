@@ -20,10 +20,14 @@ namespace project.Services
                 if(contrato == null) return ("El contrato no puede ser nulo.", false);
                 if(this.ComprobarContratoActivoPorIdInmueble(contrato.IdInmueble).Result.Item2)
                     return ($"El inmueble con Id {contrato.IdInmueble} ya tiene un contrato activo.", false);
-                if((await _inquilinoService.GetInquilinoById(contrato.IdInquilino)).Item1 != null)
+                (string?, Inquilino?) inquilinoFinded = await _inquilinoService.GetInquilinoById(contrato.IdInquilino);
+                if ( inquilinoFinded.Item1 != null)
                     return ($"No se encontró un inquilino con Id {contrato.IdInquilino}.", false);
-                if((await _propietarioService.getPropietarioById(contrato.IdPropietario)).Item1 != null)
+                (string?, Propietario?) propietarioFinded = await _propietarioService.getPropietarioById(contrato.IdPropietario);
+                if (propietarioFinded.Item1 != null)
                     return ($"No se encontró un propietario con Id {contrato.IdPropietario}.", false);
+                if (inquilinoFinded.Item2!.IdPersona == propietarioFinded.Item2!.IdPersona)
+                    return ($"Un propietario no puede alquilar su propia propiedad", false);
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     string query = @"INSERT INTO Contrato (IdInquilino, IdInmueble, IdPropietario, Monto, FechaInicio, FechaFin, estado) 
@@ -69,7 +73,14 @@ namespace project.Services
                 if(this.ComprobarContratoActivoPorIdInmueble(contrato.IdInmueble).Result.Item2)
                     return ($"El inmueble con Id {contrato.IdInmueble} ya tiene un contrato activo.", false);
             }
-
+            (string?, Inquilino?) inquilinoFinded = await _inquilinoService.GetInquilinoById(contrato.IdInquilino);
+            if (inquilinoFinded.Item1 != null)
+                return ($"No se encontró un inquilino con Id {contrato.IdInquilino}.", false);
+            (string?, Propietario?) propietarioFinded = await _propietarioService.getPropietarioById(contrato.IdPropietario);
+            if (propietarioFinded.Item1 != null)
+                return ($"No se encontró un propietario con Id {contrato.IdPropietario}.", false);
+            if (inquilinoFinded.Item2!.IdPersona == propietarioFinded.Item2!.IdPersona)
+                return ($"Un propietario no puede alquilar su propia propiedad", false);
 
             try
             {
