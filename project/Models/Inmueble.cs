@@ -46,7 +46,7 @@ namespace project.Models
         public bool estado { get; set; } = estado;
 
         // Constructor vacío
-        public Inmueble() : this(default!, default!, default, default, default, default, default!, default, default, default) { }
+        public Inmueble() : this(default!, default!, default, default, default, default, default!, default!, default, default) { }
         public override string ToString()
         {
             return @$"idInmueble: {this.IdInmueble}

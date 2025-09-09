@@ -8,7 +8,7 @@ namespace project.Services
 {
     public class Tipo_InmuebleService(IConfiguration configuration) : ITipo_InmuebleService
     {
-        private string _connectionString = configuration.GetConnectionString("connection");
+        private string _connectionString = configuration.GetConnectionString("Connection")!;
 
         public async Task<(string?, List<Tipo_Inmueble>?)> getAllTipoInmueble()
         {

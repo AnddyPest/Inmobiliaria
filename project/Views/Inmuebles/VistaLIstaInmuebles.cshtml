@@ -152,7 +152,7 @@
                         <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
                     </li>
                 }
-                @for(int i = 1; i <= Model.cantidadTotalDePaginas; i++)
+                @for(int i = 1; i <= Model!.cantidadTotalDePaginas; i++)
                 {
                     <li class="page-item @(i == Pagina ? "active" : "")">
                         <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = @i })">@i</a>

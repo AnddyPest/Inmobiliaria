@@ -10,7 +10,7 @@ namespace project.Services
 {
     public class ContratoService (IConfiguration configuration, IPropietarioService propietarioService, IInquilinoService inquilinoService) : IContratoService
     {
-        private readonly string _connectionString = configuration.GetConnectionString("Connection");
+        private readonly string _connectionString = configuration.GetConnectionString("Connection")!;
         private IPropietarioService _propietarioService = propietarioService;
         private IInquilinoService _inquilinoService = inquilinoService;
         public async Task<(string?, bool)> CreateContrato(Contrato contrato) //testear

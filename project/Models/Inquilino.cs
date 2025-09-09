@@ -13,7 +13,7 @@ namespace project.Models
         public bool EstadoInquilino { get; set; } = estadoInquilino;
 
         // Constructor vacío
-        public Inquilino() : this(default!, default!, default!, default, default!, default!, default!, default!, default!) { }
+        public Inquilino() : this(default!, default!, default!, default!, default!, default!, default!, default!, default!) { }
 
         public void AgregarContrato(Contrato contrato)
         {

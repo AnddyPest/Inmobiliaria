@@ -71,7 +71,7 @@ namespace project.Services
                         command.Parameters.AddWithValue("@IdPropietario", inmueble.IdPropietario);
                         command.Parameters.AddWithValue("@Disponible", inmueble.Disponible);
                         command.Parameters.AddWithValue("@estado", inmueble.estado);
-                        object result = await command.ExecuteScalarAsync();
+                        object? result = await command.ExecuteScalarAsync();
                         if (result != null && int.TryParse(result.ToString(), out int newId))
                         {
                             inmueble.IdInmueble = newId;

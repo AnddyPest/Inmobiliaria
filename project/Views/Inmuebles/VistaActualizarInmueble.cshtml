@@ -107,7 +107,7 @@
             </div>
             <div class="mb-3">
                 @{
-                    var propietarioEncontrado = Model.propietarios!.FirstOrDefault(prop => prop.IdPropietario == Model.InmuebleOnly.IdPropietario);
+                    var propietarioEncontrado = Model!.propietarios!.FirstOrDefault(prop => prop.IdPropietario == Model.InmuebleOnly.IdPropietario);
                     var message = propietarioEncontrado != null ?
                     $"{propietarioEncontrado.Nombre} {propietarioEncontrado.Apellido} - Dni: {propietarioEncontrado.Dni}" :
                     "Seleccione propietario";

@@ -42,10 +42,7 @@ namespace project.Controllers
             {
                 viewModel.propietarios = propietarioFromService.Item2;
             }
-            foreach(var prop in propietarioFromService.Item2)
-            {
-                Console.WriteLine(prop.ToString());
-            }
+            
 
             return View("~/Views/Inmuebles/VistaActualizarInmueble.cshtml", viewModel);
         }
@@ -67,7 +64,8 @@ namespace project.Controllers
         {
             InmuebleViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
-            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), 8);
+            const int registrosPorPagina = 8;
+            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina);
             if (inmuebles.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
@@ -79,7 +77,7 @@ namespace project.Controllers
                 HelperFor.imprimirMensajeDeError(cantidadRegistros.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
                 return this.RedirectToActionWithError(nameof(Index),cantidadRegistros.Item1);
             }
-            viewModel.cantidadTotalDePaginas = cantidadRegistros.Item2 % 8 == 0 ? cantidadRegistros.Item2 / 8 : cantidadRegistros.Item2 / 8 + 1;
+            viewModel.cantidadTotalDePaginas = cantidadRegistros.Item2 % registrosPorPagina == 0 ? cantidadRegistros.Item2 / registrosPorPagina : cantidadRegistros.Item2 / registrosPorPagina + 1;
             viewModel.inmueble = inmuebles.Item2;
             
             return View("~/Views/Inmuebles/VistaLIstaInmuebles.cshtml", viewModel);
