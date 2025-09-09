@@ -24,7 +24,7 @@ namespace project.Controllers
             if (propietarios.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(propietarios.Item1, nameof(PropietarioController), nameof(ObtenerTodos));
-                return BadRequest(propietarios.Item1);
+                return this.RedirectToActionWithError(nameof(VistaPropietarios),propietarios.Item1,"Interanl Server Error");
             }
             Console.WriteLine(propietarios.Item2);
             return View("~/Views/Propietarios/GestionPropietarios.cshtml", propietarios.Item2);
@@ -33,14 +33,17 @@ namespace project.Controllers
         [HttpPost("Propietario/Create")]
         public async Task<IActionResult> AgregarPropietario(Persona persona) //testear
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (persona.Dni <= 0) return BadRequest("Se requiere dni y debe ser mayor que 0");
+            if (!ModelState.IsValid) 
+                return this.RedirectToActionWithError(nameof(ObtenerTodos),ModelState.GetErrorMessages());
+            if (persona.Dni <= 0) 
+                return this.RedirectToActionWithWarning(nameof(NuevoPropietario), "Se requiere dni y debe ser mayor que 0");
             Persona? personaRegistrada = await personaService.ObtenerPorDni(persona.Dni);
 
             if (personaRegistrada == null)
             {
                 int codeResult = await personaService.Alta(persona);
-                if (codeResult == -1) return BadRequest("No se registro a la persona");
+                if (codeResult == -1)
+                    return this.RedirectToActionWithError(nameof(ObtenerTodos), "No se registro a la persona.");
                 persona.IdPersona = codeResult;
             }
             else
@@ -48,45 +51,57 @@ namespace project.Controllers
                 persona.IdPersona = personaRegistrada.IdPersona;
             }
             (string?, Boolean) propietario = await propietarioService.Alta(persona.IdPersona);
-            if (propietario.Item1 != null && !propietario.Item2) return BadRequest(propietario.Item1);
+            if (propietario.Item1 != null && !propietario.Item2) 
+                return this.RedirectToActionWithError(nameof(NuevoPropietario),propietario.Item1,nameof(BadRequest));
 
-            return RedirectToAction("ObtenerTodos");
+            return this.RedirectToActionWithSuccess(nameof(ObtenerTodos),"El propietario se ha registrado correctamente","Propietario Registrado!!!");
         }
         [HttpPost("Propietario/Update")]
         public async Task<IActionResult> ActualizarPropietario(Persona personaEnviadaDesdeElFront) //testear
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (personaEnviadaDesdeElFront.IdPersona <= 0) return BadRequest("Se requiere idPersona y debe ser mayor que 0");
+            if (!ModelState.IsValid) 
+                return this.RedirectToActionWithError(nameof(ActualizarPropietario),ModelState.GetErrorMessages(), new {id = personaEnviadaDesdeElFront.IdPersona});
+            if (personaEnviadaDesdeElFront.IdPersona <= 0)
+                return this.RedirectToActionWithError(nameof(ActualizarPropietario), "Se requiere idPersona y debe ser mayor que 0", new { id = personaEnviadaDesdeElFront.IdPersona });
+            
             (string?, Persona?) personaDesdeDB = await personaService.GetPersonaById(personaEnviadaDesdeElFront.IdPersona, true);
-            if (personaDesdeDB.Item1 != null) return BadRequest(personaDesdeDB.Item1);
-
+            if (personaDesdeDB.Item1 != null)
+                return this.RedirectToActionWithError(nameof(ActualizarPropietario), personaDesdeDB.Item1, "Error al intentar actualizar");
 
             int codeResult = await personaService.Editar(personaEnviadaDesdeElFront);
-            if (codeResult == -1) return Problem("No se actualizo al propietario");
+            if (codeResult == -1)
+                return this.RedirectToActionWithError(nameof(ObtenerTodos), "No se actualizo el propietario");
 
             (string?, Propietario?) propietario = await propietarioService.getPropietarioByIdPersona(personaEnviadaDesdeElFront.IdPersona);
-            if (propietario.Item1 != null) return Problem(propietario.Item1);
+            if (propietario.Item1 != null) 
+                return this.RedirectToActionWithError(nameof(ActualizarPropietario),propietario.Item1, "Internal Server Error");
 
-            return Ok(propietario.Item2);
+            return this.RedirectToActionWithSuccess(nameof(ObtenerTodos),"Propietario Actualizado con exito");
         }
 
         [HttpPost("Propietario/Baja")]
         public async Task<IActionResult> BajaPropietario([FromBody] int idPropietario) //testear
         {
 
-            if (idPropietario <= 0) return BadRequest("Se requiere idPropietario y debe ser mayor a 0");
+            if (idPropietario <= 0) 
+                return this.RedirectToActionWithError(nameof(ObtenerTodos), "Se requiere idPropietario y debe ser mayor a 0",nameof(BadRequest));
             (string?, Boolean) codeResult = await propietarioService.BajaLogica(idPropietario);
-            if (!codeResult.Item2) return Problem(codeResult.Item1);
+            if (!codeResult.Item2 && codeResult.Item1 != null) 
+                return this.RedirectToActionWithError(nameof(ObtenerTodos), codeResult.Item1,nameof(BadRequest));
 
-            return Ok("El propietario fue dado de baja correctamente");
+            return this.RedirectToActionWithSuccess(nameof(ObtenerTodos), "El propietario fue dado de baja correctamente");
         }
         [HttpPost("Propietario/Alta")]
         public async Task<IActionResult> AltaPropietario([FromBody] int idPropietario) //testear
         {
-            if (idPropietario <= 0) return BadRequest("Se requiere idPropietario y debe ser mayor a 0");
+            Console.WriteLine("ingreso");
+            if (idPropietario <= 0)
+                return this.RedirectToActionWithError(nameof(ObtenerTodos), "Se requiere idPropietario y debe ser mayor a 0", nameof(BadRequest));
             (string?, Boolean) codeResult = await propietarioService.AltaLogica(idPropietario);
-            if (!codeResult.Item2) return Problem(codeResult.Item1);
-            return Ok("El propietario fue dado de alta correctamente");
+            if (!codeResult.Item2 && codeResult.Item1 != null)
+                return this.RedirectToActionWithError(nameof(ObtenerTodos), codeResult.Item1, nameof(BadRequest));
+            return this.RedirectToActionWithSuccess(nameof(ObtenerTodos), "El propietario fue dado de baja correctamente");
+
         }
         [HttpGet("Propietario")]
         public IActionResult VistaPropietarios()

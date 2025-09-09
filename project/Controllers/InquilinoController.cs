@@ -24,10 +24,10 @@ namespace project.Controllers
             if (inquilinos.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inquilinos.Item1, nameof(InquilinoController), nameof(GetAllInquilinos));
-                return BadRequest(inquilinos.Item1);
+                return this.RedirectToActionWithError(nameof(VistaInquilinos), inquilinos.Item1);
             }
             
-            Console.WriteLine(inquilinos.Item2);
+            
             return View("~/Views/Inquilinos/GestionInquilinos.cshtml", inquilinos.Item2);
         }
         [HttpGet]
@@ -65,57 +65,64 @@ namespace project.Controllers
                 // Si no existe, la crea
                 int altaRes = await personaService.Alta(model);
                 if (altaRes <= 0)
-                    return BadRequest("No se pudo crear la persona.");
+                    return this.RedirectToActionWithError(nameof(GetAllInquilinos), "No se pudo crear la persona.");
 
                 // Una vez creada, la buscamos y usamos su id
                 var nuevaPersona = await personaService.ObtenerPorDni(model.Dni);
                 if (nuevaPersona == null)
-                    return BadRequest("No se pudo obtener la persona creada.");
+                    return this.RedirectToActionWithError(nameof(GetAllInquilinos), "No se pudo obtener la persona creada.");
                 idPersona = nuevaPersona.IdPersona;
             }
 
             // 2. Validamos q ya no sea inquilino para no agregarlo al pedo
             (string? validacion, bool puedeAgregar) = await inquilinoService.validarQueNoEsteAgregadoElInquilino(idPersona);
             if (!puedeAgregar)
-                return BadRequest(validacion);
+                return this.RedirectToActionWithError(nameof(GetAllInquilinos), validacion);
 
             // 3. si no es inquilino, si no lo es, lo agregamos.
             model.IdPersona = idPersona;
             (string? errorInq, Inquilino? inquilino) = await inquilinoService.AddInquilino(model);
             if (errorInq != null)
-                return BadRequest(errorInq);
+                return this.RedirectToActionWithError(nameof(GetAllInquilinos), errorInq);
 
-            return RedirectToAction("GetAllInquilinos");
+            return this.RedirectToActionWithSuccess(nameof(GetAllInquilinos), "Inquilino Registrado con exito", "Inquilino Registrado");
         }
         [HttpPost("inquilino/Update")]
         public async Task<IActionResult> UpdateInquilino(Persona model)//Testeado y funcional
         {
 
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+            {
+         
+                string erroresModelState = ModelState.GetErrorMessages();
+                return this.RedirectToActionWithWarning(nameof(UpdateInquilino), erroresModelState);
+            }
 
-            if (model.IdPersona <= 0) return BadRequest("Se requiere el idPersona de la persona");
+            if (model.IdPersona <= 0) 
+                return this.RedirectToActionWithError(nameof(VistaActualizarInquilino),"Se requiere el idPersona","Internal server error");
 
             var existingPersona = await personaService.GetPersonaById(model.IdPersona, true);
-            if (existingPersona.Item1 != null) return BadRequest(existingPersona.Item1);
+            if (existingPersona.Item1 != null)
+                return this.RedirectToActionWithError(nameof(VistaActualizarInquilino), existingPersona.Item1, "Internal server error");
 
             (string?, Inquilino?) inquilinoResult = await inquilinoService.getInquilinoByIdPersona(existingPersona.Item2!.IdPersona);
             if (inquilinoResult.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inquilinoResult.Item1, nameof(InquilinoController), nameof(UpdateInquilino));
-                return BadRequest(inquilinoResult.Item1);
+                return this.RedirectToActionWithError(nameof(VistaActualizarInquilino), inquilinoResult.Item1, "Internal server error");
             }
             model.IdPersona = existingPersona.Item2.IdPersona!;
             int result = await personaService.Editar(model);
             if (result == -1)
             {
                 HelperFor.imprimirMensajeDeError("No se actualizo la persona", nameof(InquilinoController), nameof(UpdateInquilino));
-                return BadRequest("No se actualizo la persona");
+                return this.RedirectToActionWithError(nameof(VistaActualizarInquilino),"No se actualizo la persona.", "Internal server error");
             }
             (string?, Inquilino?) inquilinoUpdate = await inquilinoService.getInquilinoByIdPersona(existingPersona.Item2.IdPersona!);
             if (inquilinoResult.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inquilinoResult.Item1, nameof(InquilinoController), nameof(UpdateInquilino));
-                return BadRequest(inquilinoResult.Item1);
+                return this.RedirectToActionWithError(nameof(VistaActualizarInquilino), inquilinoResult.Item1, "Internal server error");
             }
 
             return RedirectToAction("GetAllInquilinos");

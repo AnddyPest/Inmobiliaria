@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using project.Models;
 using project.Models.Interfaces;
-
+using project.Helpers;
 namespace project.Controllers
 {
     public class ContratoController : Controller
@@ -51,14 +51,14 @@ namespace project.Controllers
                 return BadRequest(ModelState);
             (string?, bool) contratoCreated = await _contratoService.CreateContrato(model);
             if (contratoCreated.Item1 != null)
-                return BadRequest(contratoCreated.Item1);
+                return this.RedirectToActionWithError("GetAllInmuebles","Inmueble",contratoCreated.Item1);
             if (!contratoCreated.Item2)
-                return BadRequest("No se pudo crear el contrato.");
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "No se pudo registrar el contrato");
             // Marcar inmueble como alquilado en el backend
             (string?, bool) alquiladoResult = await _inmuebleService.MarcarAlquilado(model.IdInmueble);
             if (alquiladoResult.Item1 != null || !alquiladoResult.Item2)
                 Console.WriteLine($"[CONTRATO] Error al marcar inmueble como alquilado: {alquiladoResult.Item1}");
-            return Redirect("/inmueble/listar");
+            return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble","Contrato registrado exitosamente","Contrato creado!!");
         }
         [HttpPost("contrato/actualizar")]
         public async Task<IActionResult> UpdateContrato(Contrato model)

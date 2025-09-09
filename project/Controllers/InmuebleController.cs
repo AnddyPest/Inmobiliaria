@@ -71,11 +71,14 @@ namespace project.Controllers
             if (inmuebles.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
-                return BadRequest(inmuebles.Item1);
+                return this.RedirectToActionWithError(nameof(Index), inmuebles.Item1);
             }
             (string?, int?) cantidadRegistros = await _inmuebleService.obtenerCantidadDeRegistros();
             if (cantidadRegistros.Item1 != null)
+            {
                 HelperFor.imprimirMensajeDeError(cantidadRegistros.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
+                return this.RedirectToActionWithError(nameof(Index),cantidadRegistros.Item1);
+            }
             viewModel.cantidadTotalDePaginas = cantidadRegistros.Item2 % 10 == 0 ? cantidadRegistros.Item2 / 10 : cantidadRegistros.Item2 / 10 + 1;
             viewModel.inmueble = inmuebles.Item2;
             
@@ -103,10 +106,11 @@ namespace project.Controllers
                 return BadRequest(ModelState);
             (string?, Inmueble?) inmuebleCreated = await _inmuebleService.AgregarInmueble(model);
             if (inmuebleCreated.Item1 != null)
-                return BadRequest(inmuebleCreated.Item1);
+                return this.RedirectToActionWithError(nameof(GetAllInmuebles), inmuebleCreated.Item1);
             if (inmuebleCreated.Item2?.IdInmueble == null || inmuebleCreated.Item2.IdInmueble == 0)
-                return BadRequest("No se pudo crear el inmueble.");
-            return Redirect("/inmueble/listar");
+                return this.RedirectToActionWithError(nameof(GetAllInmuebles), "No se pudo crear el inmueble.");
+            
+            return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles), "Inmueble registrado con exito","Inmueble Registrado!!");
         }
 
         [HttpPost("Inmueble/actualizar")]
@@ -116,10 +120,10 @@ namespace project.Controllers
                 return BadRequest(ModelState);
             (string?, bool) inmuebleUpdated = await _inmuebleService.ActualizarInmueble(model);
             if (inmuebleUpdated.Item1 != null)
-                return BadRequest(inmuebleUpdated.Item1);
+                return this.RedirectToActionWithError(nameof(GetAllInmuebles), inmuebleUpdated.Item1);
             if (!inmuebleUpdated.Item2)
-                return BadRequest("No se pudo actualizar el inmueble.");
-            return Redirect("/inmueble/listar");
+                return this.RedirectToActionWithError(nameof(GetAllInmuebles), "No se pudo actualizar el inmueble.");
+            return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles),"Inmueble actualizado con exito", "Inmueble Actualizado!!");
         }
         [HttpPost("Inmueble/DarBajaLogica/{idInmueble}")]
         public async Task<IActionResult> DarBajaLogica(int idInmueble)
@@ -164,9 +168,9 @@ namespace project.Controllers
             if (inmuebleUp.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inmuebleUp.Item1, nameof(InmuebleController), nameof(MarcarAlquilado));
-                //AGREGAR MENSAJE 
+                return this.RedirectToActionWithError(nameof(GetAllInmuebles), inmuebleUp.Item1);
             }
-            return Redirect("/inmueble/listar");
+            return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles),"Inmueble marcado como disponible", "Inmueble Disponible!");
         }
 
     }
