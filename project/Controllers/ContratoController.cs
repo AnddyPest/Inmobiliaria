@@ -89,8 +89,8 @@ namespace project.Controllers
             int idInmueble = contrato.Item2.IdInmueble;
             (string?, bool) disponibleResult = await _inmuebleService.MarcarLibre(idInmueble);
             if (disponibleResult.Item1 != null || !disponibleResult.Item2)
-                return BadRequest("Contrato dado de baja, pero no se pudo marcar el inmueble como disponible: " + (disponibleResult.Item1 ?? "Error"));
-
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Contrato dado de baja, pero no se pudo marcar el inmueble como disponible: " + (disponibleResult.Item1 ?? "Error"));
+            
             return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble","Contrato anulado exitosamente","Contrato anulado!!");
         }
         [HttpGet("contrato/activar/{idContrato}")]
