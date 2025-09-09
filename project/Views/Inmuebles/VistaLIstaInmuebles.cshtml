@@ -116,9 +116,13 @@
                                     }
                                     else
                                     {
-                                        <a class="btn btn-success p-1 m-1 w-25" href="@Url.Action("MarcarLibre", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
-                                            <i class="bi bi-door-open-fill"></i>
-                                        </a>
+                                        var contratoVigente = Model.contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
+                                        if (contratoVigente != null)
+                                        {
+                                            <a class="btn btn-success p-1 m-1 w-25" href="@Url.Action("DarDeBajaContrato", "Contrato", new { idContrato = contratoVigente.IdContrato })">
+                                                <i class="bi bi-door-open-fill"></i>
+                                            </a>
+                                        }
                                     }
                                 }
                                 <!-- Botón para dar de baja o alta lógica -->

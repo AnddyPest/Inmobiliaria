@@ -75,12 +75,23 @@ namespace project.Controllers
         [HttpGet("contrato/darDeBaja/{idContrato}")]
         public async Task<IActionResult> DarDeBajaContrato(int idContrato)
         {
+            (string?, Contrato?) contrato = await _contratoService.GetContratoById(idContrato);
+            if (contrato.Item1 != null || contrato.Item2 == null)
+                return BadRequest(contrato.Item1 ?? "No se encontró el contrato");
+
             (string?, bool) contratoDeleted = await _contratoService.DarBajaContrato(idContrato);
             if (contratoDeleted.Item1 != null)
                 return BadRequest(contratoDeleted.Item1);
             if (!contratoDeleted.Item2)
                 return BadRequest("No se pudo dar de baja el contrato.");
-            return Ok(true);
+
+            // Marcar inmueble como disponible
+            int idInmueble = contrato.Item2.IdInmueble;
+            (string?, bool) disponibleResult = await _inmuebleService.MarcarLibre(idInmueble);
+            if (disponibleResult.Item1 != null || !disponibleResult.Item2)
+                return BadRequest("Contrato dado de baja, pero no se pudo marcar el inmueble como disponible: " + (disponibleResult.Item1 ?? "Error"));
+
+            return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble","Contrato anulado exitosamente","Contrato anulado!!");
         }
         [HttpGet("contrato/activar/{idContrato}")]
         public async Task<IActionResult> ActivarContrato(int idContrato)
