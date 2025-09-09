@@ -10,6 +10,152 @@ namespace project.Services
     {
         private string _connectionString = configuration.GetConnectionString("Connection")!;
 
+        public async Task<(string?, Tipo_Inmueble?)> buscarTipoInmueblePorId(int idTipoInmueble)
+        {
+            if (idTipoInmueble <= 0)
+                return ("El id_tipo_inmueble debe ser mayor a 0", null);
+            try
+            {
+                using(MySqlConnection connection = new (_connectionString))
+                {
+                    string query = @"   Select * 
+                                        from tipo_inmueble 
+                                        where id_tipo_inmueble = @id_tipo_inmueble";
+                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@id_tipo_inmueble", idTipoInmueble);
+                        await connection.OpenAsync();
+                        using(var reader = await command.ExecuteReaderAsync())
+                        {
+                            Tipo_Inmueble tipo_Inmueble = null;
+                            if(await reader.ReadAsync())
+                            {
+                                tipo_Inmueble = new();
+                                tipo_Inmueble.id_tipo_inmueble = reader.GetInt32("id_tipo_inmueble");
+                                tipo_Inmueble.nombre = reader.GetString("nombre");
+                            }
+                            await connection.CloseAsync();
+                            if(tipo_Inmueble == null)
+                            {
+                                return ($"No se ha encontrado un tipoInmueble registrado con id: {idTipoInmueble}", null);
+                            }
+                            return (null, tipo_Inmueble);
+                        }
+                    }
+                }
+            }catch(Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(Tipo_InmuebleService), nameof(buscarTipoInmueblePorId));
+                return (ex.Message, null);
+            }
+        }
+
+        public async Task<(string?, Tipo_Inmueble?)> buscarTipoInmueblePorNombre(string nombre)
+        {
+            if (nombre.Length < 3)
+                return ("El nombre debe ser mayor a 3 caracteres", null);
+            try
+            {
+                using (MySqlConnection connection = new(_connectionString))
+                {
+                    string query = @"   Select * 
+                                        from tipo_inmueble 
+                                        where nombre = @nombre";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@nombre", nombre);
+                        await connection.OpenAsync();
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            Tipo_Inmueble? tipo_Inmueble = null;
+                            if (await reader.ReadAsync())
+                            {
+                                tipo_Inmueble = new();
+                                tipo_Inmueble.id_tipo_inmueble = reader.GetInt32("id_tipo_inmueble");
+                                tipo_Inmueble.nombre = reader.GetString("nombre");
+                            }
+                            await connection.CloseAsync();
+                            if (tipo_Inmueble == null)
+                            {
+                                return ($"No se ha encontrado un tipoInmueble registrado con el nombre: {nombre}", null);
+                            }
+                            return (null, tipo_Inmueble);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(Tipo_InmuebleService), nameof(buscarTipoInmueblePorId));
+                return (ex.Message, null);
+            }
+        }
+
+        public async Task<(string?, bool)> createTipoInmueble(Tipo_Inmueble tipo_Inmueble)
+        {
+            try
+            {
+                if (await buscarTipoInmueblePorNombre(tipo_Inmueble.nombre) is (null, Tipo_Inmueble tipo) && tipo.nombre.ToLower() == tipo_Inmueble.nombre.ToLower())
+                    return ("Ya existe un tipo_inmueble con nombre: " + tipo_Inmueble.nombre , false);
+                using(MySqlConnection connection = new(_connectionString))
+                {
+                    string query = $@" Insert into tipo_inmueble(nombre)
+                                       Values (@nombre)
+                                       SELECT LAST_INSERT_ID();";
+                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        await connection.OpenAsync();
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@nombre", tipo_Inmueble.nombre);
+                        var result = await command.ExecuteScalarAsync();
+                        if(result != null && int.TryParse(result.ToString(), out int idTipoInmueble))
+                        {
+                            return (null, true);
+                        }
+                        await connection.CloseAsync();
+                        return ("No se registro un tipo_inmueble", false);
+                    }
+                }
+            }catch(Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(Tipo_InmuebleService), nameof(createTipoInmueble));
+                return (ex.Message, false);
+            }
+        }
+
+        public async Task<(string?, bool)> deleteTipoInmueble(int idTipoInmueble)
+        {
+            try
+            {
+                if (idTipoInmueble < 1)
+                    return ("El id_tipo_inmueble debe ser mayor a 0", false);
+                if (await buscarTipoInmueblePorId(idTipoInmueble) is (string error, null))
+                    return (error, false);
+                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @" Delete from tipo_inmueble 
+                                      Where id_tipo_inmueble = @idTipoInmueble";
+                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@idTipoInmueble", idTipoInmueble);
+                        await connection.OpenAsync();
+                        int filasAfectadas = await command.ExecuteNonQueryAsync();
+                        if (filasAfectadas > 0)
+                            return (null, true);
+                        return ("No se elimino el registro", false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(Tipo_InmuebleService), nameof(deleteTipoInmueble));
+                return (ex.Message, false);
+            }
+        }
+
         public async Task<(string?, List<Tipo_Inmueble>?)> getAllTipoInmueble()
         {
             try
@@ -44,9 +190,43 @@ namespace project.Services
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, nameof(Tipo_InmuebleService), nameof(getAllTipoInmueble));
                 return (ex.Message, null);
-               
             }
         }
 
+        public async Task<(string?, bool)> updateTipoInmueble(Tipo_Inmueble tipo_Inmueble)
+        {
+            if (tipo_Inmueble.id_tipo_inmueble < 1)
+                return ("El id_tipo_inmueble debe ser mayor a 0", false);
+            try
+            {
+                if (await buscarTipoInmueblePorId(tipo_Inmueble.id_tipo_inmueble) is (string error, null))
+                    return (error, false);
+                if (await buscarTipoInmueblePorNombre(tipo_Inmueble.nombre) is (null, Tipo_Inmueble tipoInmuebleSearched) && tipoInmuebleSearched.id_tipo_inmueble != tipo_Inmueble.id_tipo_inmueble)
+                    return ($"Ya existe un registro con nombre: {tipo_Inmueble.nombre}", false);
+                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @"UPDATE tipo_inmueble
+                                     set nombre= @nombre
+                                     where id_tipo_inmueble = @idTipoInmueble";
+                    using(MySqlCommand command = new(query, connection))
+                    {
+                        await connection.OpenAsync();
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@nombre", tipo_Inmueble.nombre);
+                        command.Parameters.AddWithValue("@idTipoInmueble", tipo_Inmueble.id_tipo_inmueble);
+                        int filasAfectadas = await command.ExecuteNonQueryAsync();
+                        if (filasAfectadas >= 1)
+                            return (null, true);
+                        return ($"No se actualizo el tipo_inmueble con nombre: {tipo_Inmueble.nombre}", false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(Tipo_InmuebleService), nameof(updateTipoInmueble));
+                return (ex.Message, false);
+            }
+        }
     }
+    
 }
