@@ -121,6 +121,7 @@
                                         </a>
                                     }
                                 }
+                                <!-- Botón para dar de baja o alta lógica -->
                                 @if (inmueble.Disponible && inmueble.estado || (!inmueble.Disponible && !inmueble.estado))
                                 {
                                     @if (inmueble.estado)
@@ -193,48 +194,52 @@
                 
             </tbody>
         </table>
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                @if (Pagina > 1)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina - 1 })" aria-label="Anterior">
-                            <i class="bi bi-chevron-double-left"></i>
-                        </a>
-                    </li>
-                }
-                else
-                {
-                    <li class="page-item disabled" >
-                        <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
-                    </li>
-                }
-                @for(int i = 1; i <= Model!.cantidadTotalDePaginas; i++)
-                {
-                    <li class="page-item @(i == Pagina ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = @i })">@i</a>
-                    </li>
-                }
-                @if (Pagina < Model.cantidadTotalDePaginas)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina + 1 })" aria-label="Siguiente">
-                            <i class="bi bi-chevron-double-right"></i>
-                        </a>
-                    </li>
-                }
-                else
-                {
-                    <li class="page-item disabled">
-                        <span class="page-link">
-                            <i class="bi bi-chevron-double-right">
+        <div class="col d-flex w-100 justify-content-between">
+            <nav aria-label="Page navigation">
+                
+                <ul class="pagination">
+                    @if (Pagina > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina - 1 })" aria-label="Anterior">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled" >
+                            <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
+                        </li>
+                    }
+                    @for(int i = 1; i <= Model!.cantidadTotalDePaginas; i++)
+                    {
+                        <li class="page-item @(i == Pagina ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = @i })">@i</a>
+                        </li>
+                    }
+                    @if (Pagina < Model.cantidadTotalDePaginas)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina + 1 })" aria-label="Siguiente">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                <i class="bi bi-chevron-double-right">
 
-                            </i>
-                        </span>
-                    </li>
-                }
-            </ul>
-        </nav>
+                                </i>
+                            </span>
+                        </li>
+                    }
+                </ul>
+            </nav>
+            <button class="btn btn-danger h-100" onclick="window.location.href='/inmueble'">Volver</button>
+        </div>
     </div>
 </div>
 
@@ -582,5 +587,25 @@
                         IdPropietario: document.getElementById('IdPropietario').value
                     });
                 });
+                // VALIDACIÓN DE FECHAS EN FORMULARIO DE CONTRATO
+                const fechaInicioInput = document.getElementById('fechaInicio');
+                const fechaFinInput = document.getElementById('fechaFin');
+                // FECHA DE INICIO MINIMA => HOY
+                // FECHA FIN MINIMA => MAÑANA
+                let today = new Date().toISOString().split('T')[0];
+                let tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                fechaInicioInput.setAttribute('min', today);
+                fechaFinInput.setAttribute('min', tomorrow.toISOString().split('T')[0]);
+               
+                // CUANDO CAMBIAMOS LA FECHA DE INICIO, LA DE FIN SE AJUSTA Y SE AUTOSELECCIONA EN MAÑANA
+                fechaInicioInput.addEventListener('change', function() {
+                    let minFin = new Date(this.valueAsDate);
+                    minFin.setDate(minFin.getDate() + 1);
+                    let minFinStr = minFin.toISOString().split('T')[0];
+                    fechaFinInput.setAttribute('min', minFinStr);
+                    fechaFinInput.value = minFinStr;
+                });
+                
             });
     </script>

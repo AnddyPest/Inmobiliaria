@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
 using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
 using project.Models.ViewModels;
-using project.Services;
-using System.Threading.Tasks;
+
 
 namespace project.Controllers
 {
@@ -118,6 +116,7 @@ namespace project.Controllers
             
             return View("~/Views/Inmuebles/VistaLIstaInmuebles.cshtml", viewModel);
         }
+        //BUSCAR INMUEBLE POR ID
         [HttpGet("inmueble/find/{idInmueble}")]
         public async Task<IActionResult> GetInmuebleById(int idInmueble)
         {
@@ -133,6 +132,7 @@ namespace project.Controllers
             }
             return Ok(inmueble.Item2);
         }
+        //AGREGAR INMUEBLE
         [HttpPost("/Inmueble/crear")]
         public async Task<IActionResult> AddInmueble(Inmueble model)
         {
@@ -159,7 +159,8 @@ namespace project.Controllers
                 return this.RedirectToActionWithError(nameof(GetAllInmuebles), "No se pudo actualizar el inmueble.");
             return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles),"Inmueble actualizado con exito", "Inmueble Actualizado!!");
         }
-        [HttpPost("Inmueble/DarBajaLogica/{idInmueble}")]
+        //DAR DE BAJA LOGICA
+        [HttpGet("Inmueble/DarBajaLogica/{idInmueble}")]
         public async Task<IActionResult> DarBajaLogica(int idInmueble)
         {
             (string?, bool) inmuebleDeleted = await _inmuebleService.DarDeBajaInmueble(idInmueble);

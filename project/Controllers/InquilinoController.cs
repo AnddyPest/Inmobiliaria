@@ -77,7 +77,7 @@ namespace project.Controllers
             // 2. Validamos q ya no sea inquilino para no agregarlo al pedo
             (string? validacion, bool puedeAgregar) = await inquilinoService.validarQueNoEsteAgregadoElInquilino(idPersona);
             if (!puedeAgregar)
-                return this.RedirectToActionWithError(nameof(GetAllInquilinos), validacion);
+                return this.RedirectToActionWithError(nameof(GetAllInquilinos), validacion ?? "El inquilino ya existe.");
 
             // 3. si no es inquilino, si no lo es, lo agregamos.
             model.IdPersona = idPersona;
