@@ -8,6 +8,7 @@
     window.Model = {
         inmueble: @Html.Raw(JsonConvert.SerializeObject(Model.inmueble))
     };
+    
 </script>
 
 <div>
@@ -78,6 +79,14 @@
                                     {
                                         <input type="hidden" id="idInputDisponible" value="@inmueble.Disponible"/>
                                         <i class="bi bi-house-check-fill text-success fs-4" title="Alquilado"></i>
+                                        {
+                                            var contratoVigente = Model.contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
+                                            if (contratoVigente != null)
+                                            {
+                                                <span class="badge bg-primary ms-1">Inicio: @contratoVigente.FechaInicio.ToString("dd/MM/yyyy")</span>
+                                                <span class="badge bg-danger ms-1">Fin: @contratoVigente.FechaFin.ToString("dd/MM/yyyy")</span>
+                                            }
+                                        }
                                     }
                                 }
 
@@ -125,6 +134,54 @@
                                         <a class="btn btn-success p-1 m-1 w-25" href="@Url.Action("DarAltaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
                                             <i class="bi bi-arrow-clockwise"></i>
                                         </a>
+                                    }
+                                }
+                                @if (!inmueble.Disponible && inmueble.estado)
+                                {
+                                    var contratoVigente = Model.contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
+                                    var inquilino = Model.inquilinos?.FirstOrDefault(i => i.IdInquilino == contratoVigente?.IdInquilino);
+                                    var propietario = Model.propietarios?.FirstOrDefault(p => p.IdPropietario == contratoVigente?.IdPropietario);
+                                    if (contratoVigente != null)
+                                    {
+                                        <button type="button" class="btn btn-outline-info p-1 m-1 w-25" data-bs-toggle="modal" data-bs-target="#modalContrato_@contratoVigente.IdContrato">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </button>
+                                        <!-- Modal para ver contrato -->
+                                        <div class="modal fade" id="modalContrato_@contratoVigente.IdContrato" tabindex="-1" aria-labelledby="modalContratoLabel_@contratoVigente.IdContrato" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content border-primary shadow-lg">
+                                                    <div class="modal-header bg-primary text-white">
+                                                        <h5 class="modal-title" id="modalContratoLabel_@contratoVigente.IdContrato">
+                                                            <i class="bi bi-file-earmark-text me-2"></i>Datos del Contrato
+                                                        </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                    </div>
+                                                    <div class="modal-body bg-light">
+                                                        <div class="row mb-3">
+                                                            <div class="col-md-6">
+                                                                <div class="card border-success mb-3">
+                                                                    <div class="card-header bg-success text-white">Inquilino</div>
+                                                                    <div class="card-body">
+                                                                        <h6 class="card-title text-dark">@inquilino?.Nombre @inquilino?.Apellido</h6>
+                                                                        <p class="card-text mb-0 text-dark"><strong>ID:</strong> @contratoVigente.IdInquilino</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <ul class="list-group mb-3">
+                                                            <li class="list-group-item"><strong>ID Contrato:</strong> @contratoVigente.IdContrato</li>
+                                                            <li class="list-group-item"><strong>Fecha Inicio:</strong> @contratoVigente.FechaInicio.ToString("dd/MM/yyyy")</li>
+                                                            <li class="list-group-item"><strong>Fecha Fin:</strong> @contratoVigente.FechaFin.ToString("dd/MM/yyyy")</li>
+                                                            <li class="list-group-item"><strong>Monto:</strong> $@contratoVigente.Monto</li>
+                                                            <li class="list-group-item"><strong>Estado:</strong> @(contratoVigente.estado ? "Vigente" : "No vigente")</li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="modal-footer bg-primary">
+                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     }
                                 }
 

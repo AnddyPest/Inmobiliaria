@@ -12,6 +12,7 @@
         public string? errorMessage { get; set; }
         public int? cantidadTotalDePaginas { get; set; }
         public List<string> ciudades { get; set; } = ["Buenos Aires", "Córdoba", "Santa Fe", "Mendoza", "Tucumán", "Salta", "Jujuy", "La Rioja", "San Juan", "San Luis", "Neuquén", "Tierra del fuego", "Chaco", "Corrientes", "Entre Ríos", "Formosa", "Misiones"];
-        
+        public List<Contrato>? contratos { get; set; } = new List<Contrato>();
+        public List<Inquilino>? inquilinos { get; set; } = new List<Inquilino>();
     }
 }

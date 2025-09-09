@@ -9,11 +9,23 @@ using System.Threading.Tasks;
 
 namespace project.Controllers
 {
-    public class InmuebleController(IInmuebleService inmuebleService, ITipo_InmuebleService iTipoInmuebleService,IPropietarioService iPropietarioService) : Controller
+    public class InmuebleController : Controller
     {
-        private IInmuebleService _inmuebleService = inmuebleService;
-        private ITipo_InmuebleService _tipoInmuebleService = iTipoInmuebleService;
-        private IPropietarioService _propietarioService = iPropietarioService;
+        private IInmuebleService _inmuebleService;
+        private ITipo_InmuebleService _tipoInmuebleService;
+        private IPropietarioService _propietarioService;
+        private IContratoService _contratoService;
+        private IInquilinoService _inquilinoService;
+
+        public InmuebleController(IInmuebleService inmuebleService, ITipo_InmuebleService iTipoInmuebleService, IPropietarioService iPropietarioService, IContratoService iContratoService, IInquilinoService inquilinoService) : base()
+        {
+            _inmuebleService = inmuebleService;
+            _tipoInmuebleService = iTipoInmuebleService;
+            _propietarioService = iPropietarioService;
+            _contratoService = iContratoService;
+            _inquilinoService = inquilinoService;
+        }
+
         [HttpGet("Inmueble")]
         public IActionResult Index()
         {
@@ -79,6 +91,30 @@ namespace project.Controllers
             }
             viewModel.cantidadTotalDePaginas = cantidadRegistros.Item2 % registrosPorPagina == 0 ? cantidadRegistros.Item2 / registrosPorPagina : cantidadRegistros.Item2 / registrosPorPagina + 1;
             viewModel.inmueble = inmuebles.Item2;
+            
+            // Obtener todos los contratos y asignar al ViewModel
+            (string?, List<Contrato>?) contratosResult = await _contratoService.GetAllContratos();
+            if (contratosResult.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(contratosResult.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
+                viewModel.contratos = new List<Contrato>();
+            }
+            else
+            {
+                viewModel.contratos = contratosResult.Item2;
+            }
+            
+            // Poblar la lista de inquilinos en el ViewModel
+            (string?, List<Inquilino>) inquilinosResult = await _inquilinoService.GetAllInquilinos();
+            if (inquilinosResult.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(inquilinosResult.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
+                viewModel.inquilinos = new List<Inquilino>();
+            }
+            else
+            {
+                viewModel.inquilinos = inquilinosResult.Item2;
+            }
             
             return View("~/Views/Inmuebles/VistaLIstaInmuebles.cshtml", viewModel);
         }
