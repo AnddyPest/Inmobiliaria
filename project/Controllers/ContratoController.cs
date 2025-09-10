@@ -9,12 +9,16 @@ namespace project.Controllers
     {
         private IContratoService _contratoService;
         private IInmuebleService _inmuebleService;
+        private IInquilinoService _inquilinoService;
+        private IPropietarioService _propietarioService;
 
         // Elimina el constructor duplicado y deja solo el que recibe ambos servicios
-        public ContratoController(IContratoService contratoService, IInmuebleService inmuebleService)
+        public ContratoController(IContratoService contratoService, IInmuebleService inmuebleService, IInquilinoService inquilinoService, IPropietarioService propietarioService)
         {
             _contratoService = contratoService;
             _inmuebleService = inmuebleService;
+            _inquilinoService = inquilinoService;
+            _propietarioService = propietarioService;
         }
 
         [HttpGet("contrato/listar")]
@@ -29,6 +33,27 @@ namespace project.Controllers
                 HelperFor.imprimirMensajeDeError(contratosResult.Item1, nameof(ContratoController), nameof(GetAllContratos));
                 return this.RedirectToActionWithError(nameof(Index), contratosResult.Item1);
             }
+            (string?, List<Inquilino>?) inquilinosResult = await _inquilinoService.GetAllInquilinos();
+            if (inquilinosResult.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(inquilinosResult.Item1, nameof(ContratoController), nameof(GetAllContratos));
+                return this.RedirectToActionWithError(nameof(Index), inquilinosResult.Item1);
+            }
+            viewModel.inquilinos = inquilinosResult.Item2;
+            (string?, List<Propietario>?) propietariosResult = await _propietarioService.ObtenerTodos();
+            if (propietariosResult.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(propietariosResult.Item1, nameof(ContratoController), nameof(GetAllContratos));
+                return this.RedirectToActionWithError(nameof(Index), propietariosResult.Item1);
+            }
+            viewModel.propietarios = propietariosResult.Item2;
+            (string?, List<Inmueble>?) inmueblesResult = await _inmuebleService.ObtenerTodosLosInmuebles();
+            if (inmueblesResult.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(inmueblesResult.Item1, nameof(ContratoController), nameof(GetAllContratos));
+                return this.RedirectToActionWithError(nameof(Index), inmueblesResult.Item1);
+            }
+            viewModel.inmueble = inmueblesResult.Item2;
             int cantidadRegistros = contratosResult.Item2?.Count ?? 0;
             viewModel.cantidadTotalDePaginas = cantidadRegistros % registrosPorPagina == 0
                 ? cantidadRegistros / registrosPorPagina

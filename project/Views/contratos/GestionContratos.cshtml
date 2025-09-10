@@ -34,16 +34,17 @@
                     {
                         var inquilino = Model.inquilinos?.FirstOrDefault(i => i.IdInquilino == contrato.IdInquilino);
                         var propietario = Model.propietarios?.FirstOrDefault(p => p.IdPropietario == contrato.IdPropietario);
+                        var inmueble = Model.inmueble?.FirstOrDefault(i => i.IdInmueble == contrato.IdInmueble);
                         <tr>
                             <td class="text-center">@contrato.IdContrato</td>
                             <td class="text-center">@inquilino?.Nombre @inquilino?.Apellido</td>
                             <td class="text-center">@propietario?.Nombre @propietario?.Apellido</td>
-                            <td class="text-center">@contrato.IdInmueble</td>
+                            <td class="text-center">@inmueble?.Direccion</td>
                             <td class="text-center">@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">@contrato.FechaFin.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">$@contrato.Monto</td>
                             <td class="text-center">@(contrato.estado ? "Vigente" : "No vigente")</td>
-                            <td class="text-center d-flex justify-content-space-between" style="padding-bottom: 30%;">
+                            <td class="text-center d-flex justify-content-space-between">
                                 <!-- BOTÓN EDITAR CONTRATO -->
                                 <a class="btn btn-warning p-1 m-1 w-25" href="#">
                                     <i class="bi bi-pencil-square"></i> <!-- EDITAR CONTRATO -->
