@@ -22,39 +22,24 @@ namespace project.Controllers
         }
 
         [HttpGet("contrato/listar")]
-        public async Task<IActionResult> GetAllContratos(int nroPagina = 1, string disponibilidad = null)
+        public async Task<IActionResult> GetAllContratos(int nroPagina = 1, string? disponibilidad = null)
         {
             ContratoViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
-            const int registrosPorPagina = 10;
-            (string?, List<Contrato>?) contratosResult = await _contratoService.GetAllContratos();
-            if (contratosResult.Item1 != null)
+            const int registrosPorPagina = 4;
+            ViewBag.registrosPorPagina = registrosPorPagina;
+            (string?, List<Contrato>?) contratosResult = await _contratoService.GetAllContratos(nroPagina, registrosPorPagina, disponibilidad);
+            if (contratosResult.Item2 == null)
             {
-                HelperFor.imprimirMensajeDeError(contratosResult.Item1, nameof(ContratoController), nameof(GetAllContratos));
-                return this.RedirectToActionWithError(nameof(Index), contratosResult.Item1);
+                HelperFor.imprimirMensajeDeError(contratosResult.Item1 ?? "Error desconocido", nameof(ContratoController), nameof(GetAllContratos));
+                return this.RedirectToActionWithError(nameof(Index), contratosResult.Item1 ?? "Error desconocido");
             }
-
-            // Filtrar por disponibilidad antes de paginar
-            var contratosFiltrados = contratosResult.Item2 ?? new List<Contrato>();
-            if (!string.IsNullOrEmpty(disponibilidad))
-            {
-                if (disponibilidad == "vigente")
-                    contratosFiltrados = contratosFiltrados.Where(c => c.estado).ToList();
-                else if (disponibilidad == "no_vigente")
-                    contratosFiltrados = contratosFiltrados.Where(c => !c.estado).ToList();
-            }
-
-            int cantidadRegistros = contratosFiltrados.Count;
-            viewModel.cantidadTotalDePaginas = cantidadRegistros % registrosPorPagina == 0
-                ? cantidadRegistros / registrosPorPagina
-                : cantidadRegistros / registrosPorPagina + 1;
-
-            // Seleccionar solo los contratos de la página actual
-            viewModel.contratos = contratosFiltrados
-                .Skip((Math.Max(nroPagina, 1) - 1) * registrosPorPagina)
-                .Take(registrosPorPagina)
-                .ToList();
-
+            viewModel.contratos = contratosResult.Item2;
+            int totalContratos = 0;
+            int.TryParse(contratosResult.Item1, out totalContratos);
+            viewModel.cantidadTotalDePaginas = totalContratos % registrosPorPagina == 0
+                ? totalContratos / registrosPorPagina
+                : totalContratos / registrosPorPagina + 1;
             // Poblar inquilinos, propietarios e inmuebles para la vista
             (string?, List<Inquilino>?) inquilinosResult = await _inquilinoService.GetAllInquilinos();
             if (inquilinosResult.Item1 == null)

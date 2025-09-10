@@ -188,16 +188,22 @@ namespace project.Services
             }
         }
 
-        public async Task<(string?, List<Contrato>?)> GetAllContratos() //testear
+        public async Task<(string?, List<Contrato>?)> GetAllContratos(int? nroPagina, int? registrosPorPagina, string? disponibilidad) //testear
         {
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-
                     string query = "SELECT * FROM Contrato";
+                    if (!string.IsNullOrEmpty(disponibilidad))
+                    {
+                        if (disponibilidad.ToLower() == "vigente")
+                            query += " WHERE estado = 1";
+                        else if (disponibilidad.ToLower() == "no vigente")
+                            query += " WHERE estado = 0";
+                        // Si es 'todos' o vacío, no se agrega WHERE y se muestran ambos estados
+                    }
                     List<Contrato> contratos = new List<Contrato>();
-
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         connection.Open();
@@ -218,7 +224,16 @@ namespace project.Services
                             }
                         }
                         await connection.CloseAsync();
-                        return (null, contratos);
+                        int totalContratos = contratos.Count;
+                        // PAGINACIÓN
+                        if (nroPagina.HasValue && registrosPorPagina.HasValue)
+                        {
+                            contratos = contratos.Skip((nroPagina.Value - 1) * registrosPorPagina.Value)
+                                                .Take(registrosPorPagina.Value)
+                                                .ToList();
+                        }
+                        // Retornar el total como primer elemento de la tupla (usando un string para compatibilidad)
+                        return (totalContratos.ToString(), contratos);
                     }
                 }
             }
