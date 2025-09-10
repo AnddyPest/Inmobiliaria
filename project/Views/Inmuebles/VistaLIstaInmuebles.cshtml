@@ -25,7 +25,7 @@
                maxlength="8" placeholder="Filtro por dni"
                oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
     </div>
-    <div class="table-responsive">
+    <div class="table-container" style="min-height: 65vh;">
         <table class="table table-striped table-bordered mt-4 table-dark mb-3 " id="myTable">
             <thead class="table-dark">
                 <tr>
@@ -119,7 +119,7 @@
                                         var contratoVigente = Model.contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
                                         if (contratoVigente != null)
                                         {
-                                            <a class="btn btn-success p-1 m-1 w-25" href="@Url.Action("DarDeBajaContrato", "Contrato", new { idContrato = contratoVigente.IdContrato })">
+                                            <a class="btn btn-success p-1 m-1 w-25" onclick="confirmarEliminacion('@Url.Action("DarDeBajaContrato", "Contrato", new { idContrato = contratoVigente.IdContrato })', 'idContrato: @contratoVigente.IdContrato')">
                                                 <i class="bi bi-door-open-fill"></i>
                                             </a>
                                         }
@@ -198,6 +198,7 @@
                 
             </tbody>
         </table>
+    </div>
         <div class="col d-flex w-100 justify-content-between">
             <nav aria-label="Page navigation">
                 
@@ -244,7 +245,6 @@
             </nav>
             <button class="btn btn-danger h-100" onclick="window.location.href='/inmueble'">Volver</button>
         </div>
-    </div>
 </div>
 
     <!-- Modal Nuevo Contrato -->
@@ -297,7 +297,7 @@
                             </div>
                             <div class="col">
                                 <label for="fechaInicio">Fecha Inicio:</label>
-                                <input type="date" id="fechaInicio" name="fechaInicio" class="form-control" required value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                <input type="date" id="fechaInicio" name="fechaInicio" class="form-control" required>
                             </div>
                             <div class="col">
                                 <label for="fechaFin">Fecha Fin:</label>
@@ -594,22 +594,36 @@
                 // VALIDACIÓN DE FECHAS EN FORMULARIO DE CONTRATO
                 const fechaInicioInput = document.getElementById('fechaInicio');
                 const fechaFinInput = document.getElementById('fechaFin');
-                // FECHA DE INICIO MINIMA => HOY
-                // FECHA FIN MINIMA => MAÑANA
-                let today = new Date().toISOString().split('T')[0];
+                
                 let tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                fechaInicioInput.setAttribute('min', today);
-                fechaFinInput.setAttribute('min', tomorrow.toISOString().split('T')[0]);
-               
+                     
                 // CUANDO CAMBIAMOS LA FECHA DE INICIO, LA DE FIN SE AJUSTA Y SE AUTOSELECCIONA EN MAÑANA
                 fechaInicioInput.addEventListener('change', function() {
                     let minFin = new Date(this.valueAsDate);
-                    minFin.setDate(minFin.getDate() + 1);
+                    minFin.setDate(minFin.getDate());
                     let minFinStr = minFin.toISOString().split('T')[0];
                     fechaFinInput.setAttribute('min', minFinStr);
                     fechaFinInput.value = minFinStr;
                 });
                 
             });
+            function confirmarEliminacion(url, nombre) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    html: `Vas a eliminar: <b>${nombre}</b>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = url;
+                    }
+                });
+
+                // Return false para prevenir el comportamiento por defecto
+                return false;
+            }
     </script>
