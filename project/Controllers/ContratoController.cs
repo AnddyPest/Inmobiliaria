@@ -26,7 +26,7 @@ namespace project.Controllers
         {
             ContratoViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
-            const int registrosPorPagina = 4;
+            const int registrosPorPagina = 5;
             ViewBag.registrosPorPagina = registrosPorPagina;
             (string?, List<Contrato>?) contratosResult = await _contratoService.GetAllContratos(nroPagina, registrosPorPagina, disponibilidad);
             if (contratosResult.Item2 == null)

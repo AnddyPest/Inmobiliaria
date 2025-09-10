@@ -87,12 +87,42 @@
                                     <i class="bi bi-pencil-square"></i> <!-- EDITAR CONTRATO -->
                                 </a>
                                 <!-- BOTÓN DE IR A PAGOS -->
-                                <a class="btn btn-success p-1 m-1 w-25" href="#">
+                                <button type="button" class="btn btn-success p-1 m-1 w-25" data-bs-toggle="modal" data-bs-target="#modalPago_@contrato.IdContrato">
                                     <i class="bi bi-cash-stack"></i> <!-- IR A PAGOS -->
-                                </a>
-                                
-                                
-                                
+                                </button>
+                                <!-- MODAL GENERAR PAGO -->
+                                <div class="modal fade" id="modalPago_@contrato.IdContrato" tabindex="-1" aria-labelledby="modalPagoLabel_@contrato.IdContrato" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content border-success shadow-lg">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title" id="modalPagoLabel_@contrato.IdContrato">
+                                                    <i class="bi bi-cash-stack me-2"></i>Generar Pago para Contrato #@contrato.IdContrato
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                            </div>
+                                            <div class="modal-body bg-light">
+                                                <form id="formPago_@contrato.IdContrato" action="/Pago/Create" method="post" autocomplete="off">
+                                                    <div class="mb-3">
+                                                        <label for="importe_@contrato.IdContrato" class="form-label">Importe</label>
+                                                        <input type="number" class="form-control" id="importe_@contrato.IdContrato" name="Importe" required value="@(contrato.Monto)">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="fechaConfeccion_@contrato.IdContrato" class="form-label">Fecha de Confeccion</label>
+                                                        <input type="date" class="form-control" id="fechaConfeccion_@contrato.IdContrato" name="FechaConfeccion" required value="@(DateTime.Now.ToString("yyyy-MM-dd"))">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="detallePago_@contrato.IdContrato" class="form-label">Detalle</label>
+                                                        <textarea class="form-control" id="detallePago_@contrato.IdContrato" name="Detalle" rows="2"></textarea>
+                                                    </div>
+                                                    <input type="hidden" name="IdContrato" value="@contrato.IdContrato" />
+                                                    <div class="d-flex justify-content-end">
+                                                        <button type="submit" class="btn btn-success">Crear Pago</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -142,3 +172,5 @@
         </div>
     </div>
 </div>
+</div>
+
