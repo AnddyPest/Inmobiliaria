@@ -18,6 +18,13 @@ public class PagosService : IPagosService
         int res = -1;
         try
         {
+            // Validación de pago duplicado
+            var existePago = ExistePagoAlquiler(pago.IdContrato, pago.FechaConfeccion).Result;
+            if (existePago)
+            {
+                return Task.FromResult<(string?, bool)>( ("Ya existe un pago de alquiler para este mes", false) );
+            }
+
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
@@ -56,7 +63,7 @@ public class PagosService : IPagosService
                     }
                     else
                     {
-                        return Task.FromResult<(string?, bool)>(("No se pudo obtener el ID del nuevo pago.", false));
+                        return Task.FromResult<(string?, bool)>( ("No se pudo obtener el ID del nuevo pago.", false) );
                     }
                 }
             }
@@ -64,7 +71,7 @@ public class PagosService : IPagosService
         catch (Exception ex)
         {
             HelperFor.imprimirMensajeDeError(ex.Message, nameof(PagosService), nameof(CreatePago));
-            return Task.FromResult<(string?, bool)>(("Error al crear el pago: " + ex.Message, false));
+            return Task.FromResult<(string?, bool)>( ("Error al crear el pago: " + ex.Message, false) );
         }
         throw new NotImplementedException();
     }
@@ -160,5 +167,9 @@ public class PagosService : IPagosService
             HelperFor.imprimirMensajeDeError(ex.Message, nameof(PagosService), nameof(ExistePagoAlquiler));
         }
         return false;
+    }
+    public Task<(string?, bool)> CrearMulta(int idContrato, decimal importe, string detalle)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -33,53 +33,26 @@ namespace project.Controllers
                 return this.RedirectToActionWithError("GetAllContratos","Contratos",pagoViewModel.IdContrato,"Error al crear pago");
             }
 
-            // Parsear la fecha en el controlador para aceptar dd/MM/yyyy y yyyy-MM-dd
-            DateTime fechaConfeccion = pagoViewModel.FechaConfeccion;
-            if (fechaConfeccion == default(DateTime))
-            {
-                fechaConfeccion = DateTime.Today;
-            }
-            else
-            {
-                // Si la fecha viene en formato dd/MM/yyyy como string, intentar parsear
-                var fechaStr = Request.Form["FechaConfeccion"].ToString();
-                if (!string.IsNullOrEmpty(fechaStr))
-                {
-                    if (!DateTime.TryParseExact(fechaStr, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out fechaConfeccion))
-                    {
-                        DateTime tempFecha;
-                        if (DateTime.TryParseExact(fechaStr, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out tempFecha))
-                        {
-                            fechaConfeccion = tempFecha;
-                        }
-                    }
-                }
-            }
-
-            // Log para depuración del valor final de fechaConfeccion
-            Console.WriteLine($"[DEBUG] fechaConfeccion final: {fechaConfeccion:yyyy-MM-dd}");
+            
+            var fechaConfeccion = pagoViewModel.FechaConfeccion == default(DateTime)
+                ? DateTime.Today
+                : pagoViewModel.FechaConfeccion;
 
             var nuevoPago = new Pago
             {
                 Detalle = pagoViewModel.Detalle ?? string.Empty,
                 Importe = pagoViewModel.Importe,
-                FechaConfeccion = new DateOnly(fechaConfeccion.Year, fechaConfeccion.Month, fechaConfeccion.Day),
+                FechaConfeccion = DateOnly.FromDateTime(pagoViewModel.FechaConfeccion),
                 IdContrato = pagoViewModel.IdContrato,
                 Abonado = false,
                 Alquiler= true,
                 Estado = true
             };
-            // validar que no haya un pago para el mismo mes y contrato con boolean alquiler = true
-            var existePago = await _pagosService.ExistePagoAlquiler(
-                nuevoPago.IdContrato,
-                nuevoPago.FechaConfeccion);
-            if (existePago)
+
+            var (mensaje, ok) = await _pagosService.CreatePago(nuevoPago);
+            if (!ok)
             {
-                return this.RedirectToActionWithError("listar", "Contrato", "No se registro el pago", "Ya existe un pago de alquiler para este mes");
-            }
-            else
-            {
-                await _pagosService.CreatePago(nuevoPago);
+                return this.RedirectToActionWithError("listar", "Contrato", "No se pudo generar el pago", "Error al crear pago");
             }
 
             return this.RedirectToActionWithSuccess("listar", "Contrato", "Pago registrado exitosamente", "Pago creado!!");

@@ -15,5 +15,6 @@ namespace project.Models.Interfaces
         Task<(string?, List<Pago>?)> GetPagosRealizados();
         Task<(string?, List<Pago>?)> GetPagosAnulados();
         Task<bool> ExistePagoAlquiler(int idContrato, DateOnly fechaConfeccion);
+        Task<(string?, bool)> CrearMulta(int idContrato, decimal importe, string detalle);
     }
 }
