@@ -44,11 +44,11 @@ namespace project.Controllers
         public async Task<IActionResult> RegistrarTipoInmueble(Tipo_Inmueble tipo_Inmueble)
         {
             if (!ModelState.IsValid)
-                return this.RedirectToActionWithError(nameof(ListarTiposDeInmueble), ModelStateExtensions.GetErrorMessages(ModelState));
+                return this.RedirectToActionWithError(nameof(ListarTiposDeInmueble), ModelStateExtensions.GetErrorMessages(ModelState),"Error");
             (string?, bool) resultsFromService = await _tipoInmuebleService.createTipoInmueble(tipo_Inmueble);
             if(resultsFromService.Item1 != null)
-                return this.RedirectToActionWithError(nameof(ListarTiposDeInmueble), resultsFromService.Item1);
-            return this.RedirectToActionWithSuccess(nameof(ListarTiposDeInmueble), $"Tipo_Inmueble: {tipo_Inmueble.nombre}\nRegistrado con exito");
+                return this.RedirectToActionWithError(nameof(ListarTiposDeInmueble), "Hubo un error en el servicio que se encarga de registrar el tipo Inmueble", "Internal Server Error");
+            return this.RedirectToActionWithSuccess(nameof(ListarTiposDeInmueble), $"{tipo_Inmueble.nombre} registrado con exito");
         }
         [HttpPost]
         public async Task<IActionResult> ActualizarTipoInmueble(Tipo_Inmueble tipo_Inmueble)

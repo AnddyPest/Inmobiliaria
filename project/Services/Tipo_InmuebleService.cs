@@ -205,7 +205,7 @@ namespace project.Services
                 using(MySqlConnection connection = new(_connectionString))
                 {
                     string query = $@" Insert into tipo_inmueble(nombre)
-                                       Values (@nombre)
+                                       Values (@nombre);
                                        SELECT LAST_INSERT_ID();";
                     using(MySqlCommand command = new MySqlCommand(query, connection))
                     {

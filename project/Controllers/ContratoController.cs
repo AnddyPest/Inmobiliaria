@@ -66,9 +66,9 @@ namespace project.Controllers
                 return BadRequest(ModelState);
             (string?, bool) contratoCreated = await _contratoService.CreateContrato(model);
             if (contratoCreated.Item1 != null)
-                return this.RedirectToActionWithError("GetAllInmuebles","Inmueble",contratoCreated.Item1);
+                return this.RedirectToActionWithError("GetAllInmuebles","Inmueble",contratoCreated.Item1,"Error al crear contrato");
             if (!contratoCreated.Item2)
-                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "No se pudo registrar el contrato");
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "No se pudo registrar el contrato", "Error al crear contrato");
             // Marcar inmueble como alquilado en el backend
             (string?, bool) alquiladoResult = await _inmuebleService.MarcarAlquilado(model.IdInmueble);
             if (alquiladoResult.Item1 != null || !alquiladoResult.Item2)

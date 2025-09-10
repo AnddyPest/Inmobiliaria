@@ -2,7 +2,8 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Gestion de Tipos de Inmueble";
-    var Pagina = ViewBag.nroPaginas ?? 1;
+    int Pagina = ViewBag.nroPagina != null ? Convert.ToInt32(ViewBag.nroPagina) : 1;
+    Console.WriteLine(Pagina);
 }
 <div class="container-fluid mt-4" style="min-height:100vh;">
     <div class="row p-0 mb-3">
