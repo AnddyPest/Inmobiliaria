@@ -22,7 +22,7 @@ namespace project.Controllers
         }
 
         [HttpGet("contrato/listar")]
-        public async Task<IActionResult> GetAllContratos(int nroPagina = 1)
+        public async Task<IActionResult> GetAllContratos(int nroPagina = 1, string disponibilidad = null)
         {
             ContratoViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
@@ -33,37 +33,39 @@ namespace project.Controllers
                 HelperFor.imprimirMensajeDeError(contratosResult.Item1, nameof(ContratoController), nameof(GetAllContratos));
                 return this.RedirectToActionWithError(nameof(Index), contratosResult.Item1);
             }
-            (string?, List<Inquilino>?) inquilinosResult = await _inquilinoService.GetAllInquilinos();
-            if (inquilinosResult.Item1 != null)
+
+            // Filtrar por disponibilidad antes de paginar
+            var contratosFiltrados = contratosResult.Item2 ?? new List<Contrato>();
+            if (!string.IsNullOrEmpty(disponibilidad))
             {
-                HelperFor.imprimirMensajeDeError(inquilinosResult.Item1, nameof(ContratoController), nameof(GetAllContratos));
-                return this.RedirectToActionWithError(nameof(Index), inquilinosResult.Item1);
+                if (disponibilidad == "vigente")
+                    contratosFiltrados = contratosFiltrados.Where(c => c.estado).ToList();
+                else if (disponibilidad == "no_vigente")
+                    contratosFiltrados = contratosFiltrados.Where(c => !c.estado).ToList();
             }
-            viewModel.inquilinos = inquilinosResult.Item2;
-            (string?, List<Propietario>?) propietariosResult = await _propietarioService.ObtenerTodos();
-            if (propietariosResult.Item1 != null)
-            {
-                HelperFor.imprimirMensajeDeError(propietariosResult.Item1, nameof(ContratoController), nameof(GetAllContratos));
-                return this.RedirectToActionWithError(nameof(Index), propietariosResult.Item1);
-            }
-            viewModel.propietarios = propietariosResult.Item2;
-            (string?, List<Inmueble>?) inmueblesResult = await _inmuebleService.ObtenerTodosLosInmuebles();
-            if (inmueblesResult.Item1 != null)
-            {
-                HelperFor.imprimirMensajeDeError(inmueblesResult.Item1, nameof(ContratoController), nameof(GetAllContratos));
-                return this.RedirectToActionWithError(nameof(Index), inmueblesResult.Item1);
-            }
-            viewModel.inmueble = inmueblesResult.Item2;
-            int cantidadRegistros = contratosResult.Item2?.Count ?? 0;
+
+            int cantidadRegistros = contratosFiltrados.Count;
             viewModel.cantidadTotalDePaginas = cantidadRegistros % registrosPorPagina == 0
                 ? cantidadRegistros / registrosPorPagina
                 : cantidadRegistros / registrosPorPagina + 1;
 
             // Seleccionar solo los contratos de la página actual
-            viewModel.contratos = contratosResult.Item2?
+            viewModel.contratos = contratosFiltrados
                 .Skip((Math.Max(nroPagina, 1) - 1) * registrosPorPagina)
                 .Take(registrosPorPagina)
                 .ToList();
+
+            // Poblar inquilinos, propietarios e inmuebles para la vista
+            (string?, List<Inquilino>?) inquilinosResult = await _inquilinoService.GetAllInquilinos();
+            if (inquilinosResult.Item1 == null)
+                viewModel.inquilinos = inquilinosResult.Item2;
+            (string?, List<Propietario>?) propietariosResult = await _propietarioService.ObtenerTodos();
+            if (propietariosResult.Item1 == null)
+                viewModel.propietarios = propietariosResult.Item2;
+            (string?, List<Inmueble>?) inmueblesResult = await _inmuebleService.ObtenerTodosLosInmuebles();
+            if (inmueblesResult.Item1 == null)
+                viewModel.inmueble = inmueblesResult.Item2;
+
             return View("~/Views/Contratos/GestionContratos.cshtml", viewModel);
         }
         [HttpGet("contrato/find/{idContrato}")]

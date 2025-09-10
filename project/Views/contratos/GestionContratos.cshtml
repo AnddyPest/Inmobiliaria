@@ -4,6 +4,7 @@
     var Pagina = ViewBag.nroPagina ?? 1;
 }
 @using Newtonsoft.Json
+
 <script>
     window.Model = {
         contratos: @Html.Raw(JsonConvert.SerializeObject(Model.contratos))
@@ -12,6 +13,29 @@
 
 <div>
     <h2 class="text-center mt-4 text-white fs-2 mt-1">Lista de Contratos Registrados</h2>
+@{
+    var disponibilidad = Context.Request.Query["disponibilidad"].FirstOrDefault() ?? "";
+}
+<!-- FILTRO POR DISPONIBILIDAD -->
+<form method="get" asp-action="GetAllContratos" class="mb-3" id="filtroForm">
+    <div class="btn-group" role="group" aria-label="Filtrar por disponibilidad">
+        <input type="radio" class="btn-check" name="disponibilidad" id="todos" value="" @(disponibilidad == "" ? "checked" : "")>
+        <label class="btn btn-outline-primary" for="todos">Todos</label>
+        <input type="radio" class="btn-check" name="disponibilidad" id="vigente" value="vigente" @(disponibilidad == "vigente" ? "checked" : "")>
+        <label class="btn btn-outline-success" for="vigente">Vigentes</label>
+        <input type="radio" class="btn-check" name="disponibilidad" id="no_vigente" value="no_vigente" @(disponibilidad == "no_vigente" ? "checked" : "")>
+        <label class="btn btn-outline-danger" for="no_vigente">No vigentes</label>
+    </div>
+</form>
+<!-- SCRIPT DE LOS FILTROS POR DISPONIBILIDAD -->
+<script>
+    document.querySelectorAll('input[name="disponibilidad"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            document.getElementById('filtroForm').submit();
+        });
+    });
+</script>
+    
     <div class="table-container" style="min-height: 320px;">
         <table class="table table-striped table-bordered mt-4 table-dark mb-3" id="contratosTable">
             <thead class="table-dark">
@@ -43,48 +67,32 @@
                             <td class="text-center">@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">@contrato.FechaFin.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">$@contrato.Monto</td>
-                            <td class="text-center">@(contrato.estado ? "Vigente" : "No vigente")</td>
-                            <td class="text-center d-flex justify-content-space-between">
+                            <td class="text-center">
+                                @if (contrato.estado)
+                                {
+                                    <span class="text-success">
+                                        <i class="bi bi-check-circle-fill" style="font-size: 1.3em;"></i>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">
+                                        <i class="bi bi-x-circle-fill" style="font-size: 1.3em;"></i>
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
                                 <!-- BOTÓN EDITAR CONTRATO -->
                                 <a class="btn btn-warning p-1 m-1 w-25" href="#">
                                     <i class="bi bi-pencil-square"></i> <!-- EDITAR CONTRATO -->
                                 </a>
-                                <!-- BOTÓN DAR DE BAJA CONTRATO -->
-                                <a class="btn btn-danger p-1 m-1 w-25" href="#">
-                                    <i class="bi bi-trash-fill"></i> <!-- DAR DE BAJA CONTRATO -->
+                                <!-- BOTÓN DE IR A PAGOS -->
+                                <a class="btn btn-success p-1 m-1 w-25" href="#">
+                                    <i class="bi bi-cash-stack"></i> <!-- IR A PAGOS -->
                                 </a>
-                                <!-- BOTÓN VER DETALLE CONTRATO -->
-                                <button type="button" class="btn btn-outline-info p-1 m-1 w-25" data-bs-toggle="modal" data-bs-target="#modalContrato_@contrato.IdContrato">
-                                    <i class="bi bi-eye-fill"></i> <!-- VER DETALLE CONTRATO -->
-                                </button>
-                                <!-- MODAL DETALLE CONTRATO -->
-                                <div class="modal fade" id="modalContrato_@contrato.IdContrato" tabindex="-1" aria-labelledby="modalContratoLabel_@contrato.IdContrato" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg">
-                                        <div class="modal-content border-primary shadow-lg">
-                                            <div class="modal-header bg-primary text-white">
-                                                <h5 class="modal-title" id="modalContratoLabel_@contrato.IdContrato">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>Datos del Contrato
-                                                </h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                            </div>
-                                            <div class="modal-body bg-light">
-                                                <ul class="list-group mb-3">
-                                                    <li class="list-group-item"><strong>ID Contrato:</strong> @contrato.IdContrato</li>
-                                                    <li class="list-group-item"><strong>Inquilino:</strong> @inquilino?.Nombre @inquilino?.Apellido</li>
-                                                    <li class="list-group-item"><strong>Propietario:</strong> @propietario?.Nombre @propietario?.Apellido</li>
-                                                    <li class="list-group-item"><strong>ID Inmueble:</strong> @contrato.IdInmueble</li>
-                                                    <li class="list-group-item"><strong>Fecha Inicio:</strong> @contrato.FechaInicio.ToString("dd/MM/yyyy")</li>
-                                                    <li class="list-group-item"><strong>Fecha Fin:</strong> @contrato.FechaFin.ToString("dd/MM/yyyy")</li>
-                                                    <li class="list-group-item"><strong>Monto:</strong> $@contrato.Monto</li>
-                                                    <li class="list-group-item"><strong>Estado:</strong> @(contrato.estado ? "Vigente" : "No vigente")</li>
-                                                </ul>
-                                            </div>
-                                            <div class="modal-footer bg-primary">
-                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                
+                                
+                                
                             </td>
                         </tr>
                     }
@@ -97,7 +105,7 @@
                     @if (Pagina > 1)
                     {
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = Pagina - 1 })" aria-label="Anterior">
+                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = Pagina - 1, disponibilidad = disponibilidad })" aria-label="Anterior">
                                 <i class="bi bi-chevron-double-left"></i>
                             </a>
                         </li>
@@ -111,13 +119,13 @@
                     @for (int i = 1; i <= Model!.cantidadTotalDePaginas; i++)
                     {
                         <li class="page-item @(i == Pagina ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = i })">@i</a>
+                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = i, disponibilidad = disponibilidad })">@i</a>
                         </li>
                     }
                     @if (Pagina < Model.cantidadTotalDePaginas)
                     {
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = Pagina + 1 })" aria-label="Siguiente">
+                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = Pagina + 1, disponibilidad = disponibilidad })" aria-label="Siguiente">
                                 <i class="bi bi-chevron-double-right"></i>
                             </a>
                         </li>
