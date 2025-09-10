@@ -2,6 +2,7 @@
 using project.Models;
 using project.Models.Interfaces;
 using project.Helpers;
+using project.Models.ViewModels;
 namespace project.Controllers
 {
     public class ContratoController : Controller
@@ -17,14 +18,28 @@ namespace project.Controllers
         }
 
         [HttpGet("contrato/listar")]
-        public async Task<IActionResult> GetAllContratos()
+        public async Task<IActionResult> GetAllContratos(int nroPagina = 1)
         {
-            (string?, List<Contrato>?) contratos = await _contratoService.GetAllContratos();
-            if (contratos.Item1 != null)
+            ContratoViewModel viewModel = new();
+            ViewBag.nroPagina = nroPagina;
+            const int registrosPorPagina = 10;
+            (string?, List<Contrato>?) contratosResult = await _contratoService.GetAllContratos();
+            if (contratosResult.Item1 != null)
             {
-                return BadRequest(contratos.Item1);
+                HelperFor.imprimirMensajeDeError(contratosResult.Item1, nameof(ContratoController), nameof(GetAllContratos));
+                return this.RedirectToActionWithError(nameof(Index), contratosResult.Item1);
             }
-            return Ok(contratos.Item2);
+            int cantidadRegistros = contratosResult.Item2?.Count ?? 0;
+            viewModel.cantidadTotalDePaginas = cantidadRegistros % registrosPorPagina == 0
+                ? cantidadRegistros / registrosPorPagina
+                : cantidadRegistros / registrosPorPagina + 1;
+
+            // Seleccionar solo los contratos de la página actual
+            viewModel.contratos = contratosResult.Item2?
+                .Skip((Math.Max(nroPagina, 1) - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToList();
+            return View("~/Views/Contratos/GestionContratos.cshtml", viewModel);
         }
         [HttpGet("contrato/find/{idContrato}")]
         public async Task<IActionResult> GetContratoById(int idContrato)
