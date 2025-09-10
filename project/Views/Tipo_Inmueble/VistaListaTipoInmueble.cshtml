@@ -2,5 +2,107 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Gestion de Tipos de Inmueble";
+    var Pagina = ViewBag.nroPaginas ?? 1;
 }
+<div class="container-fluid mt-4" style="min-height:100vh;">
+    <div class="row p-0 mb-3">
+        <h1 class="text-center text-white border-2 shadow fs-1 p-4">@ViewData["Title"]</h1>
+    </div>
+    <div class="clearfix mb-2">
+        <div class=" ms-1  float-start " style="margin-left: 1px">
+            <a class="btn btn-light ps-3 pe-3 fs-5" href="@Url.Action("RegistrarTipoInmueble", "Tipo_Inmueble")">Nuevo</a>
+        </div>
+       @*  <div class="float-start ms-3">
+            <input class="form-control w-100 " placeholder="Filtro por nombre"/>
+        </div> *@
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered table-dark text-center fs-5 mt-1" >
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.tipo_Inmueble != null && Model.tipo_Inmueble.Count() > 0)
+                {
+                    @foreach (var tipoI in Model.tipo_Inmueble)
+                    {
+                        <tr>
+                            <td>@tipoI.id_tipo_inmueble</td>
+                            <td>@tipoI.nombre</td>
+                            <td class="d-flex justify-content-center">
+                                <div class="me-1">
+                                    <a class="btn btn-warning " href="@Url.Action("ActualizarTipoInmueble", "Tipo_Inmueble", new { id = tipoI.id_tipo_inmueble }))">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                </div>
+                                <div class="ms-1">
+                                    <a class="btn btn-danger" href="@Url.Action("EliminarTipoInmueble", "Tipo_Inmueble", new { id = tipoI.id_tipo_inmueble })">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>0</td>
+                        <td>No hay elementos</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col d-flex w-100 justify-content-between">
+        <nav aria-label="Page navigation">
 
+            <ul class="pagination">
+                @if (Pagina > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("ListarTiposDeInmueble", "Tipo_Inmueble", new { nroPagina = Pagina - 1 })" aria-label="Anterior">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
+                    </li>
+                }
+                @for (int i = 1; i <= Model!.cantidadTotalDePaginas; i++)
+                {
+                    <li class="page-item @(i == Pagina ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("ListarTiposDeInmueble", "Tipo_Inmueble", new { nroPagina = @i })">@i</a>
+                    </li>
+                }
+                @if (Pagina < Model.cantidadTotalDePaginas)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("ListarTiposDeInmueble", "Tipo_Inmueble", new { nroPagina = Pagina + 1 })" aria-label="Siguiente">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            <i class="bi bi-chevron-double-right">
+
+                            </i>
+                        </span>
+                    </li>
+                }
+            </ul>
+        </nav>
+        <button class="btn btn-danger h-100" onclick="window.location.href='@Url.Action("Privacy","Home")'">Volver</button>
+    </div>
+</div>
