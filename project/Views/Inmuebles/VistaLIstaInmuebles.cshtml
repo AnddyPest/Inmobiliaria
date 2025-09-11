@@ -26,7 +26,10 @@
                oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
     </div>
     <div class="table-container" style="min-height: 65vh;">
+       
+     
         <table class="table table-striped table-bordered mt-4 table-dark mb-3 " id="myTable">
+              
             <thead class="table-dark">
                 <tr>
                     <th style="width: 3%;">ID</th>
@@ -63,9 +66,9 @@
                             <td class="text-center ">@inmueble.Propietario!.Dni</td>
                             <td class="text-center flex">
                                 <input type="hidden" class="input-disponible" data-id="@inmueble.IdInmueble" value="@inmueble.Disponible.ToString().ToLower()" />
-                                <input type="hidden" class="input-estado" data-id="@inmueble.IdInmueble" value="@inmueble.estado.ToString().ToLower()" />
+                                <input type="hidden" class="input-estado" data-id="@inmueble.IdInmueble" value="@inmueble.Estado.ToString().ToLower()" />
                                 <input type="hidden" class="inputHiddenDni" data-id="@inmueble.IdInmueble" value="@inmueble.Propietario.Dni" />
-                                @if (!inmueble.estado)
+                                @if (!inmueble.Estado)
                                 {
                                     <i class="bi bi-house-slash-fill text-danger fs-4" title="No disponible - Dado de baja"></i>
                                 }
@@ -80,7 +83,7 @@
                                         <input type="hidden" id="idInputDisponible" value="@inmueble.Disponible"/>
                                         <i class="bi bi-house-check-fill text-success fs-4" title="Alquilado"></i>
                                         {
-                                            var contratoVigente = Model.contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
+                                            var contratoVigente = Model.Contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
                                             if (contratoVigente != null)
                                             {
                                                 <span class="badge bg-primary ms-1">Inicio: @contratoVigente.FechaInicio.ToString("dd/MM/yyyy")</span>
@@ -93,7 +96,7 @@
                             </td>
                             <td class="text-center flex">
 
-                                @if (inmueble.estado)
+                                @if (inmueble.Estado)
                                 {
                                     <i class= "bi bi-check-circle-fill text-success fs-4" title = "Activo" ></i>
                                 }
@@ -106,7 +109,7 @@
                                 <a class="btn btn-warning p-1 m-1 w-25" href="@Url.Action("Actualizar", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
-                                @if (inmueble.estado)
+                                @if (inmueble.Estado)
                                 {
                                     @if (inmueble.Disponible)
                                     {
@@ -116,19 +119,19 @@
                                     }
                                     else
                                     {
-                                        var contratoVigente = Model.contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
-                                        if (contratoVigente != null)
-                                        {
-                                            <a class="btn btn-success p-1 m-1 w-25" onclick="confirmarEliminacion('@Url.Action("DarDeBajaContrato", "Contrato", new { idContrato = contratoVigente.IdContrato })', 'idContrato: @contratoVigente.IdContrato')">
-                                                <i class="bi bi-door-open-fill"></i>
-                                            </a>
-                                        }
+                                        <button type="button" class="btn btn-danger p-1 m-1 w-25" onclick="finalizarContrato('@inmueble.IdInmueble')">
+                                            <i class="bi bi-door-open-fill"></i>
+                                            
+                                        </button>
+                                        
+                                        
+                                        
                                     }
                                 }
                                 <!-- Botón para dar de baja o alta lógica -->
-                                @if (inmueble.Disponible && inmueble.estado || (!inmueble.Disponible && !inmueble.estado))
+                                @if (inmueble.Disponible && inmueble.Estado || (!inmueble.Disponible && !inmueble.Estado))
                                 {
-                                    @if (inmueble.estado)
+                                    @if (inmueble.Estado)
                                     {
                                         <a class="btn btn-danger p-1 m-1 w-25" href="@Url.Action("DarBajaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
                                             <i class="bi bi-trash-fill"></i>
@@ -141,9 +144,9 @@
                                         </a>
                                     }
                                 }
-                                @if (!inmueble.Disponible && inmueble.estado)
+                                @if (!inmueble.Disponible && inmueble.Estado)
                                 {
-                                    var contratoVigente = Model.contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
+                                    var contratoVigente = Model.Contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
                                     var inquilino = Model.inquilinos?.FirstOrDefault(i => i.IdInquilino == contratoVigente?.IdInquilino);
                                     var propietario = Model.propietarios?.FirstOrDefault(p => p.IdPropietario == contratoVigente?.IdPropietario);
                                     if (contratoVigente != null)
@@ -163,8 +166,8 @@
                                                     </div>
                                                     <div class="modal-body bg-light">
                                                         <div class="row mb-3">
-                                                            <div class="col-md-6">
-                                                                <div class="card border-success mb-3">
+                                                            <div class="col-md-6 w-100 d-flex justify-content-center">
+                                                                <div class="card border-success mb-3 w-50 overflow-auto">
                                                                     <div class="card-header bg-success text-white">Inquilino</div>
                                                                     <div class="card-body">
                                                                         <h6 class="card-title text-dark">@inquilino?.Nombre @inquilino?.Apellido</h6>
@@ -624,6 +627,47 @@
                 });
 
                 // Return false para prevenir el comportamiento por defecto
+                return false;
+            }
+            async function finalizarContrato(idInmueble) {
+                var idContrato = null;
+                // BUSCAMOS EL CONTRATO VIGENTE POR EL ID INMUEBLE
+                await fetch(`/contrato/getContratoByIdInmueble/${idInmueble}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('No se encontró el contrato');
+                        return response.json();
+                    })
+                    .then(data => {
+                    if (data && Array.isArray(data) && data.length > 0 && data[0].idContrato) {
+                        idContrato = data[0].idContrato;
+                    } else {
+                        console.error('No se encontró un contrato vigente para este inmueble.');
+                        Swal.fire('Error', 'No se encontró un contrato vigente para este inmueble.', 'error');
+                        return false;
+                    }
+                })
+                    .catch(() => {
+                        console.error('Error al buscar el contrato por IdInmueble.');
+                        Swal.fire('Error', 'Error al buscar el contrato por IdInmueble.', 'error');
+                        return false;
+                    });
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Vas a finalizar este contrato.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, finalizar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        
+                        window.location.href = `/contrato/dardebaja/${idContrato}`;
+                    }
+                });
+
+                
                 return false;
             }
     </script>

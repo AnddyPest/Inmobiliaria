@@ -88,8 +88,8 @@
             </div>
             <div class="mb-3">
                 <label for="ciudadNoHidden" class="form-label  fw-bold fs-4 ms-1">Elige tu ciudad:</label>
-                <input list="ciudades" id="ciudadNoHidden" class="form-control" value="@Model.InmuebleOnly.ciudad" required autocomplete="off" />
-                <input type="hidden" name="ciudad" value="@Model.InmuebleOnly.ciudad" id="ciudadHidden" />
+                <input list="ciudades" id="ciudadNoHidden" class="form-control" value="@Model.InmuebleOnly.Ciudad" required autocomplete="off" />
+                <input type="hidden" name="ciudad" value="@Model.InmuebleOnly.Ciudad" id="ciudadHidden" />
                 <datalist id="ciudades">
                     @if (Model != null && Model.ciudades != null)
                     {
@@ -138,7 +138,7 @@
                 <select name="estado" id="estado" class="form-select " required>
                     <option value="">Seleccione el estado del inmueble</option>
 
-                    @if (Model!.InmuebleOnly.estado)
+                    @if (Model!.InmuebleOnly.Estado)
                     {
                         <option value="true" selected >Disponible</option>
                         <option value="false" >No Disponible</option>

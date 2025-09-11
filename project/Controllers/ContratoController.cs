@@ -130,6 +130,20 @@ namespace project.Controllers
                 return BadRequest("No se pudo activar el contrato.");
             return Ok(true);
         }
+        [HttpGet("contrato/getContratoByIdInmueble/{idInmueble}")]
+        public async Task<IActionResult> GetContratoByIdInmueble(int idInmueble)
+        {
+            (string?, List<Contrato>?) contratosResult = await _contratoService.GetContratoByIdInmueble(idInmueble);
+            if (contratosResult.Item1 != null)
+            {
+                return BadRequest(contratosResult.Item1);
+            }
+            if (contratosResult.Item2 == null || contratosResult.Item2.Count == 0)
+            {
+                return NotFound();
+            }
+            return Ok(contratosResult.Item2);
+        }
 
         //VISTAS
         [HttpGet("contrato")]

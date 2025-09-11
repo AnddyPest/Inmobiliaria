@@ -91,15 +91,15 @@ namespace project.Controllers
             viewModel.inmueble = inmuebles.Item2;
             
             // Obtener todos los contratos y asignar al ViewModel
-            (string?, List<Contrato>?) contratosResult = await _contratoService.GetAllContratos(null, null, null);
+            (string?, List<Contrato>?) contratosResult = await _contratoService.GetContratosAPI();
             if (contratosResult.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(contratosResult.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
-                viewModel.contratos = new List<Contrato>();
+                viewModel.Contratos = new List<Contrato>();
             }
             else
             {
-                viewModel.contratos = contratosResult.Item2;
+                viewModel.Contratos = contratosResult.Item2;
             }
             
             // Poblar la lista de inquilinos en el ViewModel

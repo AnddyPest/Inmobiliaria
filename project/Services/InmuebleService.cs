@@ -67,10 +67,10 @@ namespace project.Services
                         command.Parameters.AddWithValue("@Coordenadas", inmueble.Coordenadas);
                         command.Parameters.AddWithValue("@Precio", inmueble.Precio);
                         command.Parameters.AddWithValue("@Direccion", inmueble.Direccion);
-                        command.Parameters.AddWithValue("@ciudad", inmueble.ciudad);
+                        command.Parameters.AddWithValue("@ciudad", inmueble.Ciudad);
                         command.Parameters.AddWithValue("@IdPropietario", inmueble.IdPropietario);
                         command.Parameters.AddWithValue("@Disponible", inmueble.Disponible);
-                        command.Parameters.AddWithValue("@estado", inmueble.estado);
+                        command.Parameters.AddWithValue("@estado", inmueble.Estado);
                         object? result = await command.ExecuteScalarAsync();
                         if (result != null && int.TryParse(result.ToString(), out int newId))
                         {
@@ -135,10 +135,10 @@ namespace project.Services
                         command.Parameters.AddWithValue("@Coordenadas", inmueble.Coordenadas);
                         command.Parameters.AddWithValue("@Precio", inmueble.Precio);
                         command.Parameters.AddWithValue("@Direccion", inmueble.Direccion);
-                        command.Parameters.AddWithValue("@ciudad", inmueble.ciudad);
+                        command.Parameters.AddWithValue("@ciudad", inmueble.Ciudad);
                         command.Parameters.AddWithValue("@IdPropietario", inmueble.IdPropietario);
                         command.Parameters.AddWithValue("@Disponible", inmueble.Disponible);
-                        command.Parameters.AddWithValue("@estado", inmueble.estado);
+                        command.Parameters.AddWithValue("@estado", inmueble.Estado);
                         int rowsAffected = await command.ExecuteNonQueryAsync();
                         if (rowsAffected > 0)
                         {
@@ -230,10 +230,10 @@ namespace project.Services
                                 inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
                                 inmueble.Precio = reader.GetDecimal("Precio");
                                 inmueble.Direccion = reader.GetString("Direccion");
-                                inmueble.ciudad = reader.GetString("ciudad");
+                                inmueble.Ciudad = reader.GetString("ciudad");
                                 inmueble.IdPropietario = reader.GetInt32("IdPropietario");
                                 inmueble.Disponible = reader.GetBoolean("Disponible");
-                                inmueble.estado = reader.GetBoolean("estado");
+                                inmueble.Estado = reader.GetBoolean("estado");
                                 tipo.id_tipo_inmueble = reader.GetInt32("id_tipo_inmueble");
                                 tipo.nombre = reader.GetString("nombre");
                                 inmueble.Tipo = tipo;
@@ -279,10 +279,10 @@ namespace project.Services
                                 inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
                                 inmueble.Precio = reader.GetDecimal("Precio");
                                 inmueble.Direccion = reader.GetString("Direccion");
-                                inmueble.ciudad = reader.GetString("ciudad");
+                                inmueble.Ciudad = reader.GetString("ciudad");
                                 inmueble.IdPropietario = reader.GetInt32("IdPropietario");
                                 inmueble.Disponible = reader.GetBoolean("Disponible");
-                                inmueble.estado = reader.GetBoolean("estado");
+                                inmueble.Estado = reader.GetBoolean("estado");
                                 inmueble.idTipo = reader.GetInt32("id_tipo_inmueble");
                                 tipo.id_tipo_inmueble = inmueble.idTipo;
                                 tipo.nombre = reader.GetString("nombre");
@@ -333,10 +333,10 @@ namespace project.Services
                                 inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
                                 inmueble.Precio = reader.GetDecimal("Precio");
                                 inmueble.Direccion = reader.GetString("Direccion");
-                                inmueble.ciudad = reader.GetString("ciudad");
+                                inmueble.Ciudad = reader.GetString("ciudad");
                                 inmueble.IdPropietario = reader.GetInt32("IdPropietario");
                                 inmueble.Disponible = reader.GetBoolean("Disponible");
-                                inmueble.estado = reader.GetBoolean("estado");
+                                inmueble.Estado = reader.GetBoolean("estado");
                                 tipo.id_tipo_inmueble = reader.GetInt32("ti.id_tipo_inmueble");
                                 tipo.nombre = reader.GetString("ti.nombre");
                                 
@@ -401,9 +401,9 @@ namespace project.Services
                                 inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
                                 inmueble.Precio = reader.GetDecimal("Precio");
                                 inmueble.Direccion = reader.GetString("Direccion");
-                                inmueble.ciudad = reader.GetString("ciudad");
+                                inmueble.Ciudad = reader.GetString("ciudad");
                                 inmueble.Disponible = reader.GetBoolean("Disponible");
-                                inmueble.estado = reader.GetBoolean("estado");
+                                inmueble.Estado = reader.GetBoolean("estado");
 
 
                                 inmueble.IdPropietario = reader.GetInt32("PropietarioId");
@@ -468,10 +468,10 @@ namespace project.Services
                                 inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
                                 inmueble.Precio = reader.GetDecimal("Precio");
                                 inmueble.Direccion = reader.GetString("Direccion");
-                                inmueble.ciudad = reader.GetString("ciudad");
+                                inmueble.Ciudad = reader.GetString("ciudad");
                                 inmueble.IdPropietario = reader.GetInt32("IdPropietario");
                                 inmueble.Disponible = reader.GetBoolean("Disponible");
-                                inmueble.estado = reader.GetBoolean("estado");
+                                inmueble.Estado = reader.GetBoolean("estado");
                                 tipo.id_tipo_inmueble = reader.GetInt32("id_tipo_inmueble");
                                 tipo.nombre = reader.GetString("nombre");
                                 inmueble.Tipo = tipo;

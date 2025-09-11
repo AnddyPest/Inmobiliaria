@@ -34,7 +34,7 @@ namespace project.Models
         [Required(ErrorMessage = "La dirección es requerida")]
         public string Direccion { get; set; } = direccion;
         [Required(ErrorMessage = "La ciudad es requerida")]
-        public string ciudad { get; set; } = ciudad;
+        public string Ciudad { get; set; } = ciudad;
 
         [ForeignKey("Propietario")]
         public int IdPropietario { get; set; } = idPropietario;
@@ -43,7 +43,7 @@ namespace project.Models
         [Required(ErrorMessage = "La disponibilidad es requerida")]
         public bool Disponible { get; set; } = true;
 
-        public bool estado { get; set; } = estado;
+        public bool Estado { get; set; } = estado;
 
         // Constructor vacío
         public Inmueble() : this(default!, default!, default, default, default, default, default!, default!, default, default) { }
@@ -56,9 +56,9 @@ namespace project.Models
                       Superficie: {this.Superficie}
                       Coordenadas: {this.Coordenadas}
                       Direccion: {this.Direccion}
-                      Ciudad: {this.ciudad}
+                      Ciudad: {this.Ciudad}
                       Disponible: {this.Disponible}
-                      Estado: {this.estado}";
+                      Estado: {this.Estado}";
         }
     }
 }
