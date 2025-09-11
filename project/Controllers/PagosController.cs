@@ -77,7 +77,7 @@ namespace project.Controllers
 
             return View("~/Views/Pagos/GestionPagos.cshtml", viewModel);
         }
-        [HttpPost("pago/asentarPago/{idPago}")]
+        [HttpGet("AsentarPago/{idPago}")]
         public async Task<IActionResult> AsentarPago(int idPago)
         {
             var (mensaje, ok) = await _pagosService.AsentarPago(new Pago { IdPago = idPago });
@@ -97,8 +97,29 @@ namespace project.Controllers
                 "Pagos",
                 "Pago asentado exitosamente",
                 new { idContrato = idContrato },
-                "Pago Asentado!!"                );
+                "Pago Asentado!!");
 
         }
+        [HttpGet("AnularPago/{idPago}")]
+        public async Task<IActionResult> AnularPago(int idPago)
+        {
+            var (mensaje, ok) = await _pagosService.AnularPago(new Pago { IdPago = idPago });
+            if (!ok)
+            {
+                return this.RedirectToActionWithError("listar", "Pagos", idPago, "Error al anular pago");
+            }
+
+            // Obtener el idContrato del pago anulado
+            var pagoResult = await _pagosService.GetPagoById(idPago);
+            int idContrato = pagoResult.Item2?.IdContrato ?? 0;
+
+            return this.RedirectToActionWithSuccess(
+                "GetPagosByIdContrato",
+                "Pagos",
+                "Pago anulado exitosamente",
+                new { idContrato = idContrato },
+                "Pago Anulado!!");
+        }
+        
     }
 }
