@@ -48,7 +48,7 @@
                                     }
                                 </td>
                                 <td>
-                                    @if(pago.Abonado)
+                                    @if(!pago.Abonado)
                                     {
                                         <button class="btn btn-sm btn-primary me-1" title="Editar Pago" onclick="Pagar(@pago.IdPago)">
                                             <i class="bi-cash-coin"></i>
@@ -117,5 +117,19 @@
                     }
                 </ul>
             </nav>
-            <button class="btn btn-danger h-100" onclick="window.location.href='/contrato'">Volver</button>
+            <button class="btn btn-danger h-100" onclick="window.location.href='/contrato/listar'">Volver</button>
         </div>
+
+<script>
+    async function Pagar(idPago) {
+        const response = await fetch(`/pago/asentarPago/${idPago}`, {
+            method: 'POST',
+            
+        });
+
+        
+    }
+
+
+
+</script>

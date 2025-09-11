@@ -172,7 +172,44 @@ public class PagosService : IPagosService
 
     public Task<(string?, Pago?)> GetPagoById(int idPago)
     {
-        throw new NotImplementedException();
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT * FROM pagos WHERE idPago = @idPago LIMIT 1";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@idPago", idPago);
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            Pago pago = new Pago
+                            {
+                                IdPago = reader.GetInt32("idPago"),
+                                IdContrato = reader.GetInt32("idContrato"),
+                                Numero = reader.GetInt32("numero"),
+                                Detalle = reader.GetString("detalle"),
+                                Importe = reader.GetDecimal("importe"),
+                                Abonado = reader.GetBoolean("abonado"),
+                                Alquiler = reader.GetBoolean("alquiler"),
+                                Estado = reader.GetBoolean("estado"),
+                                FechaConfeccion = DateOnly.FromDateTime(reader.GetDateTime("fechaConfeccion")),
+                                FechaPago = reader.IsDBNull(reader.GetOrdinal("fechaPago")) ? null : DateOnly.FromDateTime(reader.GetDateTime("fechaPago"))
+                            };
+                            return Task.FromResult<(string?, Pago?)>((null, pago));
+                        }
+                    }
+                }
+            }
+            return Task.FromResult<(string?, Pago?)>(("No se encontró el pago", null));
+        }
+        catch (Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(PagosService), nameof(GetPagoById));
+            return Task.FromResult<(string?, Pago?)>((ex.Message, null));
+        }
     }
 
     public Task<(string?, bool)> AnularPago(int idPago)

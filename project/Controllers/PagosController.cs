@@ -83,10 +83,19 @@ namespace project.Controllers
             var (mensaje, ok) = await _pagosService.AsentarPago(new Pago { IdPago = idPago });
             if (!ok)
             {
-                return this.RedirectToActionWithError("listar", "Pago", mensaje, "Error al asentar pago");
+                return this.RedirectToActionWithError("listar", "Pagos", idPago, "Error al asentar pago");
             }
 
-            return this.RedirectToActionWithSuccess("listar", "Pago", "Pago asentado exitosamente", "Pago asentado!!");
+            // Obtener el idContrato del pago asentado
+            var pagoResult = await _pagosService.GetPagoById(idPago);
+            int idContrato = pagoResult.Item2?.IdContrato ?? 0;
+
+            return this.RedirectToActionWithSuccess(
+                "listar",
+                "Pagos",
+                "/" + idContrato,
+                "Pago asentado exitosamente"
+            );
         }
     }
 }
