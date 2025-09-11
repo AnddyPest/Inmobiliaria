@@ -3,7 +3,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Gestion de Tipos de Inmueble";
     int Pagina = ViewBag.nroPagina != null ? Convert.ToInt32(ViewBag.nroPagina) : 1;
-    Console.WriteLine(Pagina);
+
 }
 <div class="container-fluid mt-4" style="min-height:100vh;">
     <div class="row p-0 mb-3">
@@ -37,7 +37,7 @@
                             <td>@tipoI.nombre</td>
                             <td class="d-flex justify-content-center">
                                 <div class="me-1">
-                                    <a class="btn btn-warning " href="@Url.Action("ActualizarTipoInmueble", "Tipo_Inmueble", new { id = tipoI.id_tipo_inmueble }))">
+                                    <a class="btn btn-warning " href="@Url.Action("ActualizarTipoInmueble", "Tipo_Inmueble", new { id_tipo_inmueble = tipoI.id_tipo_inmueble })">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                 </div>

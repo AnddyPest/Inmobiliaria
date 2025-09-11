@@ -1,4 +1,56 @@
-﻿@{
+﻿@model project.Models.ViewModels.InmuebleViewModel
+@{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Actualizar Tipo de Inmueble";
 }
+<div class="d-flex container-fluid align-items-center justify-content-center mt-5" >
+    <div class="card p-4 shadow shadow-sm" style="border-radius:20px;max-width:30%; border:2px solid black;">
+        <div class="card-header text-center p-3" style="border-color:black; border-bottom:2px solid; border-radius:25px; border-top:3.8px solid" >
+            <h2>Actualizar Tipo Inmueble</h2>
+        </div>
+        <div class="card-body">
+            <form id="form" action="@Url.Action("ActualizarTipoInmueble","Tipo_Inmueble")" method="post">
+                <input type="hidden" name="id_tipo_inmueble" value="@Model.tipo_InmuebleOnly!.id_tipo_inmueble" />
+                <div class="pt-2 d-flex flex-column align-content-center">
+                    <label class="form-label fs-5 fw-bold" for="nombre">Nombre:</label>
+                    <input id="inputNombre" 
+                        class="form-control  mt-2 " 
+                        value="@Model.tipo_InmuebleOnly!.nombre"
+                        name="nombre" 
+                        title="Solo puede ingresar letras"
+                        type="text" 
+                        min="5" 
+                        style="border:none; border-bottom:2px solid black;"
+                        required pattern="^[a-zA-ZñÑáéíóúÁÉÍÓÚ ]*$" />
+                </div>
+                <div class="mt-5 float-end ">
+                    <button id="BotonSubmit" class="btn btn-dark p-2">Actualizar</button>
+                </div>
+            </form>
+        </div>
+        
+    </div>
+</div>
+<script>
+    
+    document.addEventListener("DOMContentLoaded", function(){
+        const form = document.querySelector("form");
+        const boton = document.getElementById("BotonSubmit");
+        const inputNombre = document.getElementById("inputNombre");
+
+        function validarForm(){
+            if(inputNombre.value.trim().length >= 5 && form.checkValidity()){
+                return true;
+            }
+            return false;
+        }
+        function actualizarBoton(){
+            boton.disabled = !validarForm();
+        }
+        form.addEventListener("input", actualizarBoton);
+        actualizarBoton();
+    })
+    document.getElementById("inputNombre").addEventListener("input", function(){
+        this.value = this.value.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚ\s]/g, '');
+    });
+</script>
