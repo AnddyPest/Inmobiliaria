@@ -122,7 +122,7 @@ namespace project.Services
                                           Direccion = @Direccion, 
                                           ciudad = @ciudad, 
                                           IdPropietario = @IdPropietario, 
-                                          Disponible = @Disponible, 
+                                          
                                           estado = @estado
                                       WHERE IdInmueble = @IdInmueble ";
                     using(MySqlCommand command = new MySqlCommand(query, connection))
@@ -137,7 +137,7 @@ namespace project.Services
                         command.Parameters.AddWithValue("@Direccion", inmueble.Direccion);
                         command.Parameters.AddWithValue("@ciudad", inmueble.Ciudad);
                         command.Parameters.AddWithValue("@IdPropietario", inmueble.IdPropietario);
-                        command.Parameters.AddWithValue("@Disponible", inmueble.Disponible);
+                        
                         command.Parameters.AddWithValue("@estado", inmueble.Estado);
                         int rowsAffected = await command.ExecuteNonQueryAsync();
                         if (rowsAffected > 0)
