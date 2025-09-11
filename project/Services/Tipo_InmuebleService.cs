@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Data;
 using project.Models.Interfaces;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis;
 namespace project.Services
 {
     public class Tipo_InmuebleService(IConfiguration configuration) : ITipo_InmuebleService
@@ -236,21 +237,23 @@ namespace project.Services
                     return ("El id_tipo_inmueble debe ser mayor a 0", false);
                 if (await buscarTipoInmueblePorId(idTipoInmueble) is (string error, null))
                     return (error, false);
-                using(MySqlConnection connection = new MySqlConnection(_connectionString))
-                {
-                    string query = @" Delete from tipo_inmueble 
-                                      Where id_tipo_inmueble = @idTipoInmueble";
-                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                if (await ValidarQueNoEsteAsignado(idTipoInmueble) is (string errorValidacion, bool validacion) && !validacion)
+                    return (errorValidacion, false);
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
                     {
-                        command.CommandType = CommandType.Text;
-                        command.Parameters.AddWithValue("@idTipoInmueble", idTipoInmueble);
-                        await connection.OpenAsync();
-                        int filasAfectadas = await command.ExecuteNonQueryAsync();
-                        if (filasAfectadas > 0)
-                            return (null, true);
-                        return ("No se elimino el registro", false);
+                        string query = @" Delete from tipo_inmueble 
+                                      Where id_tipo_inmueble = @idTipoInmueble";
+                        using (MySqlCommand command = new MySqlCommand(query, connection))
+                        {
+                            command.CommandType = CommandType.Text;
+                            command.Parameters.AddWithValue("@idTipoInmueble", idTipoInmueble);
+                            await connection.OpenAsync();
+                            int filasAfectadas = await command.ExecuteNonQueryAsync();
+                            if (filasAfectadas > 0)
+                                return (null, true);
+                            return ("No se elimino el registro", false);
+                        }
                     }
-                }
             }
             catch (Exception ex)
             {
@@ -259,7 +262,33 @@ namespace project.Services
             }
         }
 
-        
+        public async Task<(string?, bool)> ValidarQueNoEsteAsignado(int id_tipo_inmueble)
+
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string sql = @$"Select count(idInmueble) from inmueble where id_tipo_inmueble = @id_tipo_inmueble";
+                    using (MySqlCommand command = new MySqlCommand(sql, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@id_tipo_inmueble", id_tipo_inmueble);
+                        await connection.OpenAsync();
+                        int? filasAfectadas = Convert.ToInt32(await command.ExecuteScalarAsync());
+                        if (filasAfectadas == 0 || filasAfectadas == null)
+                            return (null, true);
+                        return ($"El registro esta asignado a {filasAfectadas} inmuebles. Debe modificar los inmuebles que tengan asignado dicho tipo de inmueble para poder eliminarlo.", false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(Tipo_InmuebleService), nameof(ValidarQueNoEsteAsignado));
+                return (ex.Message, false);
+            }
+
+        }
 
         public async Task<(string?, bool)> updateTipoInmueble(Tipo_Inmueble tipo_Inmueble)
         {
