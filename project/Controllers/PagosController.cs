@@ -91,12 +91,14 @@ namespace project.Controllers
             int idContrato = pagoResult.Item2?.IdContrato ?? 0;
 
             return this.RedirectToActionWithSuccess(
+
+
                 "GetPagosByIdContrato",
                 "Pagos",
                 "Pago asentado exitosamente",
                 new { idContrato = idContrato },
-                "Pago Asentado!!"
-            );  
+                "Pago Asentado!!"                );
+
         }
     }
 }
