@@ -93,5 +93,11 @@ namespace project.Helpers
             controller.SweetAlertError(message, title);
             return controller.RedirectToAction(actionName, controllerName, routeValues);
         }
+        public static IActionResult RedirectToActionWithSuccess(this Controller controller,
+            string actionName, string controllerName, string message,object routeValues, string title = "¡Éxito!")
+        {
+            controller.SweetAlertSuccess(message, title);
+            return controller.RedirectToAction(actionName, controllerName,routeValues);
+        }
     }
 }
