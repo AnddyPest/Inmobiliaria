@@ -1,0 +1,121 @@
+@model project.Models.ViewModels.PagoViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Gestión de Pagos";
+    var Pagina = ViewBag.nroPagina ?? 1;
+;}
+
+<div class="container">
+    <div class="d-flex flex-column p-2 border border-success-subtle rounded" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
+        <div class="row w-100">
+            <div class="col w-75">
+                <h3 class="text-primary mb-2 ms-3">Listado de Pagos</h3>
+            </div>
+        </div>
+        <div class="table-responsive p-2" style="min-height: 600px;">
+            <table class="table table-dark table-stripped" style="overflow-x: auto;">
+                <thead>
+                    <tr class="text-center">
+                        <th style="width: 8%;">N° Pago</th>
+                        <th style="width: 12%;">Fecha Confección</th>
+                        <th style="width: 12%;">Fecha de Pago</th>
+                        <th style="width: 10%;">Importe</th>
+                        <th style="width: 39%;">Detalle</th>
+                        <th style="width: 5%;">Abonado</th>
+                        <th style="width: 10%;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Pagos.Count > 0)
+                    {
+                        foreach (var pago in Model.Pagos)
+                        {
+                            <tr class="text-center">
+                                <td>@pago.IdPago</td>
+                                <td>@pago.FechaConfeccion.ToString("dd/MM/yyyy")</td>
+                                <td>@(pago.FechaPago != null ? pago.FechaPago.Value.ToString("dd/MM/yyyy") : "-")</td>
+                                <td>$@pago.Importe.ToString("F2")</td>
+                                <td>@pago.Detalle</td>
+                                <td>
+                                    @if (pago.Abonado)
+                                    {
+                                        <i class="badge bi-check-circle-fill fs-5 text-success" />
+                                    }
+                                    else
+                                    {
+                                        <i class="badge bi-x-circle-fill fs-5 text-danger" />
+                                    }
+                                </td>
+                                <td>
+                                    @if(pago.Abonado)
+                                    {
+                                        <button class="btn btn-sm btn-primary me-1" title="Editar Pago" onclick="Pagar(@pago.IdPago)">
+                                            <i class="bi-cash-coin"></i>
+                                        </button>
+                                    } else {
+                                        <button class="btn btn-sm btn-warning me-1" title="Retrotraer Pago" onclick="Retrotraer(@pago.IdPago)">
+                                            <i class="bi-arrow-counterclockwise"></i>
+                                        </button>
+                                    }
+                                    <button class="btn btn-sm btn-danger" title="Eliminar Pago" onclick="return confirm('¿Está seguro que desea eliminar este pago?');">
+                                        <i class="bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center">No hay pagos registrados para este contrato.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col d-flex w-100 justify-content-between">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    @if (Pagina > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("GetPagosByIdContrato", "Pagos", new { idContrato = Model != null ? Model.IdContrato : 0, nroPagina = Pagina - 1 })" aria-label="Anterior">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
+                        </li>
+                    }
+                    @{
+                        int totalPaginas = (int)Math.Ceiling((double)(ViewBag.totalPagos ?? 0) / (ViewBag.registrosPorPagina ?? 10));
+                    }
+                    @for (int i = 1; i <= totalPaginas; i++)
+                    {
+                        <li class="page-item @(i == Pagina ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("GetPagosByIdContrato", "Pagos", new { idContrato = Model != null ? Model.IdContrato : 0, nroPagina = i })">@i</a>
+                        </li>
+                    }
+                    @if (Pagina < totalPaginas)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("GetPagosByIdContrato", "Pagos", new { idContrato = Model != null ? Model.IdContrato : 0, nroPagina = Pagina + 1 })" aria-label="Siguiente">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="bi bi-chevron-double-right"></i></span>
+                        </li>
+                    }
+                </ul>
+            </nav>
+            <button class="btn btn-danger h-100" onclick="window.location.href='/contrato'">Volver</button>
+        </div>

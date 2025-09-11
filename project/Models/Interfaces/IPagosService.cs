@@ -6,7 +6,7 @@ namespace project.Models.Interfaces
         Task<(string?, bool)> UpdatePago(Pago pago);
         Task<(string?, bool)> AsentarPago(Pago pago);
         Task<(string?, List<Pago>?)> GetAllPagos(int? nroPagina, int? registrosPorPagina);
-        Task<(string?, List<Pago>?)> GetPagosByIdContrato(int idContrato);
+        Task<(string?, List<Pago>?)> GetPagosByIdContrato(int? nroPagina, int? registrosPorPagina, int idContrato);
         Task<(string?, Pago?)> GetPagoById(int idPago);
         Task<(string?, bool)> AnularPago(int idPago);
         Task<(string?, bool)> ReintegrarPago(int idPago);

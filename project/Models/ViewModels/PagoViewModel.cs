@@ -9,6 +9,7 @@ namespace project.Models.ViewModels
         public DateTime FechaConfeccion { get; set; }
         public string? Detalle { get; set; }
         public bool Estado { get; set; }
-        // Puedes agregar más propiedades según lo que necesite la vista
+        public List<Pago> Pagos { get; set; } = new List<Pago>();
+       
     }
 }

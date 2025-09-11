@@ -86,9 +86,13 @@
                                 <a class="btn btn-warning p-1 m-1 w-25" href="#">
                                     <i class="bi bi-pencil-square"></i> <!-- EDITAR CONTRATO -->
                                 </a>
-                                <!-- BOTÓN DE IR A PAGOS -->
+                                <!-- BOTÓN DE GENERAR PAGOS -->
                                 <button type="button" class="btn btn-success p-1 m-1 w-25" data-bs-toggle="modal" data-bs-target="#modalPago_@contrato.IdContrato">
-                                    <i class="bi bi-cash-stack"></i> <!-- IR A PAGOS -->
+                                    <i class="bi bi-cash-stack"></i> <!-- GENERAR PAGOS -->
+                                </button>
+                                <!-- BOTÓN DE IR A PAGOS -->
+                                <button class="btn btn-info p-1 m-1 w-25" onclick="location.href='/Pago/Listar/@contrato.IdContrato'">
+                                    <i class="bi bi-currency-dollar"></i> <!-- IR A PAGOS -->
                                 </button>
                                 <!-- MODAL GENERAR PAGO -->
                                 <div class="modal fade" id="modalPago_@contrato.IdContrato" tabindex="-1" aria-labelledby="modalPagoLabel_@contrato.IdContrato" aria-hidden="true">
@@ -103,15 +107,15 @@
                                             <div class="modal-body bg-light">
                                                 <form id="formPago_@contrato.IdContrato" action="/Pago/Create" method="post" autocomplete="off">
                                                     <div class="mb-3">
-                                                        <label for="importe_@contrato.IdContrato" class="form-label">Importe</label>
+                                                        <label for="importe_@contrato.IdContrato" class="form-label text-dark ">Importe</label>
                                                         <input type="number" class="form-control" id="importe_@contrato.IdContrato" name="Importe" required value="@(contrato.Monto)">
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="fechaConfeccion_@contrato.IdContrato" class="form-label">Fecha de Confeccion</label>
+                                                        <label for="fechaConfeccion_@contrato.IdContrato" class="form-label text-dark">Fecha de Confeccion</label>
                                                         <input type="date" class="form-control" id="fechaConfeccion_@contrato.IdContrato" name="FechaConfeccion" required value="@(DateTime.Now.ToString("yyyy-MM-dd"))">
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="detallePago_@contrato.IdContrato" class="form-label">Detalle</label>
+                                                        <label for="detallePago_@contrato.IdContrato" class="form-label text-dark">Detalle</label>
                                                         <textarea class="form-control" id="detallePago_@contrato.IdContrato" name="Detalle" rows="2"></textarea>
                                                     </div>
                                                     <input type="hidden" name="IdContrato" value="@contrato.IdContrato" />

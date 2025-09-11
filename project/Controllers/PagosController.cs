@@ -30,13 +30,9 @@ namespace project.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return this.RedirectToActionWithError("GetAllContratos","Contratos",pagoViewModel.IdContrato,"Error al crear pago");
+                return this.RedirectToActionWithError("GetAllContratos", "Contratos", pagoViewModel.IdContrato, "Error al crear pago");
             }
 
-            
-            var fechaConfeccion = pagoViewModel.FechaConfeccion == default(DateTime)
-                ? DateTime.Today
-                : pagoViewModel.FechaConfeccion;
 
             var nuevoPago = new Pago
             {
@@ -45,17 +41,52 @@ namespace project.Controllers
                 FechaConfeccion = DateOnly.FromDateTime(pagoViewModel.FechaConfeccion),
                 IdContrato = pagoViewModel.IdContrato,
                 Abonado = false,
-                Alquiler= true,
+                Alquiler = true,
                 Estado = true
             };
 
             var (mensaje, ok) = await _pagosService.CreatePago(nuevoPago);
             if (!ok)
             {
-                return this.RedirectToActionWithError("listar", "Contrato", "No se pudo generar el pago", "Error al crear pago");
+                return this.RedirectToActionWithError("listar", "Contrato", "Ya hay un pago generado para este mes", "Error al crear pago");
             }
 
             return this.RedirectToActionWithSuccess("listar", "Contrato", "Pago registrado exitosamente", "Pago creado!!");
+        }
+        [HttpGet("pago/listar/{idContrato}")]
+        public async Task<IActionResult> GetPagosByIdContrato(int idContrato, int? nroPagina = 1)
+        {
+            int registrosPorPagina = 10;
+            int pagina = nroPagina ?? 1;
+            (string?, List<Pago>?) pagosResult = await _pagosService.GetPagosByIdContrato(pagina, registrosPorPagina, idContrato);
+            if (pagosResult.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(pagosResult.Item1 ?? "Error desconocido", nameof(PagosController), nameof(GetPagosByIdContrato));
+                return this.RedirectToActionWithError("listar", "Contrato", "No hay pagos registrados para este contrato", "Error desconocido");
+            }
+
+            var viewModel = new PagoViewModel
+            {
+                IdContrato = idContrato,
+                Pagos = pagosResult.Item2 ?? new List<Pago>()
+            };
+
+            ViewBag.nroPagina = pagina;
+            ViewBag.registrosPorPagina = registrosPorPagina;
+            ViewBag.totalPagos = viewModel.Pagos.Count;
+
+            return View("~/Views/Pagos/GestionPagos.cshtml", viewModel);
+        }
+        [HttpPost("pago/asentarPago/{idPago}")]
+        public async Task<IActionResult> AsentarPago(int idPago)
+        {
+            var (mensaje, ok) = await _pagosService.AsentarPago(new Pago { IdPago = idPago });
+            if (!ok)
+            {
+                return this.RedirectToActionWithError("listar", "Pago", mensaje, "Error al asentar pago");
+            }
+
+            return this.RedirectToActionWithSuccess("listar", "Pago", "Pago asentado exitosamente", "Pago asentado!!");
         }
     }
 }
