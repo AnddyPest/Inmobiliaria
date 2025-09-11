@@ -212,9 +212,39 @@ public class PagosService : IPagosService
         }
     }
 
-    public Task<(string?, bool)> AnularPago(int idPago)
+    public Task<(string?, bool)> AnularPago(Pago pago)
     {
-        throw new NotImplementedException();
+      try
+        {
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"UPDATE pagos 
+                                 SET abonado = @abonado, 
+                                     fechaPago = @fechaPago 
+                                 WHERE idPago = @idPago";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@abonado", false);
+                    command.Parameters.AddWithValue("@fechaPago", null);
+                    command.Parameters.AddWithValue("@idPago", pago.IdPago);
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        return Task.FromResult<(string?, bool)>((null, true));
+                    }
+                    else
+                    {
+                        return Task.FromResult<(string?, bool)>(("No se encontró el pago para actualizar.", false));
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(PagosService), nameof(AsentarPago));
+            return Task.FromResult<(string?, bool)>((ex.Message, false));
+        }  
     }
 
     public Task<(string?, bool)> ReintegrarPago(int idPago)

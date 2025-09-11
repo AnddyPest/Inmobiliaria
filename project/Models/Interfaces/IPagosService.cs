@@ -8,7 +8,7 @@ namespace project.Models.Interfaces
         Task<(string?, List<Pago>?)> GetAllPagos(int? nroPagina, int? registrosPorPagina);
         Task<(string?, List<Pago>?)> GetPagosByIdContrato(int? nroPagina, int? registrosPorPagina, int idContrato);
         Task<(string?, Pago?)> GetPagoById(int idPago);
-        Task<(string?, bool)> AnularPago(int idPago);
+        Task<(string?, bool)> AnularPago(Pago pago);
         Task<(string?, bool)> ReintegrarPago(int idPago);
         Task<(string?, List<Pago>?)> GetPagosByFecha(DateTime fecha);
         Task<(string?, List<Pago>?)> GetPagosPendientes();

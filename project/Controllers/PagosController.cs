@@ -25,7 +25,7 @@ namespace project.Controllers
             _pagosService = pagosService;
         }
 
-        [HttpPost("pago/create")]
+        [HttpPost("pagos/create")]
         public async Task<IActionResult> CreatePago([FromForm] PagoViewModel pagoViewModel)
         {
             if (!ModelState.IsValid)
@@ -53,7 +53,7 @@ namespace project.Controllers
 
             return this.RedirectToActionWithSuccess("listar", "Contrato", "Pago registrado exitosamente", "Pago creado!!");
         }
-        [HttpGet("pago/listar/{idContrato}")]
+        [HttpGet("/pagos/getPagosByIdContrato/{idContrato}")]
         public async Task<IActionResult> GetPagosByIdContrato(int idContrato, int? nroPagina = 1)
         {
             int registrosPorPagina = 10;
@@ -77,7 +77,7 @@ namespace project.Controllers
 
             return View("~/Views/Pagos/GestionPagos.cshtml", viewModel);
         }
-        [HttpPost("pago/asentarPago/{idPago}")]
+        [HttpGet("AsentarPago/{idPago}")]
         public async Task<IActionResult> AsentarPago(int idPago)
         {
             var (mensaje, ok) = await _pagosService.AsentarPago(new Pago { IdPago = idPago });
@@ -98,8 +98,29 @@ namespace project.Controllers
                 new { idContrato = idContrato },
                 "Pago Asentado!!"
 
-            
 
+
+            );
+        }
+        [HttpGet("RetrotraerPago/{idPago}")]
+        public async Task<IActionResult> RetrotraerPago(int idPago)
+        {
+            var (mensaje, ok) = await _pagosService.AnularPago(new Pago { IdPago = idPago });
+            if (!ok)
+            {
+                return this.RedirectToActionWithError("listar", "Pagos", idPago, "Error al retrotraer pago");
+            }
+
+            // Obtener el idContrato del pago retrotraido
+            var pagoResult = await _pagosService.GetPagoById(idPago);
+            int idContrato = pagoResult.Item2?.IdContrato ?? 0;
+
+            return this.RedirectToActionWithSuccess(
+                "GetPagosByIdContrato",
+                "Pagos",
+                "Pago retrotraído exitosamente",
+                new { idContrato = idContrato },
+                "Pago Retrotraído!!"
             );
         }
     }
