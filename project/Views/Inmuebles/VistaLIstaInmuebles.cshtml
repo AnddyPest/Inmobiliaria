@@ -16,7 +16,9 @@
 <div>
     <h2 class="text-center mt-4 text-white fs-2 mt-1">Lista de Inmuebles Registrados</h2>
     <div class="d-flex flex-fill mt-3">
-        
+        @{
+
+        }
         <select id="selectDisponible" class="form-select w-25 me-3">
             <option value="" disabled selected>Filtro de disponibilidad</option>
             @{
@@ -233,7 +235,7 @@
                     @if (Pagina > 1)
                     {
                         <li class="page-item">
-                            <a class="page-link" id="btnAnterior" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina - 1 })" aria-label="Anterior">
+                            <a class="page-link" id="btnAnterior" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina - 1 , disponibilidad = Disponibilidad, dniPropietario = DniPropietarioViewBag })" aria-label="Anterior">
                                 <i class="bi bi-chevron-double-left"></i>
                             </a>
                         </li>
@@ -247,13 +249,13 @@
                     @for(int i = 1; i <= Model!.cantidadTotalDePaginas; i++)
                     {
                         <li class="page-item @(i == Pagina ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = @i })">@i</a>
+                            <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = @i , disponibilidad = Disponibilidad, dniPropietario = DniPropietarioViewBag })">@i</a>
                         </li>
                     }
                     @if (Pagina < Model.cantidadTotalDePaginas)
                     {
                         <li class="page-item">
-                            <a class="page-link" id="btnSiguiente" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina + 1 })" aria-label="Siguiente">
+                            <a class="page-link" id="btnSiguiente" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina + 1 , disponibilidad = Disponibilidad, dniPropietario = DniPropietarioViewBag})" aria-label="Siguiente">
                                 <i class="bi bi-chevron-double-right"></i>
                             </a>
                         </li>
@@ -288,7 +290,7 @@
                         <input type="hidden" id="IdPropietario" name="IdPropietario">
                         <div class="row mb-3">
                             <div class="col">
-                                <label for="dniInquilino">DNI Inquilino:</label>
+                                <label for="1">DNI Inquilino:</label>
                                 <input type="text" id="dniInquilino" name="Dni" class="form-control" required>
                             </div>
                             <div class="col">
@@ -382,7 +384,7 @@
                 window.location.href = `/inmueble/listar`;
             }
         }
-        function aplicarFiltros() {
+       /* function aplicarFiltros() {
             console.log("Aplicando filtros combinados");
 
             const filtroDisponibilidad = document.getElementById('selectDisponible').value;
@@ -423,7 +425,7 @@
                 // Mostrar fila solo si cumple ambos filtros
                 fila.style.display = (cumpleDisponibilidad && cumpleDni) ? '' : 'none';
             });
-        }
+        }*/
             function abrirNuevoContratoModal(id, direccion) {
                 var modal = new bootstrap.Modal(document.getElementById('nuevoContratoModal'));
                 document.getElementById('idInmueble').value = id;
@@ -455,7 +457,10 @@
                 }
                 modal.show();
             }
-            
+            function actualizarContador(valor){
+                sessionStorage.setItem('contador', valor);
+                console.log('Contador actualizado:', valor);
+            }
             // GESTION DEL DNI DEL INQUILINO - FUNCIONA BIEN
             document.addEventListener('DOMContentLoaded', function() {
                 const selectDisponibilidad = document.getElementById('selectDisponible');
@@ -490,7 +495,12 @@
                     }
                     
                 });
-                document.getElementById("inputDniFiltro").addEventListener("input", aplicarFiltrosv2);
+                document.getElementById("inputDniFiltro").addEventListener("input", function(){
+                    if(this.value.length >= 8 || this.value.length == 0  || (this.value.length <= 7 && sessionStorage.getItem('contador') == 8) ){
+                        aplicarFiltrosv2();
+                    }
+                    actualizarContador(this.value.length);
+                });
                 dniInput.addEventListener("keyup", function() {
                     const dni = this.value;
                     if (dni.length >= 8) {

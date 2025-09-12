@@ -75,8 +75,8 @@ namespace project.Controllers
             InmuebleViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
             const int registrosPorPagina = 5;
-            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina, 1), registrosPorPagina, disponibilidad, dniPropietario);
-            if (inmuebles.Item1 != null)
+            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario);
+            if (inmuebles.Item1 != null && inmuebles.Item1 != "No se encontraron inmuebles")
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
                 return this.RedirectToActionWithError(nameof(Index), inmuebles.Item1);
