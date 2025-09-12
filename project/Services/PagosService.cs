@@ -53,7 +53,7 @@ public class PagosService : IPagosService
                     command.Parameters.AddWithValue("@abonado", pago.Abonado);
                     command.Parameters.AddWithValue("@alquiler", pago.Alquiler);
                     command.Parameters.AddWithValue("@estado", pago.Estado);
-                    command.Parameters.AddWithValue("@fechaConfeccion", DateTime.Now);
+                    command.Parameters.AddWithValue("@fechaConfeccion", pago.FechaConfeccion.ToDateTime(TimeOnly.MinValue));
                     object result = command.ExecuteScalar();
                     if (result != null && int.TryParse(result.ToString(), out res))
                     {

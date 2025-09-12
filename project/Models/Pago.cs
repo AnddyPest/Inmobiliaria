@@ -16,6 +16,6 @@ namespace project.Models
         public DateOnly? FechaPago { get; set; } = null;
         [ForeignKey("Contrato")]
         public int IdContrato { get; set; } = idContrato;
-        public Pago() : this(0, "", false, true, 0, DateOnly.MinValue, 0) { }
+        public Pago() : this(0, "", false, true, 0, default, 0) { }
     }
 }
