@@ -358,14 +358,14 @@ namespace project.Services
             }
         }
 
-        public async Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmuebles(int paginaNro = 1, int tamPagina = 10,bool? disponibilidad = null, int? dniPropietario = null, string? uso = null, string? tipoInmueble = null, int? cantidadAmbientes = null, int? precio = null, DateOnly? fechaDesde = null, DateOnly? fechaHasta = null)//TESTEAR
+        public async Task<(string?, List<Inmueble>?,int? totalRegistros)> ObtenerTodosLosInmuebles(int paginaNro = 1, int tamPagina = 10,bool? disponibilidad = null, int? dniPropietario = null, string? uso = null, string? tipoInmueble = null, int? cantidadAmbientes = null, int? precio = null, DateOnly? fechaDesde = null, DateOnly? fechaHasta = null)//TESTEAR
         {
             try
             {
-
+                int cantidadRegistros;
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    string query = @$"SELECT 
+                    string query = @$"SELECT SQL_CALC_FOUND_ROWS
                                     i.*,
                                     p.idPropietario as PropietarioId,
                                     p.idPersona as IDPersona,
@@ -462,17 +462,23 @@ namespace project.Services
                                 inmuebles.Add(inmueble);
 
                             }
-                            await connection.CloseAsync();
-                            if (inmuebles.Count == 0) return ("No se encontraron inmuebles", null);
-                            return (null, inmuebles);
+
                         }
+                        using (MySqlCommand countCommand = new MySqlCommand("select found_rows()", connection))
+                        {
+                            cantidadRegistros = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+                        }
+                        await connection.CloseAsync();
+                        if (inmuebles.Count == 0)
+                            return ("No se encontraron inmuebles", null, cantidadRegistros);
+                        return (null, inmuebles,cantidadRegistros);
                     }
                 }
             }
             catch (Exception ex)
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerTodosLosInmuebles));
-                return (ex.Message, null);
+                return (ex.Message, null, null);
             }
         }
 

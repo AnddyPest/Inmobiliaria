@@ -75,20 +75,20 @@ namespace project.Controllers
             InmuebleViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
             const int registrosPorPagina = 5;
-            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario, uso, tipoInmueble, cantidadAmbientes, precio, fechaDesde, fechaHasta);
+            (string?, List<Inmueble>?, int? cantidadTotalRegistros) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario, uso, tipoInmueble, cantidadAmbientes, precio, fechaDesde, fechaHasta);
             if (inmuebles.Item1 != null && inmuebles.Item1 != "No se encontraron inmuebles")
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
                 return this.RedirectToActionWithError(nameof(Index), inmuebles.Item1);
             }
-            (string?, int?) cantidadRegistros = await _inmuebleService.obtenerCantidadDeRegistros();
-            if (cantidadRegistros.Item1 != null)
-            {
-                HelperFor.imprimirMensajeDeError(cantidadRegistros.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
-                return this.RedirectToActionWithError(nameof(Index), cantidadRegistros.Item1);
-            }
-            Console.WriteLine($"Cantidad de registros: {cantidadRegistros.Item2}");
-            viewModel.cantidadTotalDePaginas = cantidadRegistros.Item2 % registrosPorPagina == 0 ? cantidadRegistros.Item2 / registrosPorPagina : cantidadRegistros.Item2 / registrosPorPagina + 1;
+            // (string?, int?) cantidadRegistros = await _inmuebleService.obtenerCantidadDeRegistros();
+            // if (cantidadRegistros.Item1 != null)
+            // {
+            //     HelperFor.imprimirMensajeDeError(cantidadRegistros.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
+            //     return this.RedirectToActionWithError(nameof(Index), cantidadRegistros.Item1);
+            // }
+            Console.WriteLine($"Cantidad de registros: {inmuebles.cantidadTotalRegistros}");
+            viewModel.cantidadTotalDePaginas = inmuebles.cantidadTotalRegistros % registrosPorPagina == 0 ? inmuebles.cantidadTotalRegistros / registrosPorPagina : inmuebles.cantidadTotalRegistros / registrosPorPagina + 1;
             viewModel.inmueble = inmuebles.Item2;
 
             // Obtener todos los contratos y asignar al ViewModel
@@ -116,6 +116,7 @@ namespace project.Controllers
             }
             ViewBag.dniPropietario = dniPropietario;
             ViewBag.disponibilidad = disponibilidad;
+            ViewBag.uso = uso;
             return View("~/Views/Inmuebles/VistaLIstaInmuebles.cshtml", viewModel);
         }
         //BUSCAR INMUEBLE POR ID
@@ -213,7 +214,7 @@ namespace project.Controllers
         [HttpGet("Inmueble/API/listar")]
         public async Task<IActionResult> ListarInmueblesAPI(int nroPagina = 1, bool? disponibilidad = null, int? dniPropietario = null)
         {
-            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(nroPagina, 10, disponibilidad, dniPropietario);
+            (string?, List<Inmueble>?, int?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(nroPagina, 10, disponibilidad, dniPropietario);
             if (inmuebles.Item1 != null)
             {
                 return BadRequest(inmuebles.Item1);
