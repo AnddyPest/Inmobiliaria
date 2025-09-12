@@ -382,6 +382,7 @@ namespace project.Services
                                     INNER JOIN propietario p ON p.idPropietario = i.idPropietario
                                     INNER JOIN persona perso ON perso.idPersona = p.idPersona
                                     INNER JOIN tipo_inmueble as tipoI ON i.id_tipo_inmueble = tipoI.id_tipo_inmueble
+                                    ORDER BY i.idInmueble
                                     LIMIT {tamPagina} OFFSET {(paginaNro - 1 ) * tamPagina}";
                     List<Inmueble> inmuebles = new();
                     using(MySqlCommand command = new MySqlCommand(query, connection))
