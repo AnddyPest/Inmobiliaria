@@ -70,12 +70,12 @@ namespace project.Controllers
         
 
         [HttpGet("inmueble/listar")]
-        public async Task<IActionResult> GetAllInmuebles( int nroPagina = 1, bool? disponibilidad = null ,int? dniPropietario = null)
+        public async Task<IActionResult> GetAllInmuebles( int nroPagina = 1, bool? disponibilidad = null ,int? dniPropietario = null,string? uso = null, string? tipoInmueble = null, int? cantidadAmbientes = null, int? precio = null,DateOnly? fechaDesde = null, DateOnly? fechaHasta = null)
         {
             InmuebleViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
             const int registrosPorPagina = 5;
-            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario);
+            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario, uso, tipoInmueble, cantidadAmbientes, precio, fechaDesde, fechaHasta);
             if (inmuebles.Item1 != null && inmuebles.Item1 != "No se encontraron inmuebles")
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
@@ -87,6 +87,7 @@ namespace project.Controllers
                 HelperFor.imprimirMensajeDeError(cantidadRegistros.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
                 return this.RedirectToActionWithError(nameof(Index),cantidadRegistros.Item1);
             }
+            Console.WriteLine($"Cantidad de registros: {cantidadRegistros.Item2}");
             viewModel.cantidadTotalDePaginas = cantidadRegistros.Item2 % registrosPorPagina == 0 ? cantidadRegistros.Item2 / registrosPorPagina : cantidadRegistros.Item2 / registrosPorPagina + 1;
             viewModel.inmueble = inmuebles.Item2;
             

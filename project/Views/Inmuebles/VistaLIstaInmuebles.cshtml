@@ -4,6 +4,10 @@
     var Pagina = ViewBag.nroPagina ?? 1;
     var Disponibilidad = ViewBag.disponibilidad ?? null;
     var DniPropietarioViewBag = ViewBag.dniPropietario ?? null;
+    var usoViewBag = ViewBag.uso ?? null;
+    var tipoViewBag = ViewBag.tipo ?? null;
+    var cantAmbientesViewBag = ViewBag.cantAmbientes ?? null;
+    var precioAproxViewBag = ViewBag.precioAprox ?? null;
 }
 @using Newtonsoft.Json
 <script>
@@ -13,44 +17,87 @@
     
 </script>
 
-<div>
-    <h2 class="text-center mt-4 text-white fs-2 mt-1">Lista de Inmuebles Registrados</h2>
-    <div class="d-flex flex-fill mt-3">
-        @{
-
-        }
-        <select id="selectDisponible" class="form-select w-25 me-3">
-            <option value="" disabled selected>Filtro de disponibilidad</option>
-            @{
-                (bool?,string)[] disponibilidades = { (null,"Todas las disponibilidades"), (true,"Disponible"), (false,"No Disponible") };
-            }
-            @foreach((bool?, string) disponibilidad in disponibilidades){   
-                if(disponibilidad.Item1 == Disponibilidad){
-                    <option value="@disponibilidad.Item1" selected>@disponibilidad.Item2</option>
-                }else{
-                    <option value="@disponibilidad.Item1">@disponibilidad.Item2</option>}
+<div class="container d-flex flex-column align-items-center ">
+    <div class="d-flex flex-column align-items-center w-100 shadow-lg pb-3">
+        <h2 class="text-center mt-4 text-white fs-2 mt-1">Lista de Inmuebles Registrados</h2>
+        <div class="d-flex  flex-column mt-3 shadow ">
+            <div class="d-flex flex-fill w-100  me-3 mb-3 ">
+                <select id="selectDisponible" class="form-select w-25 me-3">
+                <option value="" disabled selected>Filtro de disponibilidad</option>
+                @{
+                    (bool?,string)[] disponibilidades = { (null,"Todas las disponibilidades"), (true,"Disponible"), (false,"No Disponible") };
                 }
-            }
-            @* @if(Disponibilidad != null){
-                <option value="@Disponibilidad" selected>@Disponibilidad</option>
-            }else{
-                <option value="" selected>Todas las disponibilidades</option>
-            }
-            <option value="" >Todas las disponibilidades</option>
-            <option value="true">Disponible</option>
-            <option value="false">No Disponible</option> *@
-        </select>
-        @if(DniPropietarioViewBag != null){
-            <input class="input-group w-25" type="text" id="inputDniFiltro"
-                   maxlength="8" placeholder="Filtro por dni"
-                   oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="@DniPropietarioViewBag"/>
-        }else{
-            <input class="input-group w-25" type="text" id="inputDniFiltro"
-                maxlength="8" placeholder="Filtro por dni"
-                oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
-        }
-        
+                @foreach((bool?, string) disponibilidad in disponibilidades){   
+                    if(disponibilidad.Item1 == Disponibilidad){
+                        <option value="@disponibilidad.Item1" selected>@disponibilidad.Item2</option>
+                    }else{
+                        <option value="@disponibilidad.Item1">@disponibilidad.Item2</option>}
+                    }
+                }
+                @* @if(Disponibilidad != null){
+                    <option value="@Disponibilidad" selected>@Disponibilidad</option>
+                }else{
+                    <option value="" selected>Todas las disponibilidades</option>
+                }
+                <option value="" >Todas las disponibilidades</option>
+                <option value="true">Disponible</option>
+                <option value="false">No Disponible</option> *@
+                </select>
+                @if(DniPropietarioViewBag != null){
+                    <input class="form-control w-25" type="text" id="inputDniFiltro"
+                        maxlength="8" placeholder="Filtro por dni"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="@DniPropietarioViewBag"/>
+                }else{
+                    <input class="form-control w-25" type="text" id="inputDniFiltro"
+                        maxlength="8" placeholder="Filtro por dni"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+                }
+                <select class="form-select w-25 ms-3" id="selectUso">
+                    @{
+                        string[] usos = { "Todos los usos","Comercial","Residencial"};
+                    }
+                    @foreach( string uso in usos){
+                        @if(uso == usoViewBag){
+                            <option value="@uso" selected>@uso</option>
+                        }else{
+                            <option value="@uso">@uso</option>
+                        }
+                    }
+                </select>
+                <select class="form-select w-25 ms-3" id="selectTipo">
+                    <option value="" disabled selected>Filtro por tipo</option>
+                    <option value="">Todos los tipos</option>
+                    @if(Model.tipo_Inmueble != null){
+                        @foreach(Tipo_Inmueble tipo in Model.tipo_Inmueble){
+                            @if(tipo.nombre == tipoViewBag){
+                                <option value="@tipo.nombre" selected>@tipo.nombre</option>
+                            }else{
+                                <option value="@tipo.nombre">@tipo.nombre</option>
+                            }
+                        }
+                    }
+                    
+                </select>
+            </div>
+            <div class="d-flex flex-fill w-100  ">
+                <input class=" form-control w-25 " type="text" id="inputCantAmbientes"
+                        maxlength="4" placeholder="Filtro por cantidad de ambientes"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+                
+                
+                <input class=" form-control w-25 ms-3" type="text" id="inputPrecioAproximado"
+                        maxlength="9" placeholder="Filtro por precio "
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+                <input class=" form-control w-25 ms-3 " type="text" id="inputPrecioAproximado"
+                        maxlength="9" placeholder="Filtro por precio "
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+                <input class=" form-control w-25 ms-3" type="text" id="inputPrecioAproximado"
+                        maxlength="9" placeholder="Filtro por precio "
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+            </div>
+        </div>
     </div>
+    
     <div class="table-container" style="min-height: 65vh;">
        
      
