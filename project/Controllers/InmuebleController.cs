@@ -33,26 +33,26 @@ namespace project.Controllers
         public async Task<IActionResult> Actualizar(int idInmueble)
         {
             InmuebleViewModel viewModel = new();
-            (string?,Inmueble?) inmuebleFromService =  await _inmuebleService.ObtenerInmueblePorId(idInmueble);
-            if(inmuebleFromService.Item1 != null)
+            (string?, Inmueble?) inmuebleFromService = await _inmuebleService.ObtenerInmueblePorId(idInmueble);
+            if (inmuebleFromService.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inmuebleFromService.Item1, nameof(InmuebleController), nameof(Actualizar));
                 return BadRequest(inmuebleFromService.Item1);
             }
             if (inmuebleFromService.Item2 != null)
                 viewModel.InmuebleOnly = inmuebleFromService.Item2;
-            
+
             (string?, List<Tipo_Inmueble>?) typesFromService = await _tipoInmuebleService.getAllTipoInmueble();
             if (typesFromService.Item2 != null)
             {
                 viewModel.tipo_Inmueble = typesFromService.Item2;
             }
             (string?, List<Propietario>?) propietarioFromService = await _propietarioService.ObtenerTodos();
-            if(propietarioFromService.Item2 != null)
+            if (propietarioFromService.Item2 != null)
             {
                 viewModel.propietarios = propietarioFromService.Item2;
             }
-            
+
 
             return View("~/Views/Inmuebles/VistaActualizarInmueble.cshtml", viewModel);
         }
@@ -64,18 +64,18 @@ namespace project.Controllers
             if (listaInmueblesFromService.Item2 != null) viewModel.tipo_Inmueble = listaInmueblesFromService.Item2;
             (string?, List<Propietario>?) propietariosFromService = await _propietarioService.ObtenerTodos();
             if (propietariosFromService.Item2 != null) viewModel.propietarios = propietariosFromService.Item2;
-                
+
             return View("~/Views/Inmuebles/VistaRegistrarInmueble.cshtml", viewModel);
         }
-        
+
 
         [HttpGet("inmueble/listar")]
-        public async Task<IActionResult> GetAllInmuebles( int nroPagina = 1, bool? disponibilidad = null ,int? dniPropietario = null)
+        public async Task<IActionResult> GetAllInmuebles(int nroPagina = 1, bool? disponibilidad = null, int? dniPropietario = null)
         {
             InmuebleViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
             const int registrosPorPagina = 5;
-            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario);
+            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina, 1), registrosPorPagina, disponibilidad, dniPropietario);
             if (inmuebles.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
@@ -85,11 +85,11 @@ namespace project.Controllers
             if (cantidadRegistros.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(cantidadRegistros.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
-                return this.RedirectToActionWithError(nameof(Index),cantidadRegistros.Item1);
+                return this.RedirectToActionWithError(nameof(Index), cantidadRegistros.Item1);
             }
             viewModel.cantidadTotalDePaginas = cantidadRegistros.Item2 % registrosPorPagina == 0 ? cantidadRegistros.Item2 / registrosPorPagina : cantidadRegistros.Item2 / registrosPorPagina + 1;
             viewModel.inmueble = inmuebles.Item2;
-            
+
             // Obtener todos los contratos y asignar al ViewModel
             (string?, List<Contrato>?) contratosResult = await _contratoService.GetContratosAPI();
             if (contratosResult.Item1 != null)
@@ -101,7 +101,7 @@ namespace project.Controllers
             {
                 viewModel.Contratos = contratosResult.Item2;
             }
-            
+
             // Poblar la lista de inquilinos en el ViewModel
             (string?, List<Inquilino>) inquilinosResult = await _inquilinoService.GetAllInquilinos();
             if (inquilinosResult.Item1 != null)
@@ -144,8 +144,8 @@ namespace project.Controllers
                 return this.RedirectToActionWithError(nameof(GetAllInmuebles), inmuebleCreated.Item1);
             if (inmuebleCreated.Item2?.IdInmueble == null || inmuebleCreated.Item2.IdInmueble == 0)
                 return this.RedirectToActionWithError(nameof(GetAllInmuebles), "No se pudo crear el inmueble.");
-            
-            return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles), "Inmueble registrado con exito","Inmueble Registrado!!");
+
+            return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles), "Inmueble registrado con exito", "Inmueble Registrado!!");
         }
 
         [HttpPost("Inmueble/actualizar")]
@@ -158,7 +158,7 @@ namespace project.Controllers
                 return this.RedirectToActionWithError(nameof(GetAllInmuebles), inmuebleUpdated.Item1);
             if (!inmuebleUpdated.Item2)
                 return this.RedirectToActionWithError(nameof(GetAllInmuebles), "No se pudo actualizar el inmueble.");
-            return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles),"Inmueble actualizado con exito", "Inmueble Actualizado!!");
+            return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles), "Inmueble actualizado con exito", "Inmueble Actualizado!!");
         }
         //DAR DE BAJA LOGICA
         [HttpGet("Inmueble/DarBajaLogica/{idInmueble}")]
@@ -174,9 +174,9 @@ namespace project.Controllers
         [HttpGet("Inmueble/DarAltaLogica/{idInmueble}")]
         public async Task<IActionResult> DarAltaLogica(int idInmueble)
         {
-            
+
             (string?, bool) inmuebleUp = await _inmuebleService.DarAltaLogica(idInmueble);
-            if(inmuebleUp.Item1 != null && !inmuebleUp.Item2)
+            if (inmuebleUp.Item1 != null && !inmuebleUp.Item2)
             {
                 HelperFor.imprimirMensajeDeError(inmuebleUp.Item1, nameof(InmuebleController), nameof(DarAltaLogica));
                 return BadRequest(inmuebleUp.Item1);
@@ -190,7 +190,7 @@ namespace project.Controllers
             Console.WriteLine($"[INMUEBLE] MarcarAlquilado llamado con idInmueble: {idInmueble}");
             (string?, bool) inmuebleLow = await _inmuebleService.MarcarAlquilado(idInmueble);
             Console.WriteLine($"[INMUEBLE] Respuesta de MarcarAlquilado: error={inmuebleLow.Item1}, exito={inmuebleLow.Item2}");
-            if(inmuebleLow.Item1 != null)
+            if (inmuebleLow.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inmuebleLow.Item1, nameof(InmuebleController), nameof(MarcarAlquilado));
                 //AGREGAR MENSAJE 
@@ -206,8 +206,18 @@ namespace project.Controllers
                 HelperFor.imprimirMensajeDeError(inmuebleUp.Item1, nameof(InmuebleController), nameof(MarcarAlquilado));
                 return this.RedirectToActionWithError(nameof(GetAllInmuebles), inmuebleUp.Item1);
             }
-            return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles),"Inmueble marcado como disponible", "Inmueble Disponible!");
+            return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles), "Inmueble marcado como disponible", "Inmueble Disponible!");
         }
-
+        
+        [HttpGet("Inmueble/API/listar")]
+        public async Task<IActionResult> ListarInmueblesAPI(int nroPagina = 1, bool? disponibilidad = null, int? dniPropietario = null)
+        {
+            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(nroPagina, 10, disponibilidad, dniPropietario);
+            if (inmuebles.Item1 != null)
+            {
+                return BadRequest(inmuebles.Item1);
+            }
+            return Ok(inmuebles.Item2);
+        }
     }
 }

@@ -10,9 +10,11 @@
         public Task<(string?, bool)> MarcarLibre(int idInmueble);
         public Task<(string?, Inmueble?)> BuscarInmueblePorDireccion(string direccion);
         public Task<(string?, Inmueble?)> ObtenerInmueblePorId(int idInmueble);
-        public Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmuebles(int paginaNro = 1, int tamPagina = 10,bool? disponibilidad = true, int? dniPropietario = null);
+        public Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmuebles(int paginaNro = 1, int tamPagina = 10, bool? disponibilidad = true, int? dniPropietario = null);
         public Task<(string?, List<Inmueble>?)> ObtenerInmueblesPorPropietario(int dniPropietario);
         public Task<(string?, Inmueble?)> ObtenerInmueblePorContrato(int idContrato);
         public Task<(string?, int?)> obtenerCantidadDeRegistros();
+
+        public Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmueblesAPI();
     }
 }
