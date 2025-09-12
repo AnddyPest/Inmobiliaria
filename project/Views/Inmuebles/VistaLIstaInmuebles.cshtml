@@ -2,6 +2,8 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     var Pagina = ViewBag.nroPagina ?? 1;
+    var Disponibilidad = ViewBag.disponibilidad ?? null;
+    var DniPropietarioViewBag = ViewBag.dniPropietario ?? null;
 }
 @using Newtonsoft.Json
 <script>
@@ -17,13 +19,35 @@
         
         <select id="selectDisponible" class="form-select w-25 me-3">
             <option value="" disabled selected>Filtro de disponibilidad</option>
+            @{
+                (bool?,string)[] disponibilidades = { (null,"Todas las disponibilidades"), (true,"Disponible"), (false,"No Disponible") };
+            }
+            @foreach((bool?, string) disponibilidad in disponibilidades){   
+                if(disponibilidad.Item1 == Disponibilidad){
+                    <option value="@disponibilidad.Item1" selected>@disponibilidad.Item2</option>
+                }else{
+                    <option value="@disponibilidad.Item1">@disponibilidad.Item2</option>}
+                }
+            }
+            @* @if(Disponibilidad != null){
+                <option value="@Disponibilidad" selected>@Disponibilidad</option>
+            }else{
+                <option value="" selected>Todas las disponibilidades</option>
+            }
             <option value="" >Todas las disponibilidades</option>
-            <option value="Disponible">Disponible</option>
-            <option value="No Disponible">No Disponible</option>
+            <option value="true">Disponible</option>
+            <option value="false">No Disponible</option> *@
         </select>
-        <input class="input-group w-25" type="text" id="inputDniFiltro"
-               maxlength="8" placeholder="Filtro por dni"
-               oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+        @if(DniPropietarioViewBag != null){
+            <input class="input-group w-25" type="text" id="inputDniFiltro"
+                   maxlength="8" placeholder="Filtro por dni"
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="@DniPropietarioViewBag"/>
+        }else{
+            <input class="input-group w-25" type="text" id="inputDniFiltro"
+                maxlength="8" placeholder="Filtro por dni"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+        }
+        
     </div>
     <div class="table-container" style="min-height: 65vh;">
        
@@ -209,7 +233,7 @@
                     @if (Pagina > 1)
                     {
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina - 1 })" aria-label="Anterior">
+                            <a class="page-link" id="btnAnterior" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina - 1 })" aria-label="Anterior">
                                 <i class="bi bi-chevron-double-left"></i>
                             </a>
                         </li>
@@ -229,7 +253,7 @@
                     @if (Pagina < Model.cantidadTotalDePaginas)
                     {
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina + 1 })" aria-label="Siguiente">
+                            <a class="page-link" id="btnSiguiente" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina + 1 })" aria-label="Siguiente">
                                 <i class="bi bi-chevron-double-right"></i>
                             </a>
                         </li>
@@ -334,49 +358,72 @@
     </div>
 
     <script>
+        function aplicarFiltrosv2() {
+            const filtroDisponibilidad = document.getElementById('selectDisponible').value;
+            const filtroDni = document.getElementById("inputDniFiltro").value;
+            if(filtroDisponibilidad != ""&& filtroDni.length == 8){
+                console.log("1")
+                alert(1);
+                window.location.href = `/inmueble/listar?disponibilidad=${filtroDisponibilidad}&dniPropietario=${filtroDni}`;
+            }
+            if(filtroDisponibilidad == ""&& filtroDni.length == 8){
+                console.log("2")
+                alert(2);
+                window.location.href = `/inmueble/listar?dniPropietario=${filtroDni}`;
+            }
+            if(filtroDisponibilidad != ""&& filtroDni.length < 8){
+                console.log("3")
+                alert(4)
+                window.location.href = `/inmueble/listar?disponibilidad=${filtroDisponibilidad}`;
+            }
+            if(filtroDisponibilidad == ""&& filtroDni.length < 8){
+                console.log("4")
+                alert(5)
+                window.location.href = `/inmueble/listar`;
+            }
+        }
+        function aplicarFiltros() {
+            console.log("Aplicando filtros combinados");
 
-                    function aplicarFiltros() {
-                        console.log("Aplicando filtros combinados");
+            const filtroDisponibilidad = document.getElementById('selectDisponible').value;
+            const filtroDni = document.getElementById("inputDniFiltro").value;
+            const tableBody = document.getElementById('myTable').querySelector('tbody');
+            const filas = tableBody.querySelectorAll('tr');
 
-                        const filtroDisponibilidad = document.getElementById('selectDisponible').value;
-                        const filtroDni = document.getElementById("inputDniFiltro").value;
-                        const tableBody = document.getElementById('myTable').querySelector('tbody');
-                        const filas = tableBody.querySelectorAll('tr');
+            filas.forEach(fila => {
+                const idInmueble = fila.querySelector('td:first-child').textContent;
+                const inputDisponible = fila.querySelector(`.input-disponible[data-id="${idInmueble}"]`);
+                const inputEstado = fila.querySelector(`.input-estado[data-id="${idInmueble}"]`);
+                const inputDni = fila.querySelector(`.inputHiddenDni[data-id="${idInmueble}"]`);
 
-                        filas.forEach(fila => {
-                            const idInmueble = fila.querySelector('td:first-child').textContent;
-                            const inputDisponible = fila.querySelector(`.input-disponible[data-id="${idInmueble}"]`);
-                            const inputEstado = fila.querySelector(`.input-estado[data-id="${idInmueble}"]`);
-                            const inputDni = fila.querySelector(`.inputHiddenDni[data-id="${idInmueble}"]`);
+                
+                const estaDisponible = inputDisponible ? inputDisponible.value === "true" : false;
+                const estaActivo = inputEstado ? inputEstado.value === "true" : false;
+                const dniPropietario = inputDni ? inputDni.value : "";
+                console.log("Disponible: " + estaDisponible);
+                console.log("Activo: " + estaActivo);
+                let cumpleDisponibilidad = true;
+                let cumpleDni = true;
 
-                            
-                            const estaDisponible = inputDisponible ? inputDisponible.value === "true" : false;
-                            const estaActivo = inputEstado ? inputEstado.value === "true" : false;
-                            const dniPropietario = inputDni ? inputDni.value : "";
-                            console.log("Disponible: " + estaDisponible);
-                            console.log("Activo: " + estaActivo);
-                            let cumpleDisponibilidad = true;
-                            let cumpleDni = true;
+                // Filtro por disponibilidad (solo si hay selección)
+                if (filtroDisponibilidad === "true") {
+                    cumpleDisponibilidad = estaDisponible && estaActivo;
+                } else if (filtroDisponibilidad === "false") {
+                    
+                    cumpleDisponibilidad = ((!estaDisponible && estaActivo )|| (!estaDisponible && !estaActivo) || (estaDisponible && !estaActivo));
+                    
 
-                            // Filtro por disponibilidad (solo si hay selección)
-                            if (filtroDisponibilidad === "Disponible") {
-                                cumpleDisponibilidad = estaDisponible && estaActivo;
-                            } else if (filtroDisponibilidad === "No Disponible") {
-                                console.log("Ingreso acaaaa")
-                                cumpleDisponibilidad = ((!estaDisponible && estaActivo )|| (!estaDisponible && !estaActivo) || (estaDisponible && !estaActivo));
-                                
+                }
 
-                            }
+                // Filtro por DNI (solo si hay valor)
+                if (filtroDni.length > 0) {
+                    cumpleDni = dniPropietario.includes(filtroDni);
+                }
 
-                            // Filtro por DNI (solo si hay valor)
-                            if (filtroDni.length > 0) {
-                                cumpleDni = dniPropietario.includes(filtroDni);
-                            }
-
-                            // Mostrar fila solo si cumple ambos filtros
-                            fila.style.display = (cumpleDisponibilidad && cumpleDni) ? '' : 'none';
-                        });
-                    }
+                // Mostrar fila solo si cumple ambos filtros
+                fila.style.display = (cumpleDisponibilidad && cumpleDni) ? '' : 'none';
+            });
+        }
             function abrirNuevoContratoModal(id, direccion) {
                 var modal = new bootstrap.Modal(document.getElementById('nuevoContratoModal'));
                 document.getElementById('idInmueble').value = id;
@@ -419,7 +466,7 @@
                 let idInquilinoActual = null;
 
                 if (selectDisponibilidad) {
-                    selectDisponibilidad.addEventListener('change', aplicarFiltros);
+                    selectDisponibilidad.addEventListener('change', aplicarFiltrosv2);
                 }
                 
                 dniInput.addEventListener("input", function() {
@@ -443,7 +490,7 @@
                     }
                     
                 });
-                document.getElementById("inputDniFiltro").addEventListener("input", aplicarFiltros);
+                document.getElementById("inputDniFiltro").addEventListener("input", aplicarFiltrosv2);
                 dniInput.addEventListener("keyup", function() {
                     const dni = this.value;
                     if (dni.length >= 8) {

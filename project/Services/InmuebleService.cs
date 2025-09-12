@@ -357,7 +357,7 @@ namespace project.Services
             }
         }
 
-        public async Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmuebles(int paginaNro = 1, int tamPagina = 10)//TESTEAR
+        public async Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmuebles(int paginaNro = 1, int tamPagina = 10,bool? disponibilidad = null, int? dniPropietario = null)//TESTEAR
         {
             try
             {
@@ -382,8 +382,30 @@ namespace project.Services
                                     INNER JOIN propietario p ON p.idPropietario = i.idPropietario
                                     INNER JOIN persona perso ON perso.idPersona = p.idPersona
                                     INNER JOIN tipo_inmueble as tipoI ON i.id_tipo_inmueble = tipoI.id_tipo_inmueble
-                                    ORDER BY i.idInmueble
-                                    LIMIT {tamPagina} OFFSET {(paginaNro - 1 ) * tamPagina}";
+                                    ";
+                    if (disponibilidad != null && dniPropietario != null) //Hay que encontrar una manera de simplificar esto y mejorar porq con muchos filtros va a ser un caos
+                    {
+                        query += @$"WHERE i.Disponible = {((disponibilidad == true) ? "1" : "0")} AND perso.dni = {dniPropietario}
+                                    ";
+                    }
+                    else
+                    {
+                        if (disponibilidad != null)
+                        {
+                            query += @$"WHERE i.Disponible = {((disponibilidad == true) ? "1" : "0")}
+                                        ";
+                        }
+                        if (dniPropietario != null)
+                        {
+                            query += @$"WHERE perso.dni = {dniPropietario}
+                                        ";
+                        }
+                    }
+                    
+                    
+                    query += @$"ORDER BY i.idInmueble
+                                LIMIT {tamPagina} OFFSET {(paginaNro - 1) * tamPagina};";
+                    System.Console.WriteLine(query);
                     List<Inmueble> inmuebles = new();
                     using(MySqlCommand command = new MySqlCommand(query, connection))
                     {
