@@ -70,12 +70,12 @@ namespace project.Controllers
         
 
         [HttpGet("inmueble/listar")]
-        public async Task<IActionResult> GetAllInmuebles(int nroPagina = 1)
+        public async Task<IActionResult> GetAllInmuebles( int nroPagina = 1, bool? disponibilidad = null ,int? dniPropietario = null)
         {
             InmuebleViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
             const int registrosPorPagina = 5;
-            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina);
+            (string?, List<Inmueble>?) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario);
             if (inmuebles.Item1 != null)
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
@@ -113,7 +113,8 @@ namespace project.Controllers
             {
                 viewModel.inquilinos = inquilinosResult.Item2;
             }
-            
+            ViewBag.dniPropietario = dniPropietario;
+            ViewBag.disponibilidad = disponibilidad;
             return View("~/Views/Inmuebles/VistaLIstaInmuebles.cshtml", viewModel);
         }
         //BUSCAR INMUEBLE POR ID
