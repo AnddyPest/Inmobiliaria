@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1:3307
--- Tiempo de generación: 04-09-2025 a las 22:30:30
+-- Servidor: 127.0.0.1:3306
+-- Tiempo de generación: 12-09-2025 a las 17:16:28
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -18,10 +18,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `inmo`
+-- Base de datos: `inmobase`
 --
-CREATE DATABASE IF NOT EXISTS `inmoBase` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `inmoBase`;
 
 -- --------------------------------------------------------
 
@@ -131,9 +129,10 @@ CREATE TABLE `pagos` (
   `detalle` varchar(255) NOT NULL,
   `importe` decimal(10,0) NOT NULL,
   `abonado` tinyint(1) DEFAULT 0,
-  `activo` tinyint(1) DEFAULT 1,
+  `alquiler` tinyint(1) DEFAULT 1,
   `estado` tinyint(1) DEFAULT 1,
-  `fecha` datetime NOT NULL,
+  `fechaConfeccion` date NOT NULL,
+  `fechaPago` date DEFAULT NULL,
   `idContrato` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
