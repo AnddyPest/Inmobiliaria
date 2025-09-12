@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace project.Models
 {
-    public class Contrato(int idInquilino, int idInmueble, int idPropietario, decimal monto, DateTime fechaInicio, DateTime fechaFin, bool estado,Propietario propietario)
+    public class Contrato(int idInquilino, int idInmueble, int idPropietario, decimal monto, DateTime fechaInicio, DateTime fechaFin, DateTime? fechaRescision, bool estado, Propietario propietario)
     {
         [Key]
         public int IdContrato { get; set; }
@@ -34,6 +34,7 @@ namespace project.Models
 
         [Required(ErrorMessage = "La fecha de fin es requerida")]
         public DateTime FechaFin { get; set; } = fechaFin;
+        public DateTime? FechaRescision { get; set; } = fechaRescision;
 
         public bool estado { get; set; } = estado;
         public List<Pago> Pagos { get; set; } = [];
@@ -45,7 +46,7 @@ namespace project.Models
     private readonly bool validarFechas = ValidarFechas(fechaInicio, fechaFin);
 
     // Constructor vacío
-    public Contrato() : this(default, default,default, default, default, default, default,default!) { }
+    public Contrato() : this(default, default,default, default, default, default, default, default, default!) { }
 
         public void AgregarPago(Pago pago)
         {

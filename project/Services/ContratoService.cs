@@ -165,10 +165,11 @@ namespace project.Services
                     return ($"No se encontró un contrato con Id {idContrato}.", false);
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    string query = "UPDATE Contrato SET estado = 0 WHERE IdContrato = @IdContrato";
+                    string query = "UPDATE Contrato SET estado = 0, fechaRescision = @fechaRescision WHERE IdContrato = @IdContrato";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@IdContrato", idContrato);
+                        command.Parameters.AddWithValue("@FechaRescision", DateTime.Now);
                         await connection.OpenAsync();
                         int rowsAffected = await command.ExecuteNonQueryAsync();
                         await connection.CloseAsync();
@@ -220,6 +221,9 @@ namespace project.Services
                                 contrato.FechaInicio = reader.GetDateTime("FechaInicio");
                                 contrato.FechaFin = reader.GetDateTime("FechaFin");
                                 contrato.estado = reader.GetBoolean("estado");
+                                contrato.FechaRescision = reader.IsDBNull(reader.GetOrdinal("fechaRescision"))
+                                    ? (DateTime?)null
+                                    : reader.GetDateTime(reader.GetOrdinal("fechaRescision"));
                                 contratos.Add(contrato);
                             }
                         }
@@ -269,6 +273,9 @@ namespace project.Services
                                 contrato.FechaInicio = reader.GetDateTime("FechaInicio");
                                 contrato.FechaFin = reader.GetDateTime("FechaFin");
                                 contrato.estado = reader.GetBoolean("estado");
+                                contrato.FechaRescision = reader.IsDBNull(reader.GetOrdinal("fechaRescision"))
+                                    ? (DateTime?)null
+                                    : reader.GetDateTime(reader.GetOrdinal("fechaRescision"));
                                 await connection.CloseAsync();
                                 return (null, contrato);
                             }
@@ -315,6 +322,9 @@ namespace project.Services
                                 contrato.FechaInicio = reader.GetDateTime("FechaInicio");
                                 contrato.FechaFin = reader.GetDateTime("FechaFin");
                                 contrato.estado = reader.GetBoolean("estado");
+                                contrato.FechaRescision = reader.IsDBNull(reader.GetOrdinal("fechaRescision"))
+                                    ? (DateTime?)null
+                                    : reader.GetDateTime(reader.GetOrdinal("fechaRescision"));
                                 contratos.Add(contrato);
                             }
                             await connection.CloseAsync();

@@ -46,6 +46,7 @@
                     <th style="width: 10%;">Inmueble</th>
                     <th style="width: 10%;">Fecha Inicio</th>
                     <th style="width: 10%;">Fecha Fin</th>
+                    <th style="width: 10%;">Rescisión</th>
                     <th style="width: 10%;">Monto</th>
                     <th style="width: 10%;">Estado</th>
                     <th style="width: 15%;">Acciones</th>
@@ -66,6 +67,23 @@
                             <td class="text-center">@inmueble?.Direccion</td>
                             <td class="text-center">@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">@contrato.FechaFin.ToString("dd/MM/yyyy")</td>
+                            @if (contrato.FechaRescision != null)
+                            {
+                                <td class="text-center text-danger fw-bold">@contrato.FechaRescision?.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                                <td class="text-center">
+                                    @if (contrato.FechaFin.Date < DateTime.Now.Date)
+                                    {
+                                        <span class="text-danger fw-bold">Vencido</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-success fw-bold">Activo</span>
+                                    }
+                                </td>
+                            }
                             <td class="text-center">$@contrato.Monto</td>
                             <td class="text-center">
                                 @if (contrato.estado)
