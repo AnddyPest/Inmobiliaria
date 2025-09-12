@@ -189,7 +189,7 @@ namespace project.Services
             }
         }
 
-        public async Task<(string?, List<Contrato>?)> GetAllContratos(int? nroPagina, int? registrosPorPagina, string? disponibilidad) //testear
+        public async Task<(string?, List<Contrato>?)> GetAllContratos(int? nroPagina, int? registrosPorPagina, string? disponibilidad, int? fechaCompare) //testear
         {
             try
             {
@@ -203,6 +203,29 @@ namespace project.Services
                         else if (disponibilidad.ToLower() == "no vigente")
                             query += " WHERE estado = 0";
                         // Si es 'todos' o vacío, no se agrega WHERE y se muestran ambos estados
+                    }
+                    if (fechaCompare.HasValue)
+                    {
+                        string filtroSQL = "";
+                        if (fechaCompare.Value == 30)
+                        {
+                            filtroSQL = "FechaFin BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)";
+                        }
+                        else if (fechaCompare.Value == 60)
+                        {
+                            filtroSQL = "FechaFin BETWEEN DATE_ADD(CURDATE(), INTERVAL 31 DAY) AND DATE_ADD(CURDATE(), INTERVAL 60 DAY)";
+                        }
+                        else if (fechaCompare.Value == 90)
+                        {
+                            filtroSQL = "FechaFin BETWEEN DATE_ADD(CURDATE(), INTERVAL 61 DAY) AND DATE_ADD(CURDATE(), INTERVAL 90 DAY)";
+                        }
+                        if (!string.IsNullOrEmpty(filtroSQL))
+                        {
+                            if (query.Contains("WHERE"))
+                                query += $" AND {filtroSQL}";
+                            else
+                                query += $" WHERE {filtroSQL}";
+                        }
                     }
                     List<Contrato> contratos = new List<Contrato>();
                     using (MySqlCommand command = new MySqlCommand(query, connection))

@@ -14,5 +14,7 @@
         public Task<(string?, List<Inmueble>?)> ObtenerInmueblesPorPropietario(int dniPropietario);
         public Task<(string?, Inmueble?)> ObtenerInmueblePorContrato(int idContrato);
         public Task<(string?, int?)> obtenerCantidadDeRegistros();
+
+        public Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmueblesAPI();
     }
 }

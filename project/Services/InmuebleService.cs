@@ -7,7 +7,7 @@ using System.Data.Common;
 
 namespace project.Services
 {
-    public class InmuebleService(IConfiguration configuration, IPropietarioService propietarioService ) : IInmuebleService
+    public class InmuebleService(IConfiguration configuration, IPropietarioService propietarioService) : IInmuebleService
     {
         private readonly string _connectionString = configuration.GetConnectionString("Connection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         private readonly IPropietarioService _propietarioService = propietarioService;
@@ -18,10 +18,10 @@ namespace project.Services
             try
             {
                 int response = 0;
-                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     string query = @"Select count(idInmueble) from inmueble";
-                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.CommandType = CommandType.Text;
                         await connection.OpenAsync();
@@ -35,7 +35,8 @@ namespace project.Services
                     }
 
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleService), nameof(obtenerCantidadDeRegistros));
                 return (ex.Message, null);
@@ -46,11 +47,11 @@ namespace project.Services
         {
             try
             {
-                if(inmueble == null) return ("El inmueble no puede ser nulo", null);
-                if( await _propietarioService.getPropietarioById(inmueble.IdPropietario) is (string errorServicio, null) ) return (errorServicio, null);
-                if( await BuscarInmueblePorDireccion(inmueble.Direccion) is (null, Inmueble ) ) 
+                if (inmueble == null) return ("El inmueble no puede ser nulo", null);
+                if (await _propietarioService.getPropietarioById(inmueble.IdPropietario) is (string errorServicio, null)) return (errorServicio, null);
+                if (await BuscarInmueblePorDireccion(inmueble.Direccion) is (null, Inmueble))
                     return ($"Ya existe un inmueble con la dirección {inmueble.Direccion}", null);
-                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     string query = @" INSERT INTO inmueble 
                                       (Uso, id_tipo_inmueble, Superficie, CantidadAmbientes, Coordenadas, Precio, Direccion, ciudad, IdPropietario, Disponible, estado) 
@@ -58,7 +59,7 @@ namespace project.Services
                                       (@Uso, @id_tipo_inmueble, @Superficie, @CantidadAmbientes, @Coordenadas, @Precio, @Direccion, @ciudad, @IdPropietario, @Disponible, @estado);
                                       SELECT LAST_INSERT_ID(); ";
                     connection.Open();
-                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Uso", inmueble.Uso);
                         command.Parameters.AddWithValue("@id_tipo_inmueble", inmueble.idTipo);
@@ -95,16 +96,16 @@ namespace project.Services
         {
             try
             {
-                if( inmueble.IdInmueble <= 0) return ("El id del inmueble debe ser un valor positivo", false);
-                (string?,Inmueble?) inmuebleSearched = await this.ObtenerInmueblePorId(inmueble.IdInmueble);
-                if(inmuebleSearched.Item1 != null) return (inmuebleSearched.Item1, false);
-                if(inmuebleSearched.Item2 == null) return ($"No se encontró ningún inmueble con el id {inmueble.IdInmueble}", false);
-                if(inmueble.IdPropietario != inmuebleSearched.Item2.IdPropietario)
+                if (inmueble.IdInmueble <= 0) return ("El id del inmueble debe ser un valor positivo", false);
+                (string?, Inmueble?) inmuebleSearched = await this.ObtenerInmueblePorId(inmueble.IdInmueble);
+                if (inmuebleSearched.Item1 != null) return (inmuebleSearched.Item1, false);
+                if (inmuebleSearched.Item2 == null) return ($"No se encontró ningún inmueble con el id {inmueble.IdInmueble}", false);
+                if (inmueble.IdPropietario != inmuebleSearched.Item2.IdPropietario)
                 {
-                    if( await _propietarioService.getPropietarioById(inmueble.IdPropietario) is (string errorServicio, null) ) 
+                    if (await _propietarioService.getPropietarioById(inmueble.IdPropietario) is (string errorServicio, null))
                         return (errorServicio, false);
                 }
-                if(inmueble.Direccion != inmuebleSearched.Item2.Direccion)
+                if (inmueble.Direccion != inmuebleSearched.Item2.Direccion)
                 {
                     if (await BuscarInmueblePorDireccion(inmueble.Direccion) is (null, Inmueble))
                         return ("No se puede agregar un inmueble con dicha direccion ya que hay uno registrado", false);
@@ -125,7 +126,7 @@ namespace project.Services
                                           
                                           estado = @estado
                                       WHERE IdInmueble = @IdInmueble ";
-                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@IdInmueble", inmueble.IdInmueble);
                         command.Parameters.AddWithValue("@Uso", inmueble.Uso);
@@ -137,7 +138,7 @@ namespace project.Services
                         command.Parameters.AddWithValue("@Direccion", inmueble.Direccion);
                         command.Parameters.AddWithValue("@ciudad", inmueble.Ciudad);
                         command.Parameters.AddWithValue("@IdPropietario", inmueble.IdPropietario);
-                        
+
                         command.Parameters.AddWithValue("@estado", inmueble.Estado);
                         int rowsAffected = await command.ExecuteNonQueryAsync();
                         if (rowsAffected > 0)
@@ -169,18 +170,18 @@ namespace project.Services
 
                 }
                 (string?, Inmueble?) inmuebleSearched = await this.ObtenerInmueblePorId(idInmueble);
-                if(inmuebleSearched.Item1 != null && inmuebleSearched.Item2 == null)
+                if (inmuebleSearched.Item1 != null && inmuebleSearched.Item2 == null)
                 {
                     HelperFor.imprimirMensajeDeError(inmuebleSearched.Item1, _ClassName, nameof(DarDeBajaInmueble));
                     return (inmuebleSearched.Item1, false);
                 }
-                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = @" UPDATE inmueble 
                                       SET estado = 0, Disponible = 0
                                       WHERE IdInmueble = @IdInmueble ";
-                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@IdInmueble", idInmueble);
                         int rowsAffected = await command.ExecuteNonQueryAsync();
@@ -195,7 +196,7 @@ namespace project.Services
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(DarDeBajaInmueble));
                 return (ex.Message, false);
@@ -206,7 +207,7 @@ namespace project.Services
         {
             try
             {
-                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     await connection.OpenAsync();
                     string query = @" SELECT i.* ,ti.*
@@ -214,10 +215,10 @@ namespace project.Services
                                       inner join tipo_inmueble as ti on ti.id_tipo_inmueble = i.id_tipo_inmueble
                                       inner join contrato as c on c.idInmueble = i.idInmueble
                                       WHERE c.idContrato = @idContrato ";
-                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@idContrato", idContrato);
-                        using(DbDataReader reader = await command.ExecuteReaderAsync())
+                        using (DbDataReader reader = await command.ExecuteReaderAsync())
                         {
                             if (await reader.ReadAsync())
                             {
@@ -244,7 +245,7 @@ namespace project.Services
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerInmueblePorContrato));
                 return (ex.Message, null);
@@ -306,9 +307,9 @@ namespace project.Services
         {
             try
             {
-                if(dniPropietario <= 0) return ("El dni del propietario debe ser un valor positivo", null);
+                if (dniPropietario <= 0) return ("El dni del propietario debe ser un valor positivo", null);
                 List<Inmueble> inmuebles = new List<Inmueble>();
-                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     await connection.OpenAsync();
                     string query = @" SELECT i.* ,ti.*, p.*
@@ -316,16 +317,16 @@ namespace project.Services
                                       inner join tipo_inmueble as ti on ti.id_tipo_inmueble = i.id_tipo_inmueble
                                       inner join propietario as p on p.idPropietario = i.idPropietario
                                       WHERE p.dni = @dniPropietario ";
-                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@dniPropietario", dniPropietario);
-                        using(DbDataReader reader = await command.ExecuteReaderAsync())
+                        using (DbDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            while(await reader.ReadAsync())
+                            while (await reader.ReadAsync())
                             {
                                 Inmueble inmueble = new Inmueble();
                                 Tipo_Inmueble tipo = new Tipo_Inmueble();
-                                
+
                                 inmueble.IdInmueble = reader.GetInt32("IdInmueble");
                                 inmueble.Uso = reader.GetString("Uso");
                                 inmueble.Superficie = reader.GetInt32("Superficie");
@@ -339,7 +340,7 @@ namespace project.Services
                                 inmueble.Estado = reader.GetBoolean("estado");
                                 tipo.id_tipo_inmueble = reader.GetInt32("ti.id_tipo_inmueble");
                                 tipo.nombre = reader.GetString("ti.nombre");
-                                
+
                                 inmueble.Tipo = tipo;
                                 inmuebles.Add(inmueble);
                             }
@@ -350,7 +351,7 @@ namespace project.Services
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerInmueblesPorPropietario));
                 return (ex.Message, null);
@@ -361,8 +362,8 @@ namespace project.Services
         {
             try
             {
-                
-                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     string query = @$"SELECT 
                                     i.*,
@@ -417,12 +418,12 @@ namespace project.Services
                                 LIMIT {tamPagina} OFFSET {(paginaNro - 1) * tamPagina};";
                     Console.WriteLine(query);
                     List<Inmueble> inmuebles = new();
-                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         await connection.OpenAsync();
                         using (DbDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            while ( await reader.ReadAsync() )
+                            while (await reader.ReadAsync())
                             {
                                 Inmueble inmueble = new Inmueble();
                                 Tipo_Inmueble tipo_Inmueble = new Tipo_Inmueble();
@@ -451,11 +452,11 @@ namespace project.Services
                                 propietario.Estado = reader.GetBoolean("PropietarioEstado");
                                 propietario.IdPersona = reader.GetInt32("IDPersona");
                                 inmueble.Propietario = propietario;
-                                
+
                                 inmueble.idTipo = reader.GetInt32("id_tipo_inmueble");
                                 tipo_Inmueble.id_tipo_inmueble = inmueble.idTipo;
                                 tipo_Inmueble.nombre = reader.GetString("TipoInmuebleNombre");
-                                
+
                                 inmueble.Tipo = tipo_Inmueble;
 
                                 inmuebles.Add(inmueble);
@@ -467,7 +468,8 @@ namespace project.Services
                         }
                     }
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerTodosLosInmuebles));
                 return (ex.Message, null);
@@ -478,17 +480,17 @@ namespace project.Services
         {
             try
             {
-                using(MySqlConnection connection = new MySqlConnection(_connectionString))
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     await connection.OpenAsync();
                     string query = @" SELECT i.* ,ti.*
                                       FROM inmueble as i
                                       inner join tipo_inmueble as ti on ti.id_tipo_inmueble = i.id_tipo_inmueble
                                       WHERE Direccion = @Direccion ";
-                    using(MySqlCommand command = new MySqlCommand(query, connection))
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Direccion", direccion);
-                        using(DbDataReader reader = await command.ExecuteReaderAsync())
+                        using (DbDataReader reader = await command.ExecuteReaderAsync())
                         {
                             if (await reader.ReadAsync())
                             {
@@ -516,7 +518,7 @@ namespace project.Services
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(BuscarInmueblePorDireccion));
                 return (ex.Message, null);
@@ -656,6 +658,95 @@ namespace project.Services
                     HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(DarDeBajaInmueble));
                     return (ex.Message, false);
                 }
+            }
+        }
+
+        public async Task<(string?, List<Inmueble>?)> ObtenerTodosLosInmueblesAPI()
+        {
+            try
+            {
+
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @$"SELECT 
+                                    i.*,
+                                    p.idPropietario as PropietarioId,
+                                    p.idPersona as IDPersona,
+                                    p.estado as EstadoPropietario,
+                                    perso.Nombre as PropietarioNombre,
+                                    perso.Apellido as PropietarioApellido,
+                                    perso.Dni as PropietarioDni,
+                                    perso.Telefono as PropietarioTelefono,
+                                    perso.Direccion as PropietarioDireccion,
+                                    perso.Email as PropietarioEmail,
+                                    perso.Estado as PropietarioEstado,
+                                    tipoI.id_tipo_inmueble as TipoInmuebleId,
+                                    tipoI.nombre as TipoInmuebleNombre
+                                    FROM inmueble as i
+                                    INNER JOIN propietario p ON p.idPropietario = i.idPropietario
+                                    INNER JOIN persona perso ON perso.idPersona = p.idPersona
+                                    INNER JOIN tipo_inmueble as tipoI ON i.id_tipo_inmueble = tipoI.id_tipo_inmueble
+                                    ";
+                    
+
+
+                    System.Console.WriteLine(query);
+                    List<Inmueble> inmuebles = new();
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        await connection.OpenAsync();
+                        using (DbDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                Inmueble inmueble = new Inmueble();
+                                Tipo_Inmueble tipo_Inmueble = new Tipo_Inmueble();
+                                Propietario propietario = new();
+                                inmueble.IdInmueble = reader.GetInt32("idInmueble");
+                                inmueble.Uso = reader.GetString("Uso");
+                                inmueble.Superficie = reader.GetInt32("Superficie");
+                                inmueble.CantidadAmbientes = reader.GetInt32("CantidadAmbientes");
+                                inmueble.Coordenadas = reader.GetDecimal("Coordenadas");
+                                inmueble.Precio = reader.GetDecimal("Precio");
+                                inmueble.Direccion = reader.GetString("Direccion");
+                                inmueble.Ciudad = reader.GetString("ciudad");
+                                inmueble.Disponible = reader.GetBoolean("Disponible");
+                                inmueble.Estado = reader.GetBoolean("estado");
+
+
+                                inmueble.IdPropietario = reader.GetInt32("PropietarioId");
+                                propietario.IdPropietario = inmueble.IdPropietario;
+                                propietario.Nombre = reader.GetString("PropietarioNombre");
+                                propietario.Apellido = reader.GetString("PropietarioApellido");
+                                propietario.Dni = reader.GetInt32("PropietarioDni");
+                                propietario.EstadoPropietario = reader.GetBoolean("PropietarioEstado");
+                                propietario.Telefono = reader.GetString("PropietarioTelefono");
+                                propietario.Direccion = reader.GetString("PropietarioDireccion");
+                                propietario.Email = reader.GetString("PropietarioEmail");
+                                propietario.Estado = reader.GetBoolean("PropietarioEstado");
+                                propietario.IdPersona = reader.GetInt32("IDPersona");
+                                inmueble.Propietario = propietario;
+
+                                inmueble.idTipo = reader.GetInt32("id_tipo_inmueble");
+                                tipo_Inmueble.id_tipo_inmueble = inmueble.idTipo;
+                                tipo_Inmueble.nombre = reader.GetString("TipoInmuebleNombre");
+
+                                inmueble.Tipo = tipo_Inmueble;
+
+                                inmuebles.Add(inmueble);
+
+                            }
+                            await connection.CloseAsync();
+                            if (inmuebles.Count == 0) return ("No se encontraron inmuebles", null);
+                            return (null, inmuebles);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerTodosLosInmuebles));
+                return (ex.Message, null);
             }
         }
     }

@@ -22,13 +22,16 @@ namespace project.Controllers
         }
 
         [HttpGet("contrato/listar")]
-        public async Task<IActionResult> GetAllContratos(int nroPagina = 1, string? disponibilidad = null)
+        public async Task<IActionResult> GetAllContratos(int nroPagina = 1, string? disponibilidad = null, int ? fechaCompare = null)
+            // Depuración: mostrar parámetros recibidos desde el frontend
         {
+            Console.WriteLine($"[DEBUG] disponibilidad: {disponibilidad}");
+            Console.WriteLine($"[DEBUG] fechaCompare: {fechaCompare}");
             ContratoViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
             const int registrosPorPagina = 5;
             ViewBag.registrosPorPagina = registrosPorPagina;
-            (string?, List<Contrato>?) contratosResult = await _contratoService.GetAllContratos(nroPagina, registrosPorPagina, disponibilidad);
+            (string?, List<Contrato>?) contratosResult = await _contratoService.GetAllContratos(nroPagina, registrosPorPagina, disponibilidad, fechaCompare);
             if (contratosResult.Item2 == null)
             {
                 HelperFor.imprimirMensajeDeError(contratosResult.Item1 ?? "Error desconocido", nameof(ContratoController), nameof(GetAllContratos));
@@ -47,7 +50,7 @@ namespace project.Controllers
             (string?, List<Propietario>?) propietariosResult = await _propietarioService.ObtenerTodos();
             if (propietariosResult.Item1 == null)
                 viewModel.propietarios = propietariosResult.Item2;
-            (string?, List<Inmueble>?) inmueblesResult = await _inmuebleService.ObtenerTodosLosInmuebles();
+            (string?, List<Inmueble>?) inmueblesResult = await _inmuebleService.ObtenerTodosLosInmueblesAPI();
             if (inmueblesResult.Item1 == null)
                 viewModel.inmueble = inmueblesResult.Item2;
 
