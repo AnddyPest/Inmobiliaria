@@ -70,9 +70,9 @@
                     @if(Model.tipo_Inmueble != null){
                         @foreach(Tipo_Inmueble tipo in Model.tipo_Inmueble){
                             @if(tipo.nombre == tipoViewBag){
-                                <option value="@tipo.nombre" selected>@tipo.nombre</option>
+                                <option value="@tipo.nombre.Trim()" selected>@tipo.nombre</option>
                             }else{
-                                <option value="@tipo.nombre">@tipo.nombre</option>
+                                <option value="@tipo.nombre.Trim()">@tipo.nombre</option>
                             }
                         }
                     }
@@ -82,7 +82,7 @@
             </div>
             <div class="d-flex flex-fill w-100  ">
                 <input class=" form-control w-25 " type="number" id="inputCantAmbientes"
-                        maxlength="4" placeholder="Filtro por cantidad de ambientes"
+                        maxlength="4" placeholder="Filtro Cant.ambientes" value="@cantAmbientesViewBag"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
                 
                 

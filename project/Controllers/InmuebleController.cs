@@ -70,12 +70,12 @@ namespace project.Controllers
 
 
         [HttpGet("inmueble/listar")]
-        public async Task<IActionResult> GetAllInmuebles( int nroPagina = 1, bool? disponibilidad = null ,int? dniPropietario = null,string? uso = null, string? tipoInmueble = null, int? cantidadAmbientes = null, int? precio = null,DateOnly? fechaDesde = null, DateOnly? fechaHasta = null)
+        public async Task<IActionResult> GetAllInmuebles( int nroPagina = 1, bool? disponibilidad = null ,int? dniPropietario = null,string? uso = null, string? tipoInmueble = null, int? cantAmbientes = null, int? precio = null,DateOnly? fechaDesde = null, DateOnly? fechaHasta = null)
         {
             InmuebleViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
             const int registrosPorPagina = 5;
-            (string?, List<Inmueble>?, int? cantidadTotalRegistros) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario, uso, tipoInmueble, cantidadAmbientes, precio, fechaDesde, fechaHasta);
+            (string?, List<Inmueble>?, int? cantidadTotalRegistros) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario, uso, tipoInmueble, cantAmbientes, precio, fechaDesde, fechaHasta);
             if (inmuebles.Item1 != null && inmuebles.Item1 != "No se encontraron inmuebles")
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
@@ -87,10 +87,12 @@ namespace project.Controllers
             //     HelperFor.imprimirMensajeDeError(cantidadRegistros.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
             //     return this.RedirectToActionWithError(nameof(Index), cantidadRegistros.Item1);
             // }
-            Console.WriteLine($"Cantidad de registros: {inmuebles.cantidadTotalRegistros}");
+            (string?, List<Tipo_Inmueble>?) tiposDeInmuebleFromService = await _tipoInmuebleService.getAllTipoInmueble();
+            if (tiposDeInmuebleFromService.Item1 != null)
+                return this.RedirectToActionWithError(nameof(Index),"Error del servicio que obtiene los tipos de Inmueble", "Internal Server Error");
             viewModel.cantidadTotalDePaginas = inmuebles.cantidadTotalRegistros % registrosPorPagina == 0 ? inmuebles.cantidadTotalRegistros / registrosPorPagina : inmuebles.cantidadTotalRegistros / registrosPorPagina + 1;
             viewModel.inmueble = inmuebles.Item2;
-
+            viewModel.tipo_Inmueble = tiposDeInmuebleFromService.Item2;
             // Obtener todos los contratos y asignar al ViewModel
             (string?, List<Contrato>?) contratosResult = await _contratoService.GetContratosAPI();
             if (contratosResult.Item1 != null)
@@ -117,6 +119,11 @@ namespace project.Controllers
             ViewBag.dniPropietario = dniPropietario;
             ViewBag.disponibilidad = disponibilidad;
             ViewBag.uso = uso;
+            ViewBag.tipo = tipoInmueble;
+            ViewBag.cantAmbientes = cantAmbientes;
+            ViewBag.precio = precio;
+            ViewBag.fechaDesde = fechaDesde;
+            ViewBag.fechaHasta = fechaHasta;
             return View("~/Views/Inmuebles/VistaLIstaInmuebles.cshtml", viewModel);
         }
         //BUSCAR INMUEBLE POR ID

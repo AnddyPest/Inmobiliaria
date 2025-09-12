@@ -399,7 +399,7 @@ namespace project.Services
                     }
                     if (tipoInmueble != null)
                     {
-                        querys.Add(@$" TipoInmuebleNombre = '{tipoInmueble}' ");
+                        querys.Add(@$" tipoI.nombre = '{tipoInmueble}' ");
                     }
                     if (cantidadAmbientes != null)
                     {
