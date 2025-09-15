@@ -383,6 +383,7 @@ namespace project.Services
                                     INNER JOIN propietario p ON p.idPropietario = i.idPropietario
                                     INNER JOIN persona perso ON perso.idPersona = p.idPersona
                                     INNER JOIN tipo_inmueble as tipoI ON i.id_tipo_inmueble = tipoI.id_tipo_inmueble
+                                    LEFT JOIN contrato as contract ON contract.idInmueble = i.idInmueble AND contract.Estado = 1
                                     ";
                     List<string> querys = new ();
                     if (disponibilidad != null ) //Hay que encontrar una manera de simplificar esto y mejorar porq con muchos filtros va a ser un caos
@@ -403,19 +404,22 @@ namespace project.Services
                     }
                     if (cantidadAmbientes != null)
                     {
-                        querys.Add(@$" i.CantidadAmbientes = {cantidadAmbientes} ");
+                        querys.Add(@$" i.CantidadAmbientes <= {cantidadAmbientes} ");
                     }
                     if (precio != null)
                     {
-                        querys.Add(@$" i.Precio = {precio} ");
+                        querys.Add(@$" i.Precio <= {precio} ");
                     }
-                    // if (fechaDesde != null && fechaHasta != null)
-                    // {
-                    //     querys.Add(@$" i.FechaDesde BETWEEN '{fechaDesde}' AND '{fechaHasta}'");
-                    // }
+                    if (fechaDesde != null && fechaHasta != null)
+                    {
+                       
+                        querys.Add(@$"  (contract.idContrato IS NULL OR 
+                                        (contract.FechaFin < '{fechaDesde!.Value:yyyy-MM-dd}' OR 
+                                        contract.FechaInicio > '{fechaHasta.Value:yyyy-MM-dd}')) ");
+                    }
                     query += HelperFor.construirSqlWhereAnd(querys);
-                    query += @$"ORDER BY i.idInmueble
-                                LIMIT {tamPagina} OFFSET {(paginaNro - 1) * tamPagina};";
+                    query += @$" ORDER BY i.idInmueble
+                                LIMIT {tamPagina} OFFSET {(paginaNro - 1) * tamPagina}; ";
                     Console.WriteLine(query);
                     List<Inmueble> inmuebles = new();
                     using (MySqlCommand command = new MySqlCommand(query, connection))
