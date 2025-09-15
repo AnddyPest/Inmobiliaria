@@ -7,7 +7,9 @@
     var usoViewBag = ViewBag.uso ?? null;
     var tipoViewBag = ViewBag.tipo ?? null;
     var cantAmbientesViewBag = ViewBag.cantAmbientes ?? null;
-    var precioAproxViewBag = ViewBag.precioAprox ?? null;
+    var precioAproxViewBag = ViewBag.precio ?? null;
+    var fechaDesdeViewBag = ViewBag.fechaDesde ?? null;
+    var fechaHastaViewBag = ViewBag.fechaHasta ?? null;
 }
 @using Newtonsoft.Json
 <script>
@@ -87,18 +89,19 @@
                 
                 
                 <input class=" form-control w-25 ms-3" type="number" id="inputPrecioAproximado"
-                        maxlength="9" placeholder="Filtro por precio "
+                        maxlength="9" placeholder="Filtro por precio " value="@precioAproxViewBag"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
-                @* <input class=" form-control w-25 ms-3 " type="text" id="inputPrecioAproximado"
-                        maxlength="9" placeholder="Filtro por precio "
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
-                <input class=" form-control w-25 ms-3" type="text" id="inputPrecioAproximado"
-                        maxlength="9" placeholder="Filtro por precio "
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" /> *@
+                
+                <input class=" form-control w-25 ms-3 " type="date" id="inputInicioAlquiler"
+                         placeholder="Inicio alquiler " value="@fechaDesdeViewBag"
+                        oninput="" />
+                <input class=" form-control w-25 ms-3" type="date" id="inputFinAlquiler"
+                        placeholder="Fin alquiler " value="@fechaHastaViewBag"
+                        oninput="" /> 
             </div>
 
         </div>
-        
+        <button onclick="limpiarFiltrosv2()" class="btn btn-danger m-1">Limpiar</button>
         <button onclick="aplicarFiltrosv2()" class="btn btn-primary m-1">Enviar</button>
 
     </div>
@@ -156,7 +159,7 @@
                                     else
                                     {
                                         <input type="hidden" id="idInputDisponible" value="@inmueble.Disponible"/>
-                                        <i class="bi bi-house-check-fill text-success fs-4" title="Alquilado"></i>
+                                        <i class="bi bi-house-check-fill text-success fs-4" title="No disponible - Alquilado"></i>
                                         {
                                             var contratoVigente = Model.Contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
                                             if (contratoVigente != null)
@@ -416,6 +419,8 @@
             const selectTipo = document.getElementById('selectTipo').value;
             const inputCantAmbientes = document.getElementById('inputCantAmbientes').value;
             const inputPrecioAproximado = document.getElementById('inputPrecioAproximado').value;
+            const inputInicio = document.getElementById('inputInicioAlquiler').value;
+            const inputFin = document.getElementById('inputFinAlquiler').value;
             const params = new URLSearchParams();
             if(filtroDisponibilidad !== '') {
                 params.append('disponibilidad', filtroDisponibilidad);
@@ -432,56 +437,21 @@
             if(inputCantAmbientes !== '') {
                 params.append('cantAmbientes', inputCantAmbientes);
             }
-            if(inputPrecioAproximado !== '') {
-                params.append('precioAproximado', inputPrecioAproximado);
+            if(inputPrecioAproximado !== '' || inputPrecioAproximado.length != 0) {
+                params.append('precio', inputPrecioAproximado);
+            }
+            if(inputInicio !== '' || inputInicio.length != 0) {
+                params.append('fechaDesde', inputInicio);
+            }
+            if(inputFin !== '' || inputFin.length != 0) {
+                params.append('fechaHasta', inputFin);
             }
             console.log(params.toString());
             alert(params.toString());
             window.location.href = `/inmueble/listar?${params.toString()}`;
            
         }
-       /* function aplicarFiltros() {
-            console.log("Aplicando filtros combinados");
-
-            const filtroDisponibilidad = document.getElementById('selectDisponible').value;
-            const filtroDni = document.getElementById("inputDniFiltro").value;
-            const tableBody = document.getElementById('myTable').querySelector('tbody');
-            const filas = tableBody.querySelectorAll('tr');
-
-            filas.forEach(fila => {
-                const idInmueble = fila.querySelector('td:first-child').textContent;
-                const inputDisponible = fila.querySelector(`.input-disponible[data-id="${idInmueble}"]`);
-                const inputEstado = fila.querySelector(`.input-estado[data-id="${idInmueble}"]`);
-                const inputDni = fila.querySelector(`.inputHiddenDni[data-id="${idInmueble}"]`);
-
-                
-                const estaDisponible = inputDisponible ? inputDisponible.value === "true" : false;
-                const estaActivo = inputEstado ? inputEstado.value === "true" : false;
-                const dniPropietario = inputDni ? inputDni.value : "";
-                console.log("Disponible: " + estaDisponible);
-                console.log("Activo: " + estaActivo);
-                let cumpleDisponibilidad = true;
-                let cumpleDni = true;
-
-                // Filtro por disponibilidad (solo si hay selección)
-                if (filtroDisponibilidad === "true") {
-                    cumpleDisponibilidad = estaDisponible && estaActivo;
-                } else if (filtroDisponibilidad === "false") {
-                    
-                    cumpleDisponibilidad = ((!estaDisponible && estaActivo )|| (!estaDisponible && !estaActivo) || (estaDisponible && !estaActivo));
-                    
-
-                }
-
-                // Filtro por DNI (solo si hay valor)
-                if (filtroDni.length > 0) {
-                    cumpleDni = dniPropietario.includes(filtroDni);
-                }
-
-                // Mostrar fila solo si cumple ambos filtros
-                fila.style.display = (cumpleDisponibilidad && cumpleDni) ? '' : 'none';
-            });
-        }*/
+       
             function abrirNuevoContratoModal(id, direccion) {
                 var modal = new bootstrap.Modal(document.getElementById('nuevoContratoModal'));
                 document.getElementById('idInmueble').value = id;
@@ -517,18 +487,44 @@
                 sessionStorage.setItem('contador', valor);
                 console.log('Contador actualizado:', valor);
             }
+            function limpiarFiltrosv2() {
+                const todosLosCampos = document.querySelectorAll("input , select");
+                todosLosCampos.forEach( campo => {
+                    if(campo.tagName == "SELECT"){
+                        campo.selectedIndex = 0;
+                    }else{
+                        campo.value = "";
+                    }
+                })
+
+                actualizarContador(0);
+                aplicarFiltrosv2();
+            }
             // GESTION DEL DNI DEL INQUILINO - FUNCIONA BIEN
             document.addEventListener('DOMContentLoaded', function() {
                 const selectDisponibilidad = document.getElementById('selectDisponible');
+                const inputInicio = document.getElementById('inputInicioAlquiler');
+                const inputFin = document.getElementById('inputFinAlquiler');
                 
                 const dniInput = document.getElementById("dniInquilino");
                 if (!dniInput) return;
                 let inquilinoExiste = false;
                 let idInquilinoActual = null;
 
-                /*if (selectDisponibilidad) {
-                    selectDisponibilidad.addEventListener('change', aplicarFiltrosv2);
-                }*/
+                if(inputInicio && inputFin){
+                    inputInicio.addEventListener('change', function() {
+                        inputFin.min = this.value;
+                        if(inputFin.value == ""){
+                            inputFin.value = this.value;
+                        }
+                    });
+                    inputFin.addEventListener('change', function() {
+                        inputInicio.max = this.value;
+                        if(inputInicio.value == ""){
+                            inputInicio.value = this.value;
+                        }
+                    });
+                }
                 
                 dniInput.addEventListener("input", function() {
                     const original = this.value;

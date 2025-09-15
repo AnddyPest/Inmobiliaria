@@ -122,8 +122,12 @@ namespace project.Controllers
             ViewBag.tipo = tipoInmueble;
             ViewBag.cantAmbientes = cantAmbientes;
             ViewBag.precio = precio;
-            ViewBag.fechaDesde = fechaDesde;
-            ViewBag.fechaHasta = fechaHasta;
+            if (fechaDesde != null && fechaHasta != null)
+            {
+                ViewBag.fechaDesde = fechaDesde.Value.ToString("yyyy-MM-dd");
+                ViewBag.fechaHasta = fechaHasta.Value.ToString("yyyy-MM-dd");
+            }
+            
             return View("~/Views/Inmuebles/VistaLIstaInmuebles.cshtml", viewModel);
         }
         //BUSCAR INMUEBLE POR ID
