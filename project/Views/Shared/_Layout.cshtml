@@ -11,19 +11,32 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
     body {
-        /* background-color: #a89f91 !important; */
         padding: 1%;
+    }
+    .user-dropdown {
+        min-width: 200px;
+    }
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
     }
 </style>
 </head>
-<body  style="background: linear-gradient(135deg, #2c3e50 0%, #1a2530 100%);">
+<body style="background: linear-gradient(135deg, #2c3e50 0%, #1a2530 100%);">
 
     
     <div class=" d-flex min-vh-100 flex-column">
         <header>
             <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border border-white mb-3 rounded shadow" style="background: linear-gradient(135deg, #2c3e50 0%, #1a2530 100%);">
                 <div class="container-fluid">
-                    <a class="navbar-brand text-white fs-4 " style="border: solid; border-width:2px; padding:5px; border-radius:6px;s" asp-area="" asp-controller="Home" asp-action="Index">Inmobi-Tec</a>
+                    <a class="navbar-brand text-white fs-4 " style="border: solid; border-width:2px; padding:5px; border-radius:6px;" asp-area="" asp-controller="Home" asp-action="Index">Inmobi-Tec</a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                             aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
@@ -37,6 +50,44 @@
                                 <a class="nav-link text-white fw-bold" asp-area="" asp-controller="Home" asp-action="Privacy">Data Management</a>
                             </li>
                         </ul>
+                        
+                        <!-- Área de usuario/login -->
+                        <ul class="navbar-nav">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <!-- Usuario logueado -->
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="user-avatar me-2">@User.Identity.Name.Substring(0, 1).ToUpper()</span>
+                                        @User.Identity.Name
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end user-dropdown" aria-labelledby="navbarDropdown">
+                                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Configuración</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                                <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+                                <!-- Usuario no logueado -->
+                                <li class="nav-item">
+                                    <a class="nav-link text-white fw-bold" asp-controller="Account" asp-action="Login">
+                                        <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white fw-bold" asp-controller="Account" asp-action="Register">
+                                        <i class="bi bi-person-plus me-1"></i>Registrarse
+                                    </a>
+                                </li>
+                            }
+                        </ul>
                     </div>
                 </div>
             </nav>
@@ -49,7 +100,7 @@
 
         
     </div>
-    <footer class="border-top footer text-muted  ">
+    <footer class="border-top footer text-muted">
         <div class="container text-white fw-bold d-flex justify-content-center align-items-start" style="padding-top:7px">
             &copy; 2025 - Web-2 - Andrés Pestchanker - Máximo Quiroga - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
