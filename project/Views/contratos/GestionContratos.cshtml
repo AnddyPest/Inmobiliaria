@@ -1,3 +1,34 @@
+<!-- MODAL RENOVAR CONTRATO (Bootstrap) -->
+<div class="modal fade" id="modalRenovarFechaFin" tabindex="-1" aria-labelledby="modalRenovarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+    <form onsubmit="event.preventDefault(); confirmarRenovacionContrato();">
+    <div class="modal-header">
+          <h5 class="modal-title" id="modalRenovarLabel">Renovar Contrato</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+    </div>
+    <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nuevaFechaInicio" class="form-label">Nueva Fecha de Inicio</label>
+                        <input type="date" id="nuevaFechaInicio" class="form-control" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label for="nuevaFechaFin" class="form-label">Nueva Fecha de Fin</label>
+                        <input type="date" id="nuevaFechaFin" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="nuevoMonto" class="form-label">Monto</label>
+                        <input type="number" id="nuevoMonto" class="form-control" min="1" required />
+                    </div>
+    </div>
+    <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Confirmar Renovación</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    </div>
+    </form>
+    </div>
+    </div>
+</div>
 @model project.Models.ViewModels.ContratoViewModel
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9,6 +40,67 @@
     window.Model = {
         contratos: @Html.Raw(JsonConvert.SerializeObject(Model.contratos))
     };
+    let datosRenovacion = {};
+    function abrirModalRenovar(idContrato, idInquilino, idPropietario, idInmueble, monto, fechaFin) {
+        datosRenovacion = { idContrato, idInquilino, idPropietario, idInmueble, monto, fechaFin };
+        var modal = new bootstrap.Modal(document.getElementById('modalRenovarFechaFin'));
+        modal.show();
+        document.getElementById('nuevaFechaInicio').value = (() => {
+            const f = new Date(fechaFin);
+            f.setDate(f.getDate() + 1);
+            return f.toISOString().slice(0, 10);
+        })();
+        document.getElementById('nuevaFechaFin').value = '';
+        document.getElementById('nuevoMonto').value = monto;
+    }
+
+    async function confirmarRenovacionContrato() {
+    const nuevaFechaFin = document.getElementById('nuevaFechaFin').value;
+    const nuevaFechaInicio = document.getElementById('nuevaFechaInicio').value;
+    const nuevoMonto = document.getElementById('nuevoMonto').value;
+        console.log('[DEBUG] Fecha inicio:', nuevaFechaInicio, 'Fecha fin:', nuevaFechaFin);
+        if (!nuevaFechaFin) {
+            alert('Debe ingresar la nueva fecha de fin.');
+            console.log('[DEBUG] Fecha fin no ingresada, abortando.');
+            return;
+        }
+        if (!nuevoMonto || isNaN(nuevoMonto) || nuevoMonto <= 0) {
+            alert('Debe ingresar un monto válido.');
+            console.log('[DEBUG] Monto no válido, abortando.');
+            return;
+        }
+        try {
+            const dto = {
+                IdContrato: datosRenovacion.idContrato,
+                FechaInicio: nuevaFechaInicio,
+                FechaFin: nuevaFechaFin,
+                Monto: parseFloat(nuevoMonto)
+            };
+            console.log('[DEBUG] Enviando DTO a Endpoint de renovarContrato:', dto);
+            const response = await fetch('/Contrato/RenovarContrato', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dto)
+            });
+            console.log('[DEBUG] Response renovar contrato:', response);
+            if (response.ok) {
+                alert('Contrato renovado exitosamente.');
+                window.location.href = '/Contrato/listar?nroPagina=1';
+            } else {
+                const errorMsg = await response.text();
+                alert('Error al renovar el contrato: ' + errorMsg);
+                console.log('[DEBUG] Error al renovar el contrato:', errorMsg);
+            }
+        } catch (error) {
+            alert('Error de conexión al renovar el contrato.');
+            console.log('[DEBUG] Error de conexión:', error);
+        }
+        var modal = bootstrap.Modal.getInstance(document.getElementById('modalRenovarFechaFin'));
+        if (modal) modal.hide();
+    }
+    
 </script>
 
 <div>
@@ -107,11 +199,11 @@
             <tbody>
                 @if (Model != null && Model.contratos != null)
                 {
-                    foreach (var contrato in Model.contratos)
+                    foreach (Contrato contrato in Model.contratos)
                     {
-                        var inquilino = Model.inquilinos?.FirstOrDefault(i => i.IdInquilino == contrato.IdInquilino);
-                        var propietario = Model.propietarios?.FirstOrDefault(p => p.IdPropietario == contrato.IdPropietario);
-                        var inmueble = Model.inmueble?.FirstOrDefault(i => i.IdInmueble == contrato.IdInmueble);
+                        Inquilino? inquilino = Model.inquilinos?.FirstOrDefault(i => i.IdInquilino == contrato.IdInquilino);
+                        Propietario? propietario = Model.propietarios?.FirstOrDefault(p => p.IdPropietario == contrato.IdPropietario);
+                        Inmueble? inmueble = Model.inmueble?.FirstOrDefault(i => i.IdInmueble == contrato.IdInmueble);
                         <tr>
                             <td class="text-center">@contrato.IdContrato</td>
                             <td class="text-center">@inquilino?.Nombre @inquilino?.Apellido</td>
@@ -165,7 +257,7 @@
                                 }
                                 else if (contrato.estado && (contrato.FechaRescision == null && contrato.FechaFin.Date < DateTime.Now.Date))
                                 {
-                                    <a type="button" class="btn btn-primary p-1 m-1 w-25" href="@Url.Action("RenovarContrato", "Contrato", new { id = contrato.IdContrato })">
+                                    <a type="button" class="btn btn-primary p-1 m-1 w-25" onclick="abrirModalRenovar(@contrato.IdContrato, @contrato.IdInquilino, @contrato.IdPropietario, @contrato.IdInmueble, @contrato.Monto, '@contrato.FechaFin.ToString(format: "yyyy-MM-dd")')">
                                         <i class="bi bi-file-check"></i> <!-- Renovar Contrato -->
                                     </a>
                                 }

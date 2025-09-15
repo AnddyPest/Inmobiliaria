@@ -73,10 +73,7 @@ namespace project.Controllers
         [HttpPost("contrato/crear")]
         public async Task<IActionResult> AddContrato(Contrato model)
         {
-            Console.WriteLine($"[CONTRATO] IdInquilino recibido: {model.IdInquilino}");
-            Console.WriteLine($"[CONTRATO] IdPropietario recibido: {model.IdPropietario}");
-            Console.WriteLine($"[CONTRATO] IdInmueble recibido: {model.IdInmueble}");
-            Console.WriteLine($"[CONTRATO] Monto recibido: {model.Monto}");
+            
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             (string?, bool) contratoCreated = await _contratoService.CreateContrato(model);
@@ -146,6 +143,26 @@ namespace project.Controllers
                 return NotFound();
             }
             return Ok(contratosResult.Item2);
+        }
+        [HttpPost("contrato/renovarContrato")]
+        public async Task<IActionResult> RenovarContrato([FromBody] Contrato request)
+        {
+            if (request == null || !ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            (string?, bool) resultado = await _contratoService.RenovarContrato(
+                request.IdContrato,
+                request.FechaInicio,
+                request.FechaFin,
+                request.Monto
+            );
+
+            if (resultado.Item1 != null)
+                return BadRequest(resultado.Item1);
+            if (!resultado.Item2)
+                return BadRequest("No se pudo renovar el contrato.");
+
+            return Ok("Contrato renovado exitosamente.");
         }
 
         //VISTAS

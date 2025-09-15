@@ -15,5 +15,8 @@
         Task<(string?, List<Contrato>?)> GetContratosByIdPropietario(int idPropietario);
         Task<(string?, List<Contrato>?)> GetContratosVigentes();
         Task<(string?, List<Contrato>?)> GetContratosAPI();
+
+        Task<(string?, bool)> TerminarContrato(int idContrato);
+        Task<(string?, bool)> RenovarContrato(int idContrato, DateTime nuevaFechaInicio, DateTime nuevaFechaFin, decimal nuevoMonto);
     }
 }

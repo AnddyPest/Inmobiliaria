@@ -562,5 +562,77 @@ namespace project.Services
                 return (ex.Message, null);
             }
         }
+        public async Task<(string?, bool)> TerminarContrato(int idContrato) //testear
+        {
+            if (idContrato <= 0) return ("El id del contrato debe ser un número positivo.", false);
+            try
+            {
+                if ((await GetContratoById(idContrato)).Item2 == null)
+                    return ($"No se encontró un contrato con Id {idContrato}.", false);
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = "UPDATE Contrato SET estado = 0 WHERE IdContrato = @IdContrato";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@IdContrato", idContrato);
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        await connection.CloseAsync();
+                        if (rowsAffected == 0)
+                        {
+                            return ($"No se pudo terminar el contrato con Id {idContrato}.", false);
+                        }
+                        return (null, true);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(ContratoService), nameof(TerminarContrato));
+                return (ex.Message, false);
+
+            }
+        }
+        public async Task<(string?, bool)> RenovarContrato(int idContrato, DateTime nuevaFechaInicio, DateTime nuevaFechaFin, decimal nuevoMonto)
+        {
+            if (idContrato <= 0) return ("El id del contrato debe ser un número positivo.", false);
+            if (nuevaFechaFin <= nuevaFechaInicio) return ("La nueva fecha de fin debe ser posterior a la de inicio.", false);
+            if (nuevoMonto <= 0) return ("El nuevo monto debe ser un valor positivo.", false);
+            try
+            {
+                (string?, Contrato?) contratoExistente = await GetContratoById(idContrato);
+                if (contratoExistente.Item1 != null) return (contratoExistente.Item1, false);
+                if (contratoExistente.Item2 == null) return ($"No se encontró un contrato con Id {idContrato}.", false);
+                if (contratoExistente.Item2.estado == false) return ("No se puede renovar un contrato que está dado de baja.", false);
+
+                // Crear nuevo contrato con los mismos datos pero fechas y monto nuevos
+                Contrato nuevoContrato = new Contrato
+                // Lo mandamos con el DTO que se hizo en el FRONT, me da paja hacerlo en el back
+                {
+                    IdInquilino = contratoExistente.Item2.IdInquilino,
+                    IdPropietario = contratoExistente.Item2.IdPropietario,
+                    IdInmueble = contratoExistente.Item2.IdInmueble,
+                    Monto = nuevoMonto,
+                    FechaInicio = nuevaFechaInicio,
+                    FechaFin = nuevaFechaFin,
+                    estado = true
+                };
+                var creado = await CreateContrato(nuevoContrato);
+                if (creado.Item1 != null || !creado.Item2)
+                    return ($"No se pudo crear el nuevo contrato: {creado.Item1}", false);
+
+                // Dar de baja el contrato anterior
+                var baja = await TerminarContrato(idContrato);
+                if (baja.Item1 != null || !baja.Item2)
+                    return ($"El nuevo contrato fue creado, pero no se pudo dar de baja el anterior: {baja.Item1}", false);
+
+                return (null, true);
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(ContratoService), nameof(RenovarContrato));
+                return (ex.Message, false);
+            }
+        }
     }
 }
