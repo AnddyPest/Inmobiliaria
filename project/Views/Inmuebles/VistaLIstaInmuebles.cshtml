@@ -446,8 +446,7 @@
             if(inputFin !== '' || inputFin.length != 0) {
                 params.append('fechaHasta', inputFin);
             }
-            console.log(params.toString());
-            alert(params.toString());
+            
             window.location.href = `/inmueble/listar?${params.toString()}`;
            
         }
@@ -510,18 +509,25 @@
                 if (!dniInput) return;
                 let inquilinoExiste = false;
                 let idInquilinoActual = null;
-
+                inputInicio.min = new Date().toISOString().split('T')[0];
                 if(inputInicio && inputFin){
                     inputInicio.addEventListener('change', function() {
+                        
                         inputFin.min = this.value;
                         if(inputFin.value == ""){
                             inputFin.value = this.value;
+                        }
+                        if(inputFin.value < inputInicio.value){
+                            inputFin.value = inputInicio.value;
                         }
                     });
                     inputFin.addEventListener('change', function() {
                         inputInicio.max = this.value;
                         if(inputInicio.value == ""){
                             inputInicio.value = this.value;
+                        }
+                        if(inputInicio.value > inputFin.value){
+                            inputInicio.value = inputFin.value;
                         }
                     });
                 }
