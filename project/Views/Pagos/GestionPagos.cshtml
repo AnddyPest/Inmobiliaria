@@ -21,7 +21,8 @@
                         <th style="width: 12%;">Fecha Confección</th>
                         <th style="width: 12%;">Fecha de Pago</th>
                         <th style="width: 10%;">Importe</th>
-                        <th style="width: 39%;">Detalle</th>
+                        <th style="width: 34%;">Detalle</th>
+                        <th style="width: 5%;">Estado</th>
                         <th style="width: 5%;">Abonado</th>
                         <th style="width: 10%;">Acciones</th>
                     </tr>
@@ -38,7 +39,14 @@
                                 <td>$@pago.Importe.ToString("F2")</td>
                                 <td>@pago.Detalle</td>
                                 <td>
-                                    @if (pago.Abonado)
+                                    @if(pago.Estado){
+                                        <i class="badge bi-check-circle-fill fs-5 text-success" title="Activo"/>
+                                    }else{
+                                        <i class="badge bi-x-circle-fill fs-5 text-danger" title="Anulado" />
+                                    }
+                                </td>
+                                <td>
+                                    @if (pago.Abonado && pago.Estado)
                                     {
                                         <i class="badge bi-check-circle-fill fs-5 text-success" />
                                     }
@@ -48,19 +56,31 @@
                                     }
                                 </td>
                                 <td>
-                                    @if(!pago.Abonado)
-                                    {
-                                        <a class="btn btn-sm btn-primary me-1" title="Asentar Pago" href="@Url.Action("AsentarPago", "Pagos", new { idPago = pago.IdPago })">
-                                            <i class="bi-cash-coin"></i>
+
+                                    
+                                    @if(pago.Estado){
+                                        <button class="btn btn-sm btn-info me-1" title="Actualizar Pago" onclick="modalActualizarDetalle(@pago.IdPago, '@pago.Detalle', @Model.IdContrato)" >
+                                            <i class="bi-pencil-square"></i>
+                                        </button>
+                                        @if(!pago.Abonado)
+                                        {
+                                            <a class="btn btn-sm btn-primary me-1" title="Asentar Pago" href="@Url.Action("AsentarPago", "Pagos", new { idPago = pago.IdPago })">
+                                                <i class="bi-cash-coin"></i>
+                                            </a>
+                                        } else {
+                                            <a class="btn btn-sm btn-warning me-1" title="Anular Pago" href="@Url.Action("AnularPago", "Pagos", new { idPago = pago.IdPago })">
+                                                <i class="bi-arrow-counterclockwise fs-"></i>
+                                            </a>
+                                        }
+                                        <a class="btn btn-sm btn-danger" title="Eliminar Pago" href="@Url.Action("DarDeBaja", "Pagos", new { idPago = pago.IdPago , idContrato = Model.IdContrato})">
+                                            <i class="bi-trash"></i>
                                         </a>
-                                    } else {
-                                        <a class="btn btn-sm btn-warning me-1" title="Anular Pago" href="@Url.Action("AnularPago", "Pagos", new { idPago = pago.IdPago })">
-                                            <i class="bi-arrow-counterclockwise"></i>
+                                    }else{
+                                        <a class="btn btn-sm btn-primary" title="Dar alta Pago" href="@Url.Action("DarDeAlta", "Pagos", new { idPago = pago.IdPago , idContrato = Model.IdContrato})">
+                                            <i class="bi-check"></i>
                                         </a>
                                     }
-                                    <a class="btn btn-sm btn-danger" title="Eliminar Pago" onclick="return confirm('¿Está seguro que desea eliminar este pago?');">
-                                        <i class="bi-trash"></i>
-                                    </a>
+                                    
                                 </td>
                             </tr>
 
@@ -74,6 +94,31 @@
                     }
                 </tbody>
             </table>
+            <div class="modal fade" id="modalActualizarDetalle" tabindex="-1" aria-labelledby="modalRenovarLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content"> 
+                    
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalRenovarLabel">Renovar Contrato</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>   
+                        <div class="modal-body">
+                            <form action="@Url.Action("ActualizarDetalle","Pagos")" method="post">
+                                <input type="hidden" name="idPago" id="idPago"  />
+                                <input type="hidden" name="idContrato" id="idContrato"  />
+                                <div class="mb-3">
+                                    <label for="detalle" class="form-label">Detalle</label>
+                                    <input type="text" id="detalle" name="detalle" class="form-control" required />
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">Confirmar Renovación</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                </div>
+                            </form>
+                        </div> 
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col d-flex w-100 justify-content-between">
             <nav aria-label="Page navigation">
@@ -119,4 +164,12 @@
             </nav>
             <button class="btn btn-danger h-100" onclick="window.location.href='/contrato/listar'">Volver</button>
         </div>
-
+<script>
+    function modalActualizarDetalle(idPago, detalle, idContrato){
+        document.getElementById('idPago').value = idPago;
+        document.getElementById('detalle').value = detalle;
+        document.getElementById('idContrato').value = idContrato;
+        const modal = new bootstrap.Modal(document.getElementById('modalActualizarDetalle'));
+        modal.show();
+    }
+</script>

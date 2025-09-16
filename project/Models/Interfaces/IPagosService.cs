@@ -3,8 +3,10 @@ namespace project.Models.Interfaces
     public interface IPagosService
     {
         Task<(string?, bool)> CreatePago(Pago pago);
-        Task<(string?, bool)> UpdatePago(Pago pago);
+        Task<(string?, bool)> UpdatePago(int idPago, string detalle);
         Task<(string?, bool)> AsentarPago(Pago pago);
+        Task<(string?,bool)> darDeBajaLogicaPago(int idPago);
+        Task<(string?, bool)> darAltaLogicaPago(int idPago);
         Task<(string?, List<Pago>?)> GetAllPagos(int? nroPagina, int? registrosPorPagina);
         Task<(string?, List<Pago>?)> GetPagosByIdContrato(int? nroPagina, int? registrosPorPagina, int idContrato);
         Task<(string?, Pago?)> GetPagoById(int idPago);

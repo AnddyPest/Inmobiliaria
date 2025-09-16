@@ -120,6 +120,38 @@ namespace project.Controllers
                 new { idContrato = idContrato },
                 "Pago Anulado!!");
         }
-        
+        [HttpGet("DarDeBaja/{idPago}/{idContrato}")]
+        public async Task<IActionResult> DarDeBaja(int idPago, int idContrato)
+        {
+            (string? error, bool confirmacion) = await _pagosService.darDeBajaLogicaPago(idPago);
+            if (!confirmacion && error != null)
+            {
+                return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", idContrato, error);
+            }
+
+            return this.RedirectToActionWithSuccess("GetPagosByIdContrato", "Pagos", "Pago dado de baja exitosamente", new { idContrato = idContrato }, "Pago dado de baja!!");
+        }
+        [HttpGet("DarDeAlta/{idPago}/{idContrato}")]
+        public async Task<IActionResult> DarDeAlta(int idPago, int idContrato)
+        {
+            (string? error, bool confirmacion) = await _pagosService.darAltaLogicaPago(idPago);
+            if (!confirmacion && error != null)
+            {
+                return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", error, new { idContrato = idContrato });
+            }
+
+            return this.RedirectToActionWithSuccess("GetPagosByIdContrato", "Pagos", "Pago dado de alta exitosamente", new { idContrato = idContrato }, "Pago dado de alta!!");
+        }
+        [HttpPost("ActualizarDetalle")]
+        public async Task<IActionResult> ActualizarDetalle(int idPago, string detalle, int idContrato)
+        {
+            (string? error, bool confirmacion) = await _pagosService.UpdatePago(idPago, detalle);
+            if (!confirmacion && error != null)
+            {
+                return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", error, new { idContrato = idContrato });
+            }
+
+            return this.RedirectToActionWithSuccess("GetPagosByIdContrato", "Pagos", "Pago actualizado exitosamente", new { idContrato = idContrato }, "Pago actualizado!!");
+        }
     }
 }

@@ -145,11 +145,10 @@ namespace project.Controllers
             return Ok(contratosResult.Item2);
         }
         [HttpPost("contrato/renovarContrato")]
-        public async Task<IActionResult> RenovarContrato([FromBody] Contrato request)
+        public async Task<IActionResult> RenovarContrato( Contrato request)
         {
             if (request == null || !ModelState.IsValid)
-                return BadRequest(ModelState);
-
+                return this.RedirectToActionWithError("Error en el servicio de contratos", ModelState.GetErrorMessages());
             (string?, bool) resultado = await _contratoService.RenovarContrato(
                 request.IdContrato,
                 request.FechaInicio,
@@ -158,11 +157,12 @@ namespace project.Controllers
             );
 
             if (resultado.Item1 != null)
-                return BadRequest(resultado.Item1);
+                return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error en el servicio de contratos", "No se pudo renovar el contrato.");
             if (!resultado.Item2)
-                return BadRequest("No se pudo renovar el contrato.");
+                return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error al renovar el contrato", "No se pudo renovar el contrato.");
 
-            return Ok("Contrato renovado exitosamente.");
+            return this.RedirectToActionWithSuccess("GetAllContratos", "Contrato", "Contrato Renovado exitosamente", $"Contrato renovado. Periodo: {request.FechaInicio.ToString("dd/MM/yyyy")} - {request.FechaFin.ToString("dd/MM/yyyy") } - Monto: ${request.Monto}");
+
         }
 
         //VISTAS
