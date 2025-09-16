@@ -133,7 +133,7 @@ public class PagosService : IPagosService
                 int page = nroPagina ?? 1;
                 int pageSize = registrosPorPagina ?? 10;
                 int offset = (page - 1) * pageSize;
-                string query = "SELECT * FROM pagos WHERE idContrato = @idContrato AND estado = 1 ORDER BY fechaConfeccion DESC LIMIT @limit OFFSET @offset";
+                string query = "SELECT * FROM pagos WHERE idContrato = @idContrato  ORDER BY fechaConfeccion DESC LIMIT @limit OFFSET @offset";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@idContrato", idContrato);
@@ -313,5 +313,77 @@ public class PagosService : IPagosService
     public Task<(string?, bool)> CrearMulta(int idContrato, decimal importe, string detalle)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<(string?, bool)> darDeBajaLogicaPago(int idPago)
+    {
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                string query = @"UPDATE pagos 
+                                 SET estado = 0 
+                                 WHERE idPago = @idPago";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@idPago", idPago);
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    if (rowsAffected > 0)
+                    {
+                        await connection.CloseAsync();
+                        return (null, true);
+                    }
+                    else
+                    {
+                        await connection.CloseAsync();
+                        return ("No se encontró el pago para actualizar.", false);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(PagosService), nameof(darDeBajaLogicaPago));
+            return (ex.Message, false);
+            
+        }
+    }
+
+    public async Task<(string?, bool)> darAltaLogicaPago(int idPago)
+    {
+        {
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                string query = @"UPDATE pagos 
+                                 SET estado = 1
+                                 WHERE idPago = @idPago";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@idPago", idPago);
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    if (rowsAffected > 0)
+                    {
+                        await connection.CloseAsync();
+                        return (null, true);
+                    }
+                    else
+                    {
+                        await connection.CloseAsync();
+                        return ("No se encontró el pago para actualizar.", false);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(PagosService), nameof(darDeBajaLogicaPago));
+            return (ex.Message, false);
+            
+        }
+    }
     }
 }

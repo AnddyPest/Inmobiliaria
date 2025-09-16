@@ -120,6 +120,27 @@ namespace project.Controllers
                 new { idContrato = idContrato },
                 "Pago Anulado!!");
         }
-        
+        [HttpGet("DarDeBaja/{idPago}/{idContrato}")]
+        public async Task<IActionResult> DarDeBaja(int idPago, int idContrato)
+        {
+            (string? error, bool confirmacion) = await _pagosService.darDeBajaLogicaPago(idPago);
+            if (!confirmacion && error != null)
+            {
+                return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", idContrato, error);
+            }
+
+            return this.RedirectToActionWithSuccess("GetPagosByIdContrato", "Pagos", "Pago dado de baja exitosamente", new { idContrato = idContrato }, "Pago dado de baja!!");
+        }
+        [HttpGet("DarDeAlta/{idPago}/{idContrato}")]
+        public async Task<IActionResult> DarDeAlta(int idPago, int idContrato)
+        {
+            (string? error, bool confirmacion) = await _pagosService.darAltaLogicaPago(idPago);
+            if (!confirmacion && error != null)
+            {
+                return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", idContrato, error);
+            }
+
+            return this.RedirectToActionWithSuccess("GetPagosByIdContrato", "Pagos", "Pago dado de alta exitosamente", new { idContrato = idContrato }, "Pago dado de alta!!");
+        }
     }
 }

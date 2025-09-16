@@ -21,7 +21,8 @@
                         <th style="width: 12%;">Fecha Confección</th>
                         <th style="width: 12%;">Fecha de Pago</th>
                         <th style="width: 10%;">Importe</th>
-                        <th style="width: 39%;">Detalle</th>
+                        <th style="width: 34%;">Detalle</th>
+                        <th style="width: 5%;">Estado</th>
                         <th style="width: 5%;">Abonado</th>
                         <th style="width: 10%;">Acciones</th>
                     </tr>
@@ -38,7 +39,14 @@
                                 <td>$@pago.Importe.ToString("F2")</td>
                                 <td>@pago.Detalle</td>
                                 <td>
-                                    @if (pago.Abonado)
+                                    @if(pago.Estado){
+                                        <i class="badge bi-check-circle-fill fs-5 text-success" title="Activo"/>
+                                    }else{
+                                        <i class="badge bi-x-circle-fill fs-5 text-danger" title="Anulado" />
+                                    }
+                                </td>
+                                <td>
+                                    @if (pago.Abonado && pago.Estado)
                                     {
                                         <i class="badge bi-check-circle-fill fs-5 text-success" />
                                     }
@@ -48,19 +56,28 @@
                                     }
                                 </td>
                                 <td>
-                                    @if(!pago.Abonado)
-                                    {
-                                        <a class="btn btn-sm btn-primary me-1" title="Asentar Pago" href="@Url.Action("AsentarPago", "Pagos", new { idPago = pago.IdPago })">
-                                            <i class="bi-cash-coin"></i>
+
+                                    
+                                    @if(pago.Estado){
+                                        @if(!pago.Abonado)
+                                        {
+                                            <a class="btn btn-sm btn-primary me-1" title="Asentar Pago" href="@Url.Action("AsentarPago", "Pagos", new { idPago = pago.IdPago })">
+                                                <i class="bi-cash-coin"></i>
+                                            </a>
+                                        } else {
+                                            <a class="btn btn-sm btn-warning me-1" title="Anular Pago" href="@Url.Action("AnularPago", "Pagos", new { idPago = pago.IdPago })">
+                                                <i class="bi-arrow-counterclockwise fs-"></i>
+                                            </a>
+                                        }
+                                        <a class="btn btn-sm btn-danger" title="Eliminar Pago" href="@Url.Action("DarDeBaja", "Pagos", new { idPago = pago.IdPago , idContrato = Model.IdContrato})">
+                                            <i class="bi-trash"></i>
                                         </a>
-                                    } else {
-                                        <a class="btn btn-sm btn-warning me-1" title="Anular Pago" href="@Url.Action("AnularPago", "Pagos", new { idPago = pago.IdPago })">
-                                            <i class="bi-arrow-counterclockwise"></i>
+                                    }else{
+                                        <a class="btn btn-sm btn-primary" title="Dar alta Pago" href="@Url.Action("DarDeAlta", "Pagos", new { idPago = pago.IdPago , idContrato = Model.IdContrato})">
+                                            <i class="bi-check"></i>
                                         </a>
                                     }
-                                    <a class="btn btn-sm btn-danger" title="Eliminar Pago" onclick="return confirm('¿Está seguro que desea eliminar este pago?');">
-                                        <i class="bi-trash"></i>
-                                    </a>
+                                    
                                 </td>
                             </tr>
 
