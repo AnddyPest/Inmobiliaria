@@ -164,6 +164,17 @@ namespace project.Controllers
             return this.RedirectToActionWithSuccess("GetAllContratos", "Contrato", "Contrato Renovado exitosamente", $"Contrato renovado. Periodo: {request.FechaInicio.ToString("dd/MM/yyyy")} - {request.FechaFin.ToString("dd/MM/yyyy") } - Monto: ${request.Monto}");
 
         }
+        [HttpGet("contrato/noRenovar/{idContrato}")]
+        public async Task<IActionResult> TerminarContrato(int idContrato)
+        {
+            (string?, bool) resultado = await _contratoService.TerminarContrato(idContrato);
+            if (resultado.Item1 != null)
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Contrato no renovado, pero no se pudo marcar el inmueble como disponible: " + resultado.Item1, "Error al no renovar el contrato");
+            if (!resultado.Item2)
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
+
+            return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble","El contrato no será renovado","Inmueble disponible!!");
+        }
 
         //VISTAS
         [HttpGet("contrato")]

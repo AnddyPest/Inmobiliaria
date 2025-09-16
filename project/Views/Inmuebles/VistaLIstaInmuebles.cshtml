@@ -144,21 +144,29 @@
                                 }
                                 else
                                 {
-                                    @if (inmueble.Disponible)
+                                    @if (inmueble.contrato?.FechaInicio <= DateTime.Now && inmueble.contrato.FechaFin >= DateTime.Now && inmueble.contrato.estado == true)
                                     {
-                                        <i class="bi bi-house text-secondary fs-4" title="Disponible - No alquilado"></i>
-                                    }
-                                    else
-                                    {
-                                        <input type="hidden" id="idInputDisponible" value="@inmueble.Disponible"/>
+                                        
                                         <i class="bi bi-house-check-fill text-success fs-4" title="No disponible - Alquilado"></i>
                                         {
-                                            if (inmueble.contrato != null)
-                                            {
+                                            
                                                 <span class="badge bg-primary ms-1">Inicio: @inmueble.contrato?.FechaInicio.ToString("dd/MM/yyyy")</span>
                                                 <span class="badge bg-danger ms-1">Fin: @inmueble.contrato?.FechaFin.ToString("dd/MM/yyyy")</span>
-                                            }
+                                            
                                         }
+                                    }
+                                    else if (inmueble.contrato?.estado == true && inmueble.contrato.FechaFin < DateTime.Now)
+                                    {
+                                        <i class="bi bi-house text-warning fs-4" title="No disponible - Contrato Vencido"></i>
+                                        {
+                                                
+                                                <span class="badge bg-secondary ms-1">Vencido</span>
+                                                <span class="badge bg-warning ms-1">Fin: @inmueble.contrato?.FechaFin.ToString("dd/MM/yyyy")</span>
+                                        }
+                                    }
+                                    else if (inmueble.contrato == null || inmueble.contrato.estado == false || inmueble.contrato.FechaFin < DateTime.Now)
+                                    {
+                                        <i class="bi bi-house text-secondary fs-4" title="Disponible - No alquilado"></i>
                                     }
                                 }
 
@@ -180,11 +188,21 @@
                                 </a>
                                 @if (inmueble.Estado)
                                 {
-                                    @if (inmueble.Disponible)
+                                    @if (inmueble.contrato == null || inmueble.contrato.estado == false || inmueble.contrato.FechaFin < DateTime.Now)
                                     {
+                                        @if (inmueble.contrato == null || !inmueble.contrato.estado)
+                                        {
                                         <button type="button" class="btn btn-info p-1 m-1 w-25" onclick="abrirNuevoContratoModal('@inmueble.IdInmueble', '@inmueble.Direccion')">
                                             <i class="bi bi-door-closed-fill"></i>
                                         </button>
+                                        }
+                                        else
+                                        {
+                                           <button type="button" class="btn btn-outline-warning p-1 m-1 w-25" onclick="noRenovarContrato('@inmueble.contrato.IdContrato')" title="El inmueble tiene un contrato vencido. Finalice el contrato para crear uno nuevo.">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                        </button> 
+                                        }
+
                                     }
                                     else
                                     {
@@ -198,7 +216,7 @@
                                     }
                                 }
                                 <!-- Botón para dar de baja o alta lógica -->
-                                @if (inmueble.Disponible && inmueble.Estado || (!inmueble.Disponible && !inmueble.Estado))
+                                @if (inmueble.contrato == null  || inmueble.contrato.estado == false)
                                 {
                                     @if (inmueble.Estado)
                                     {
@@ -213,7 +231,7 @@
                                         </a>
                                     }
                                 }
-                                @if (!inmueble.Disponible && inmueble.Estado)
+                                @if (inmueble.contrato?.estado == true && inmueble.Estado && inmueble.contrato.FechaInicio <= DateTime.Now)
                                 {
                                     @* var contratoVigente = Model.Contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
                                     var inquilino = Model.inquilinos?.FirstOrDefault(i => i.IdInquilino == contratoVigente?.IdInquilino);
@@ -785,6 +803,26 @@
                     if (result.isConfirmed) {
                         
                         window.location.href = `/contrato/dardebaja/${idContrato}`;
+                    }
+                });
+
+                
+                return false;
+            }
+            async function noRenovarContrato(idContrato) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Estas a punto de NO renovar un contrato.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, no renovar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        
+                        window.location.href = `/contrato/noRenovar/${idContrato}`;
                     }
                 });
 

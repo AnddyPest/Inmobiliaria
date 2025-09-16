@@ -74,7 +74,7 @@ namespace project.Controllers
         {
             InmuebleViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
-            const int registrosPorPagina = 2;
+            const int registrosPorPagina = 4;
             (string?, List<Inmueble>?, int? cantidadTotalRegistros) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario, uso, tipo, cantAmbientes, precio, fechaDesde, fechaHasta);
             if (inmuebles.Item1 != null && inmuebles.Item1 != "No se encontraron inmuebles")
             {
