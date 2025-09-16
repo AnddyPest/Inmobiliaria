@@ -70,56 +70,52 @@ namespace project.Controllers
 
 
         [HttpGet("inmueble/listar")]
-        public async Task<IActionResult> GetAllInmuebles( int nroPagina = 1, bool? disponibilidad = null ,int? dniPropietario = null,string? uso = null, string? tipoInmueble = null, int? cantAmbientes = null, int? precio = null,DateOnly? fechaDesde = null, DateOnly? fechaHasta = null)
+        public async Task<IActionResult> GetAllInmuebles( int nroPagina = 1, bool? disponibilidad = null ,int? dniPropietario = null,string? uso = null, string? tipo = null, int? cantAmbientes = null, int? precio = null,DateOnly? fechaDesde = null, DateOnly? fechaHasta = null)
         {
             InmuebleViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
-            const int registrosPorPagina = 5;
-            (string?, List<Inmueble>?, int? cantidadTotalRegistros) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario, uso, tipoInmueble, cantAmbientes, precio, fechaDesde, fechaHasta);
+            const int registrosPorPagina = 2;
+            (string?, List<Inmueble>?, int? cantidadTotalRegistros) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario, uso, tipo, cantAmbientes, precio, fechaDesde, fechaHasta);
             if (inmuebles.Item1 != null && inmuebles.Item1 != "No se encontraron inmuebles")
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
                 return this.RedirectToActionWithError(nameof(Index), inmuebles.Item1);
             }
-            // (string?, int?) cantidadRegistros = await _inmuebleService.obtenerCantidadDeRegistros();
-            // if (cantidadRegistros.Item1 != null)
-            // {
-            //     HelperFor.imprimirMensajeDeError(cantidadRegistros.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
-            //     return this.RedirectToActionWithError(nameof(Index), cantidadRegistros.Item1);
-            // }
+         
             (string?, List<Tipo_Inmueble>?) tiposDeInmuebleFromService = await _tipoInmuebleService.getAllTipoInmueble();
             if (tiposDeInmuebleFromService.Item1 != null)
                 return this.RedirectToActionWithError(nameof(Index),"Error del servicio que obtiene los tipos de Inmueble", "Internal Server Error");
+           
             viewModel.cantidadTotalDePaginas = inmuebles.cantidadTotalRegistros % registrosPorPagina == 0 ? inmuebles.cantidadTotalRegistros / registrosPorPagina : inmuebles.cantidadTotalRegistros / registrosPorPagina + 1;
             viewModel.inmueble = inmuebles.Item2;
             viewModel.tipo_Inmueble = tiposDeInmuebleFromService.Item2;
             // Obtener todos los contratos y asignar al ViewModel
-            (string?, List<Contrato>?) contratosResult = await _contratoService.GetContratosAPI();
-            if (contratosResult.Item1 != null)
-            {
-                HelperFor.imprimirMensajeDeError(contratosResult.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
-                viewModel.Contratos = new List<Contrato>();
-            }
-            else
-            {
-                viewModel.Contratos = contratosResult.Item2;
-            }
+            // (string?, List<Contrato>?) contratosResult = await _contratoService.GetContratosAPI();
+            // if (contratosResult.Item1 != null)
+            // {
+            //     HelperFor.imprimirMensajeDeError(contratosResult.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
+            //     viewModel.Contratos = new List<Contrato>();
+            // }
+            // else
+            // {
+            //     viewModel.Contratos = contratosResult.Item2;
+            // }
 
             // Poblar la lista de inquilinos en el ViewModel
-            (string?, List<Inquilino>) inquilinosResult = await _inquilinoService.GetAllInquilinos();
-            if (inquilinosResult.Item1 != null)
-            {
-                HelperFor.imprimirMensajeDeError(inquilinosResult.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
-                viewModel.inquilinos = new List<Inquilino>();
-            }
-            else
-            {
-                viewModel.inquilinos = inquilinosResult.Item2;
-            }
+            // (string?, List<Inquilino>) inquilinosResult = await _inquilinoService.GetAllInquilinos();
+            // if (inquilinosResult.Item1 != null)
+            // {
+            //     HelperFor.imprimirMensajeDeError(inquilinosResult.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
+            //     viewModel.inquilinos = new List<Inquilino>();
+            // }
+            // else
+            // {
+            //     viewModel.inquilinos = inquilinosResult.Item2;
+            // }
             ViewBag.dniPropietario = dniPropietario;
             ViewBag.disponibilidad = disponibilidad;
             ViewBag.uso = uso;
-            ViewBag.tipo = tipoInmueble;
+            ViewBag.tipo = tipo;
             ViewBag.cantAmbientes = cantAmbientes;
             ViewBag.precio = precio;
             if (fechaDesde != null && fechaHasta != null)

@@ -5,7 +5,7 @@
     var Disponibilidad = ViewBag.disponibilidad ?? null;
     var DniPropietarioViewBag = ViewBag.dniPropietario ?? null;
     var usoViewBag = ViewBag.uso ?? null;
-    var tipoViewBag = ViewBag.tipo ?? null;
+    string? tipoViewBag = (String?)ViewBag.tipo ?? null;
     var cantAmbientesViewBag = ViewBag.cantAmbientes ?? null;
     var precioAproxViewBag = ViewBag.precio ?? null;
     var fechaDesdeViewBag = ViewBag.fechaDesde ?? null;
@@ -36,15 +36,7 @@
                         <option value="@disponibilidad.Item1">@disponibilidad.Item2</option>}
                     }
                 }
-                @* @if(Disponibilidad != null){
-                    <option value="@Disponibilidad" selected>@Disponibilidad</option>
-                }else{
-                    <option value="" selected>Todas las disponibilidades</option>
-                }
-                <option value="" >Todas las disponibilidades</option>
-                <option value="true">Disponible</option>
-                <option value="false">No Disponible</option> *@
-                </select>
+               
                 @if(DniPropietarioViewBag != null){
                     <input class="form-control w-25" type="text" id="inputDniFiltro"
                         maxlength="8" placeholder="Filtro por dni"
@@ -71,7 +63,7 @@
                     <option value="">Todos los tipos</option>
                     @if(Model.tipo_Inmueble != null){
                         @foreach(Tipo_Inmueble tipo in Model.tipo_Inmueble){
-                            @if(tipo.nombre == tipoViewBag){
+                            @if(tipo.nombre.Trim() == tipoViewBag?.Trim()){
                                 <option value="@tipo.nombre.Trim()" selected>@tipo.nombre</option>
                             }else{
                                 <option value="@tipo.nombre.Trim()">@tipo.nombre</option>
@@ -161,11 +153,10 @@
                                         <input type="hidden" id="idInputDisponible" value="@inmueble.Disponible"/>
                                         <i class="bi bi-house-check-fill text-success fs-4" title="No disponible - Alquilado"></i>
                                         {
-                                            var contratoVigente = Model.Contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
-                                            if (contratoVigente != null)
+                                            if (inmueble.contrato != null)
                                             {
-                                                <span class="badge bg-primary ms-1">Inicio: @contratoVigente.FechaInicio.ToString("dd/MM/yyyy")</span>
-                                                <span class="badge bg-danger ms-1">Fin: @contratoVigente.FechaFin.ToString("dd/MM/yyyy")</span>
+                                                <span class="badge bg-primary ms-1">Inicio: @inmueble.contrato?.FechaInicio.ToString("dd/MM/yyyy")</span>
+                                                <span class="badge bg-danger ms-1">Fin: @inmueble.contrato?.FechaFin.ToString("dd/MM/yyyy")</span>
                                             }
                                         }
                                     }
@@ -224,20 +215,20 @@
                                 }
                                 @if (!inmueble.Disponible && inmueble.Estado)
                                 {
-                                    var contratoVigente = Model.Contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
+                                    @* var contratoVigente = Model.Contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
                                     var inquilino = Model.inquilinos?.FirstOrDefault(i => i.IdInquilino == contratoVigente?.IdInquilino);
-                                    var propietario = Model.propietarios?.FirstOrDefault(p => p.IdPropietario == contratoVigente?.IdPropietario);
-                                    if (contratoVigente != null)
+                                    var propietario = Model.propietarios?.FirstOrDefault(p => p.IdPropietario == contratoVigente?.IdPropietario); *@
+                                    if (inmueble.contrato != null)
                                     {
-                                        <button type="button" class="btn btn-outline-info p-1 m-1 w-25" data-bs-toggle="modal" data-bs-target="#modalContrato_@contratoVigente.IdContrato">
+                                        <button type="button" class="btn btn-outline-info p-1 m-1 w-25" data-bs-toggle="modal" data-bs-target="#modalContrato_@inmueble.contrato.IdContrato">
                                             <i class="bi bi-eye-fill"></i>
                                         </button>
                                         <!-- Modal para ver contrato MUESTRA TODOS LOS DATOS Q NO APARECEN EN LA TABLA-->
-                                        <div class="modal fade" id="modalContrato_@contratoVigente.IdContrato" tabindex="-1" aria-labelledby="modalContratoLabel_@contratoVigente.IdContrato" aria-hidden="true">
+                                        <div class="modal fade" id="modalContrato_@inmueble.contrato.IdContrato" tabindex="-1" aria-labelledby="modalContratoLabel_@inmueble.contrato.IdContrato" aria-hidden="true">
                                             <div class="modal-dialog modal-lg">
                                                 <div class="modal-content border-primary shadow-lg">
                                                     <div class="modal-header bg-primary text-white">
-                                                        <h5 class="modal-title" id="modalContratoLabel_@contratoVigente.IdContrato">
+                                                        <h5 class="modal-title" id="modalContratoLabel_@inmueble.contrato.IdContrato">
                                                             <i class="bi bi-file-earmark-text me-2"></i>Datos del Contrato
                                                         </h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -248,18 +239,18 @@
                                                                 <div class="card border-success mb-3 w-50 overflow-auto">
                                                                     <div class="card-header bg-success text-white">Inquilino</div>
                                                                     <div class="card-body">
-                                                                        <h6 class="card-title text-dark">@inquilino?.Nombre @inquilino?.Apellido</h6>
-                                                                        <p class="card-text mb-0 text-dark"><strong>ID:</strong> @contratoVigente.IdInquilino</p>
+                                                                        <h6 class="card-title text-dark">@inmueble.contrato.Inquilino?.Nombre @inmueble.contrato.Inquilino?.Apellido</h6>
+                                                                        <p class="card-text mb-0 text-dark"><strong>ID:</strong> @inmueble.contrato.IdInquilino</p>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <ul class="list-group mb-3">
-                                                            <li class="list-group-item"><strong>ID Contrato:</strong> @contratoVigente.IdContrato</li>
-                                                            <li class="list-group-item"><strong>Fecha Inicio:</strong> @contratoVigente.FechaInicio.ToString("dd/MM/yyyy")</li>
-                                                            <li class="list-group-item"><strong>Fecha Fin:</strong> @contratoVigente.FechaFin.ToString("dd/MM/yyyy")</li>
-                                                            <li class="list-group-item"><strong>Monto:</strong> $@contratoVigente.Monto</li>
-                                                            <li class="list-group-item"><strong>Estado:</strong> @(contratoVigente.estado ? "Vigente" : "No vigente")</li>
+                                                            <li class="list-group-item"><strong>ID Contrato:</strong> @inmueble.contrato.IdContrato</li>
+                                                            <li class="list-group-item"><strong>Fecha Inicio:</strong> @inmueble.contrato.FechaInicio.ToString("dd/MM/yyyy")</li>
+                                                            <li class="list-group-item"><strong>Fecha Fin:</strong> @inmueble.contrato.FechaFin.ToString("dd/MM/yyyy")</li>
+                                                            <li class="list-group-item"><strong>Monto:</strong> $@inmueble.contrato.Monto</li>
+                                                            <li class="list-group-item"><strong>Estado:</strong> @(inmueble.contrato.estado ? "Vigente" : "No vigente")</li>
                                                         </ul>
                                                     </div>
                                                     <div class="modal-footer bg-primary">
@@ -287,7 +278,7 @@
                     @if (Pagina > 1)
                     {
                         <li class="page-item">
-                            <a class="page-link" id="btnAnterior" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina - 1 , disponibilidad = Disponibilidad, dniPropietario = DniPropietarioViewBag, uso = usoViewBag, tipo = tipoViewBag, cantAmbientes = cantAmbientesViewBag, precioAprox = precioAproxViewBag })" aria-label="Anterior">
+                            <a class="page-link" id="btnAnterior" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina - 1 , disponibilidad = Disponibilidad, dniPropietario = DniPropietarioViewBag, uso = usoViewBag, tipo = tipoViewBag, cantAmbientes = cantAmbientesViewBag, precio = precioAproxViewBag , fechaDesde = fechaDesdeViewBag, fechaHasta = fechaHastaViewBag})" aria-label="Anterior">
                                 <i class="bi bi-chevron-double-left"></i>
                             </a>
                         </li>
@@ -301,13 +292,13 @@
                     @for(int i = 1; i <= Model!.cantidadTotalDePaginas; i++)
                     {
                         <li class="page-item @(i == Pagina ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = @i , disponibilidad = Disponibilidad, dniPropietario = DniPropietarioViewBag , uso = usoViewBag, tipo = tipoViewBag, cantAmbientes = cantAmbientesViewBag, precioAprox = precioAproxViewBag})">@i</a>
+                            <a class="page-link" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = @i , disponibilidad = Disponibilidad, dniPropietario = DniPropietarioViewBag , uso = usoViewBag, tipo = tipoViewBag, cantAmbientes = cantAmbientesViewBag, precio= precioAproxViewBag , fechaDesde = fechaDesdeViewBag, fechaHasta = fechaHastaViewBag})">@i</a>
                         </li>
                     }
                     @if (Pagina < Model.cantidadTotalDePaginas)
                     {
                         <li class="page-item">
-                            <a class="page-link" id="btnSiguiente" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina + 1 , disponibilidad = Disponibilidad, dniPropietario = DniPropietarioViewBag, uso = usoViewBag, tipo = tipoViewBag, cantAmbientes = cantAmbientesViewBag, precioAprox = precioAproxViewBag})" aria-label="Siguiente">
+                            <a class="page-link" id="btnSiguiente" href="@Url.Action("GetAllInmuebles", "Inmueble", new { nroPagina = Pagina + 1 , disponibilidad = Disponibilidad, dniPropietario = DniPropietarioViewBag, uso = usoViewBag, tipo = tipoViewBag, cantAmbientes = cantAmbientesViewBag, precio = precioAproxViewBag , fechaDesde = fechaDesdeViewBag, fechaHasta = fechaHastaViewBag})" aria-label="Siguiente">
                                 <i class="bi bi-chevron-double-right"></i>
                             </a>
                         </li>
@@ -432,7 +423,7 @@
                 params.append('uso', filtroUso);
             }
             if(selectTipo !== '') {
-                params.append('tipoInmueble', selectTipo);
+                params.append('tipo', selectTipo);
             }
             if(inputCantAmbientes !== '') {
                 params.append('cantAmbientes', inputCantAmbientes);

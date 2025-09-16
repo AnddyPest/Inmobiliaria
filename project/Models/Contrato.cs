@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Humanizer;
 
 namespace project.Models
 {
@@ -13,7 +14,7 @@ namespace project.Models
         [Required(ErrorMessage ="Se requiere idInquilino")]
         [ForeignKey("Inquilino")]
         public int IdInquilino { get; set; } = idInquilino;
-        
+        public Inquilino? Inquilino { get; set; } = null;
         [Required(ErrorMessage ="Se requiere idPropietario")]
         [ForeignKey("propietario")]
 
@@ -23,7 +24,7 @@ namespace project.Models
         [Required(ErrorMessage = "Se requiere idInmueble")]
         [ForeignKey("Inmueble")]
         public int IdInmueble { get; set; } = idInmueble;
-        
+        public Inmueble? inmueble { get; set; }
 
         [Required(ErrorMessage = "El monto es requerido")]
         [Range(0, double.MaxValue, ErrorMessage = "El monto debe ser un valor positivo")]

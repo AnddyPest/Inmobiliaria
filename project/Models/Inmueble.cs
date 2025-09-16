@@ -39,6 +39,7 @@ namespace project.Models
         [ForeignKey("Propietario")]
         public int IdPropietario { get; set; } = idPropietario;
         public Propietario? Propietario { get; set; }
+        public Contrato? contrato { get; set; }
 
         [Required(ErrorMessage = "La disponibilidad es requerida")]
         public bool Disponible { get; set; } = true;

@@ -378,13 +378,26 @@ namespace project.Services
                                     perso.Email as PropietarioEmail,
                                     perso.Estado as PropietarioEstado,
                                     tipoI.id_tipo_inmueble as TipoInmuebleId,
-                                    tipoI.nombre as TipoInmuebleNombre
+                                    tipoI.nombre as TipoInmuebleNombre,
+                                    contract.*,
+                                    inquil.idInquilino as InquilinoId,
+                                    inquil.idPersona as InquilinoIDPersona,
+                                    inquil.estado as EstadoInquilino,
+                                    pe.Nombre as InquilinoNombre,
+                                    pe.Apellido as InquilinoApellido,
+                                    pe.Dni as InquilinoDni,
+                                    pe.Telefono as InquilinoTelefono,
+                                    pe.Direccion as InquilinoDireccion,
+                                    pe.Email as InquilinoEmail,
+                                    pe.Estado as InquilinoEstado
                                     FROM inmueble as i
                                     INNER JOIN propietario p ON p.idPropietario = i.idPropietario
                                     INNER JOIN persona perso ON perso.idPersona = p.idPersona
                                     INNER JOIN tipo_inmueble as tipoI ON i.id_tipo_inmueble = tipoI.id_tipo_inmueble
-                                    LEFT JOIN contrato as contract ON contract.idInmueble = i.idInmueble AND contract.Estado = 1 AND fechaFin >= CURDATE() AND fechaConfeccion <= CURDATE() 
-                                    WHERE i.estado = 1
+                                    LEFT JOIN contrato as contract ON contract.idInmueble = i.idInmueble AND contract.Estado = 1  
+                                    LEFT JOIN inquilino as inquil ON inquil.idInquilino = contract.idInquilino
+                                    left join persona as pe on inquil.idPersona = pe.idPersona
+                                    
                                     ";
                     List<string> querys = new ();
                     if (disponibilidad != null ) //Hay que encontrar una manera de simplificar esto y mejorar porq con muchos filtros va a ser un caos
@@ -433,6 +446,9 @@ namespace project.Services
                                 Inmueble inmueble = new Inmueble();
                                 Tipo_Inmueble tipo_Inmueble = new Tipo_Inmueble();
                                 Propietario propietario = new();
+                                Contrato? contrato = null;
+                                Inquilino? inquilino = null;
+
                                 inmueble.IdInmueble = reader.GetInt32("idInmueble");
                                 inmueble.Uso = reader.GetString("Uso");
                                 inmueble.Superficie = reader.GetInt32("Superficie");
@@ -458,14 +474,45 @@ namespace project.Services
                                 propietario.IdPersona = reader.GetInt32("IDPersona");
                                 inmueble.Propietario = propietario;
 
+                                if (reader["idContrato"] != DBNull.Value)
+                                {
+                                    contrato = new();
+                                    contrato.IdContrato = reader.GetInt32("idContrato");
+                                    contrato.IdInmueble = reader.GetInt32("idInmueble");
+                                    contrato.IdInquilino = reader.GetInt32("idInquilino");
+                                    contrato.Monto = reader.GetDecimal("Monto");
+                                    contrato.FechaInicio = reader.GetDateTime("FechaInicio");
+                                    contrato.FechaFin = reader.GetDateTime("FechaFin");
+                                    contrato.estado = reader.GetBoolean("estado");
+                                    contrato.FechaRescision = reader.IsDBNull(reader.GetOrdinal("fechaRescision"))
+                                        ? (DateTime?)null
+                                        : reader.GetDateTime(reader.GetOrdinal("fechaRescision"));
+
+                                    inquilino = new();
+                                    inquilino.IdInquilino = reader.GetInt32("InquilinoId");
+                                    inquilino.IdPersona = reader.GetInt32("InquilinoIDPersona");
+                                    inquilino.Nombre = reader.GetString("InquilinoNombre");
+                                    inquilino.Apellido = reader.GetString("InquilinoApellido");
+                                    inquilino.Dni = reader.GetInt32("InquilinoDni");
+                                    inquilino.Estado = reader.GetBoolean("InquilinoEstado");
+                                    inquilino.Telefono = reader.GetString("InquilinoTelefono");
+                                    inquilino.Direccion = reader.GetString("InquilinoDireccion");
+                                    inquilino.Email = reader.GetString("InquilinoEmail");
+                                    contrato.Inquilino = inquilino;
+                                    
+                                }
+                                
+
+                                
+
                                 inmueble.idTipo = reader.GetInt32("id_tipo_inmueble");
                                 tipo_Inmueble.id_tipo_inmueble = inmueble.idTipo;
                                 tipo_Inmueble.nombre = reader.GetString("TipoInmuebleNombre");
 
                                 inmueble.Tipo = tipo_Inmueble;
+                                inmueble.contrato = contrato;
 
                                 inmuebles.Add(inmueble);
-
                             }
 
                         }
