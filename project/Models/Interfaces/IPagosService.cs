@@ -3,7 +3,7 @@ namespace project.Models.Interfaces
     public interface IPagosService
     {
         Task<(string?, bool)> CreatePago(Pago pago);
-        Task<(string?, bool)> UpdatePago(Pago pago);
+        Task<(string?, bool)> UpdatePago(int idPago, string detalle);
         Task<(string?, bool)> AsentarPago(Pago pago);
         Task<(string?,bool)> darDeBajaLogicaPago(int idPago);
         Task<(string?, bool)> darAltaLogicaPago(int idPago);

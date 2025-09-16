@@ -76,9 +76,39 @@ public class PagosService : IPagosService
         throw new NotImplementedException();
     }
 
-    public Task<(string?, bool)> UpdatePago(Pago pago)
+    public async Task<(string?, bool)> UpdatePago(int idPago, string detalle)
     {
-        throw new NotImplementedException();
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                string query = @"UPDATE pagos 
+                                 SET detalle = @detalle 
+                                 WHERE idPago = @idPago";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@detalle", detalle);
+                    command.Parameters.AddWithValue("@idPago", idPago);
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    if (rowsAffected > 0)
+                    {
+                        await connection.CloseAsync();
+                        return (null, true);
+                    }
+                    else
+                    {
+                        await connection.CloseAsync();
+                        return ("No se encontró el pago para actualizar.", false);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(PagosService), nameof(UpdatePago));
+            return ("Error al actualizar el pago: " + ex.Message, false);
+        }
     }
 
     public Task<(string?, bool)> AsentarPago(Pago pago)

@@ -137,10 +137,21 @@ namespace project.Controllers
             (string? error, bool confirmacion) = await _pagosService.darAltaLogicaPago(idPago);
             if (!confirmacion && error != null)
             {
-                return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", idContrato, error);
+                return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", error, new { idContrato = idContrato });
             }
 
             return this.RedirectToActionWithSuccess("GetPagosByIdContrato", "Pagos", "Pago dado de alta exitosamente", new { idContrato = idContrato }, "Pago dado de alta!!");
+        }
+        [HttpPost("ActualizarDetalle")]
+        public async Task<IActionResult> ActualizarDetalle(int idPago, string detalle, int idContrato)
+        {
+            (string? error, bool confirmacion) = await _pagosService.UpdatePago(idPago, detalle);
+            if (!confirmacion && error != null)
+            {
+                return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", error, new { idContrato = idContrato });
+            }
+
+            return this.RedirectToActionWithSuccess("GetPagosByIdContrato", "Pagos", "Pago actualizado exitosamente", new { idContrato = idContrato }, "Pago actualizado!!");
         }
     }
 }

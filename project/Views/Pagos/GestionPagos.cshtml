@@ -59,6 +59,9 @@
 
                                     
                                     @if(pago.Estado){
+                                        <button class="btn btn-sm btn-info me-1" title="Actualizar Pago" onclick="modalActualizarDetalle(@pago.IdPago, '@pago.Detalle', @Model.IdContrato)" >
+                                            <i class="bi-pencil-square"></i>
+                                        </button>
                                         @if(!pago.Abonado)
                                         {
                                             <a class="btn btn-sm btn-primary me-1" title="Asentar Pago" href="@Url.Action("AsentarPago", "Pagos", new { idPago = pago.IdPago })">
@@ -91,6 +94,31 @@
                     }
                 </tbody>
             </table>
+            <div class="modal fade" id="modalActualizarDetalle" tabindex="-1" aria-labelledby="modalRenovarLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content"> 
+                    
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalRenovarLabel">Renovar Contrato</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>   
+                        <div class="modal-body">
+                            <form action="@Url.Action("ActualizarDetalle","Pagos")" method="post">
+                                <input type="hidden" name="idPago" id="idPago"  />
+                                <input type="hidden" name="idContrato" id="idContrato"  />
+                                <div class="mb-3">
+                                    <label for="detalle" class="form-label">Detalle</label>
+                                    <input type="text" id="detalle" name="detalle" class="form-control" required />
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">Confirmar Renovación</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                </div>
+                            </form>
+                        </div> 
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col d-flex w-100 justify-content-between">
             <nav aria-label="Page navigation">
@@ -136,4 +164,12 @@
             </nav>
             <button class="btn btn-danger h-100" onclick="window.location.href='/contrato/listar'">Volver</button>
         </div>
-
+<script>
+    function modalActualizarDetalle(idPago, detalle, idContrato){
+        document.getElementById('idPago').value = idPago;
+        document.getElementById('detalle').value = detalle;
+        document.getElementById('idContrato').value = idContrato;
+        const modal = new bootstrap.Modal(document.getElementById('modalActualizarDetalle'));
+        modal.show();
+    }
+</script>
