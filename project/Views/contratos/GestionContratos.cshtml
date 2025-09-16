@@ -10,7 +10,7 @@
     <div class="modal-body">
                     <div class="mb-3">
                         <label for="nuevaFechaInicio" class="form-label">Nueva Fecha de Inicio</label>
-                        <input type="date" id="nuevaFechaInicio" class="form-control" readonly />
+                        <input type="date" id="nuevaFechaInicio" class="form-control" required />
                     </div>
                     <div class="mb-3">
                         <label for="nuevaFechaFin" class="form-label">Nueva Fecha de Fin</label>
@@ -249,7 +249,7 @@
                                     <i class="bi bi-pencil-square"></i> <!-- EDITAR CONTRATO -->
                                 </a>
                                 <!-- BOTÓN DE GENERAR PAGOS -->
-                                @if (contrato.FechaRescision != null )
+                                @if (contrato.FechaRescision != null || !contrato.estado)
                                 {
                                     <button class="btn btn-secondary p-1 m-1 w-25" disabled>
                                         <i class="bi bi-cash-stack"></i> <!-- GENERAR PAGOS -->
@@ -261,7 +261,7 @@
                                         <i class="bi bi-file-check"></i> <!-- Renovar Contrato -->
                                     </a>
                                 }
-                                else 
+                                else if (contrato.estado)
                                 {
                                 <button type="button" class="btn btn-success p-1 m-1 w-25" data-bs-toggle="modal" data-bs-target="#modalPago_@contrato.IdContrato">
                                     <i class="bi bi-cash-stack"></i> <!-- GENERAR PAGOS -->

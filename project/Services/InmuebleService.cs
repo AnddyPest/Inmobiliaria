@@ -383,7 +383,8 @@ namespace project.Services
                                     INNER JOIN propietario p ON p.idPropietario = i.idPropietario
                                     INNER JOIN persona perso ON perso.idPersona = p.idPersona
                                     INNER JOIN tipo_inmueble as tipoI ON i.id_tipo_inmueble = tipoI.id_tipo_inmueble
-                                    LEFT JOIN contrato as contract ON contract.idInmueble = i.idInmueble AND contract.Estado = 1
+                                    LEFT JOIN contrato as contract ON contract.idInmueble = i.idInmueble AND contract.Estado = 1 AND fechaFin >= CURDATE() AND fechaConfeccion <= CURDATE() 
+                                    WHERE i.estado = 1
                                     ";
                     List<string> querys = new ();
                     if (disponibilidad != null ) //Hay que encontrar una manera de simplificar esto y mejorar porq con muchos filtros va a ser un caos
