@@ -298,14 +298,12 @@
                 {
                     foreach (Contrato contrato in Model.contratos)
                     {
-                        Inquilino? inquilino = Model.inquilinos?.FirstOrDefault(i => i.IdInquilino == contrato.IdInquilino);
-                        Propietario? propietario = Model.propietarios?.FirstOrDefault(p => p.IdPropietario == contrato.IdPropietario);
-                        Inmueble? inmueble = Model.inmueble?.FirstOrDefault(i => i.IdInmueble == contrato.IdInmueble);
+                        
                         <tr>
                             <td class="text-center">@contrato.IdContrato</td>
-                            <td class="text-center">@inquilino?.Nombre @inquilino?.Apellido</td>
-                            <td class="text-center">@propietario?.Nombre @propietario?.Apellido</td>
-                            <td class="text-center">@inmueble?.Direccion</td>
+                            <td class="text-center">@contrato.Inquilino?.Nombre @contrato.Inquilino?.Apellido</td>
+                            <td class="text-center">@contrato.Propietario?.Nombre @contrato.Propietario?.Apellido</td>
+                            <td class="text-center">@contrato.inmueble?.Direccion</td>
                             <td class="text-center">@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">@contrato.FechaFin.ToString("dd/MM/yyyy")</td>
                             @if (contrato.FechaRescision != null)

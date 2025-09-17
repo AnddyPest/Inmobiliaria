@@ -23,7 +23,6 @@ namespace project.Controllers
 
         [HttpGet("contrato/listar")]
         public async Task<IActionResult> GetAllContratos(int nroPagina = 1, string? disponibilidad = null, int ? fechaCompare = null, string? inmueble = null)
-            // Depuración: mostrar parámetros recibidos desde el frontend
         {
             Console.WriteLine($"[DEBUG] disponibilidad: {disponibilidad}");
             Console.WriteLine($"[DEBUG] fechaCompare: {fechaCompare}");
@@ -43,16 +42,6 @@ namespace project.Controllers
             viewModel.cantidadTotalDePaginas = totalContratos % registrosPorPagina == 0
                 ? totalContratos / registrosPorPagina
                 : totalContratos / registrosPorPagina + 1;
-            // Poblar inquilinos, propietarios e inmuebles para la vista
-            (string?, List<Inquilino>?) inquilinosResult = await _inquilinoService.GetAllInquilinos();
-            if (inquilinosResult.Item1 == null)
-                viewModel.inquilinos = inquilinosResult.Item2;
-            (string?, List<Propietario>?) propietariosResult = await _propietarioService.ObtenerTodos();
-            if (propietariosResult.Item1 == null)
-                viewModel.propietarios = propietariosResult.Item2;
-            (string?, List<Inmueble>?) inmueblesResult = await _inmuebleService.ObtenerTodosLosInmueblesAPI();
-            if (inmueblesResult.Item1 == null)
-                viewModel.inmueble = inmueblesResult.Item2;
 
             return View("~/Views/Contratos/GestionContratos.cshtml", viewModel);
         }

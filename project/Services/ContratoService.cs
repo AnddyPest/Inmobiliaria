@@ -195,7 +195,49 @@ namespace project.Services
             {
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    string query = "SELECT * FROM Contrato";
+                    string query = @"SELECT c.*,
+                                     inquilinoPersona.idPersona as idPersonaInquilino,
+                                     i.idInquilino as InquilinoId,
+
+                                     inquilinoPersona.Nombre AS NombreInquilino, 
+                                     inquilinoPersona.Apellido AS ApellidoInquilino,
+                                     inquilinoPersona.Dni AS DniInquilino,
+                                     inquilinoPersona.Telefono AS TelefonoInquilino,
+                                     inquilinoPersona.Email AS EmailInquilino,
+                                     inquilinoPersona.Direccion AS DireccionInquilino,
+                                     inquilinoPersona.estado AS EstadoInquilino,
+
+                                     propietarioPersona.idPersona as idPersonaPropietario,
+                                     p.idPropietario as PropietarioId,
+                                     propietarioPersona.Nombre AS NombrePropietario, 
+                                     propietarioPersona.Apellido AS ApellidoPropietario,
+                                     propietarioPersona.Dni AS DniPropietario,
+                                     propietarioPersona.Telefono AS TelefonoPropietario,
+                                     propietarioPersona.Email AS EmailPropietario,
+                                     propietarioPersona.Direccion AS DireccionPropietario,
+                                     propietarioPersona.estado AS EstadoPropietario,
+
+                                     Inmueble.idInmueble as idInmuebleFisico,
+                                     Inmueble.id_tipo_inmueble as id_tipo_inmuebleFisico,
+                                     Inmueble.Uso as UsoInmuebleFisico,
+                                     Inmueble.Superficie as SuperficieInmuebleFisico,
+                                     Inmueble.cantidadAmbientes as CantidadAmbientesInmuebleFisico,
+                                     Inmueble.Coordenadas as CoordenadasInmuebleFisico,
+                                     Inmueble.Precio as PrecioInmuebleFisico,
+                                     Inmueble.Direccion as DireccionInmuebleFisico,
+                                     Inmueble.Ciudad as CiudadInmuebleFisico,
+                                     Inmueble.idPropietario as idPropietarioFisico,
+                                     Inmueble.Disponible as DisponibleInmuebleFisico,
+                                     Inmueble.Estado as EstadoInmuebleFisico
+
+
+                                     FROM Contrato as c
+                                     LEFT JOIN Inmueble as Inmueble ON c.IdInmueble = Inmueble.IdInmueble 
+                                     LEFT JOIN Propietario as p ON c.IdPropietario = p.IdPropietario
+                                     LEFT JOIN Inquilino as i ON c.IdInquilino = i.IdInquilino
+                                     LEFT JOIN Persona AS inquilinoPersona ON i.IdPersona = inquilinoPersona.IdPersona
+                                     LEFT JOIN Persona AS propietarioPersona ON p.IdPersona = propietarioPersona.IdPersona
+                                     ";
                     if (!string.IsNullOrEmpty(disponibilidad))
                     {
                         if (disponibilidad.ToLower() == "vigente")
@@ -236,6 +278,10 @@ namespace project.Services
                             while (await reader.ReadAsync())
                             {
                                 Contrato contrato = new Contrato();
+                                Inquilino? inquilino = null;
+                                Propietario? propietario = null;
+                                Inmueble? inmuebleResponse = null;
+
                                 contrato.IdContrato = reader.GetInt32("IdContrato");
                                 contrato.IdInquilino = reader.GetInt32("IdInquilino");
                                 contrato.IdInmueble = reader.GetInt32("IdInmueble");
@@ -247,6 +293,50 @@ namespace project.Services
                                 contrato.FechaRescision = reader.IsDBNull(reader.GetOrdinal("fechaRescision"))
                                     ? (DateTime?)null
                                     : reader.GetDateTime(reader.GetOrdinal("fechaRescision"));
+                                if (reader["NombreInquilino"] != DBNull.Value && reader["NombrePropietario"] != DBNull.Value && reader["idInmuebleFisico"] != DBNull.Value)
+                                {
+                                    inquilino = new Inquilino();
+                                    inquilino.IdPersona = reader.GetInt32("idPersonaInquilino");
+                                    inquilino.IdInquilino = reader.GetInt32("InquilinoId");
+                                    inquilino.Nombre = reader.GetString("NombreInquilino");
+                                    inquilino.Apellido = reader.GetString("ApellidoInquilino");
+                                    inquilino.Dni = reader.GetInt32("DniInquilino");
+                                    inquilino.Telefono = reader.GetString("TelefonoInquilino");
+                                    inquilino.Email = reader.GetString("EmailInquilino");
+                                    inquilino.Direccion = reader.GetString("DireccionInquilino");
+                                    inquilino.Estado = reader.GetBoolean("EstadoInquilino");
+                                    contrato.Inquilino = inquilino;
+
+                                    propietario = new Propietario();
+                                    propietario.IdPersona = reader.GetInt32("idPersonaPropietario");
+                                    propietario.IdPropietario = reader.GetInt32("PropietarioId");
+                                    propietario.Nombre = reader.GetString("NombrePropietario");
+                                    propietario.Apellido = reader.GetString("ApellidoPropietario");
+                                    propietario.Dni = reader.GetInt32("DniPropietario");
+                                    propietario.Telefono = reader.GetString("TelefonoPropietario");
+                                    propietario.Email = reader.GetString("EmailPropietario");
+                                    propietario.Direccion = reader.GetString("DireccionPropietario");
+                                    propietario.Estado = reader.GetBoolean("EstadoPropietario");
+                                    contrato.Propietario = propietario;
+
+                                    inmuebleResponse = new Inmueble();
+                                    inmuebleResponse.IdInmueble = reader.GetInt32("idInmuebleFisico");
+                                    inmuebleResponse.idTipo = reader.GetInt32("id_tipo_inmuebleFisico");
+                                    inmuebleResponse.Uso = reader.GetString("UsoInmuebleFisico");
+                                    inmuebleResponse.Superficie = reader.GetInt32("SuperficieInmuebleFisico");
+                                    inmuebleResponse.CantidadAmbientes = reader.GetInt32("CantidadAmbientesInmuebleFisico");
+                                    inmuebleResponse.Coordenadas = reader.GetDecimal("CoordenadasInmuebleFisico");
+                                    inmuebleResponse.Precio = reader.GetDecimal("PrecioInmuebleFisico");
+                                    inmuebleResponse.Direccion = reader.GetString("DireccionInmuebleFisico");
+                                    inmuebleResponse.Ciudad = reader.GetString("CiudadInmuebleFisico");
+                                    inmuebleResponse.IdPropietario = reader.GetInt32("IdPropietarioFisico");
+                                    inmuebleResponse.Disponible = reader.GetBoolean("DisponibleInmuebleFisico");
+                                    inmuebleResponse.Estado = reader.GetBoolean("EstadoInmuebleFisico");
+                                    contrato.inmueble = inmuebleResponse;
+                                }
+                                
+
+
                                 contratos.Add(contrato);
                             }
                         }
