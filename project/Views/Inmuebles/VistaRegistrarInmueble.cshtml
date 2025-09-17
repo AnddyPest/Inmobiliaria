@@ -85,17 +85,13 @@
                 <input list="propietarios" id="idPropietarioNoHidden"  class="form-control" required autocomplete="off" />
                 <input type="hidden" id="idPropietarioHidden" name="idPropietario" />
                 <datalist id="propietarios">
-                    @if (Model != null && Model.propietarios != null)
+                    @foreach (var propietario in Model!.propietarios!)
                     {
-                        @foreach (var propietario in Model.propietarios)
+                        if (propietario.EstadoPropietario)
                         {
-                            if (propietario.EstadoPropietario)
-                            {
-                                <option value="@propietario.Nombre @propietario.Apellido - Dni: @propietario.Dni" data-id="@propietario.IdPropietario"></option>
-                            }
+                            <option value="@propietario.Nombre @propietario.Apellido - Dni: @propietario.Dni" data-id="@propietario.IdPropietario"></option>
                         }
                     }
-                    
                 </datalist>
                 @if (Model == null || Model.propietarios == null)
                 {
@@ -119,6 +115,33 @@
     </div>
 </div>
 <script>
+
+    async function actualizarContenido(){
+        const datalistPropietarios = document.getElementById("propietarios");
+        const inputPropietario = document.getElementById("idPropietarioNoHidden");
+        const params = new URLSearchParams();
+        params.append("propietarioFiltro",inputPropietario.value);
+        params.append("validacion", 1);
+        
+        const response = await fetch("/Inmueble/Agregar?" + params.toString());
+        const html = await response.text();
+        const dom = new DOMParser().parseFromString(html, 'text/html');
+        const fragmentoPropietarios = extraerHtmlById(dom, "propietarios");
+        if(fragmentoPropietarios){
+            datalistPropietarios.innerHTML = fragmentoPropietarios;
+        }else{
+            datalistPropietarios.innerHTML = "";
+            
+            console.error("No se encontraron propietarios");
+        }
+
+    }
+
+    function extraerHtmlById(html, id) {
+        const element = html.getElementById(id);
+        return element? element.innerHTML : "";
+    }
+    document.getElementById("idPropietarioNoHidden").addEventListener("input", actualizarContenido);
     document.addEventListener("DOMContentLoaded", function(){
         let form = document.getElementById("formulario");
         let boton = document.getElementById("BotonDeEnviar");

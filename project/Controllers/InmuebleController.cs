@@ -47,7 +47,7 @@ namespace project.Controllers
             {
                 viewModel.tipo_Inmueble = typesFromService.Item2;
             }
-            (string?, List<Propietario>?) propietarioFromService = await _propietarioService.ObtenerTodos();
+            (string?, List<Propietario>?) propietarioFromService = await _propietarioService.ObtenerTodos(null);
             if (propietarioFromService.Item2 != null)
             {
                 viewModel.propietarios = propietarioFromService.Item2;
@@ -57,14 +57,19 @@ namespace project.Controllers
             return View("~/Views/Inmuebles/VistaActualizarInmueble.cshtml", viewModel);
         }
         [HttpGet("Inmueble/Agregar")]
-        public async Task<IActionResult> Agregar()
+        public async Task<IActionResult> Agregar(string? propietarioFiltro, int? validacion = 0 )
         {
             InmuebleViewModel viewModel = new();
             (string?, List<Tipo_Inmueble>?) listaInmueblesFromService = await _tipoInmuebleService.getAllTipoInmueble();
             if (listaInmueblesFromService.Item2 != null) viewModel.tipo_Inmueble = listaInmueblesFromService.Item2;
-            (string?, List<Propietario>?) propietariosFromService = await _propietarioService.ObtenerTodos();
-            if (propietariosFromService.Item2 != null) viewModel.propietarios = propietariosFromService.Item2;
-
+            if (validacion == 0)
+                viewModel.propietarios = new List<Propietario>();
+            if (validacion == 1)
+            {
+                (string?, List<Propietario>?) propietariosFromService = await _propietarioService.ObtenerTodos(propietarioFiltro);
+                if (propietariosFromService.Item2 != null) viewModel.propietarios = propietariosFromService.Item2;
+            }
+           
             return View("~/Views/Inmuebles/VistaRegistrarInmueble.cshtml", viewModel);
         }
 

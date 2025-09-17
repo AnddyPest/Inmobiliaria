@@ -11,7 +11,7 @@ namespace project.Services
     {
         private string _connectionString = config.GetConnectionString("Connection") ?? throw new InvalidOperationException("Connection string 'Connection' not found.");
         private IPersonaService personaService = personaService;
-        public async Task<(string?,List<Propietario>?)> ObtenerTodos()
+        public async Task<(string?,List<Propietario>?)> ObtenerTodos(string? propietarioFiltro)
         {
             List<Propietario> propietarios = new List<Propietario>();
             try
@@ -20,7 +20,11 @@ namespace project.Services
                 {
                     string query = @"Select p.*, prop.estado as estado_propietario, prop.idPropietario
                                 from persona as p 
-                                inner join propietario prop On p.idPersona = prop.idPersona";
+                                inner join propietario prop On p.idPersona = prop.idPersona ";
+                    if (!string.IsNullOrEmpty(propietarioFiltro))
+                    {
+                        query += $" WHERE p.nombre LIKE '%{propietarioFiltro}%' OR p.apellido LIKE '%{propietarioFiltro}%' OR p.dni LIKE '%{propietarioFiltro}%'";
+                    }
                     using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
                         await conn.OpenAsync();
@@ -31,18 +35,18 @@ namespace project.Services
                                 Propietario propietario = new Propietario
                                 {
                                     IdPropietario = reader.GetInt32("idPropietario"),
-                                    
-                                    
-                                        Telefono = reader.GetString("telefono"),
-                                        Email = reader.GetString("email"),
-                                        Direccion = reader.GetString("direccion"),
-                                        Estado = reader.GetBoolean("estado"),
-                                        EstadoPropietario = reader.GetBoolean("estado_propietario"),
-                                        IdPersona = reader.GetInt32("idPersona"),
-                                        Nombre = reader.GetString("nombre"),
-                                        Apellido = reader.GetString("apellido"),
-                                        Dni = reader.GetInt32("dni")
-                                    
+
+
+                                    Telefono = reader.GetString("telefono"),
+                                    Email = reader.GetString("email"),
+                                    Direccion = reader.GetString("direccion"),
+                                    Estado = reader.GetBoolean("estado"),
+                                    EstadoPropietario = reader.GetBoolean("estado_propietario"),
+                                    IdPersona = reader.GetInt32("idPersona"),
+                                    Nombre = reader.GetString("nombre"),
+                                    Apellido = reader.GetString("apellido"),
+                                    Dni = reader.GetInt32("dni")
+
                                 };
                                 propietarios.Add(propietario);
                             }
