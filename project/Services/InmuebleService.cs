@@ -358,7 +358,7 @@ namespace project.Services
             }
         }
 
-        public async Task<(string?, List<Inmueble>?,int? totalRegistros)> ObtenerTodosLosInmuebles(int paginaNro = 1, int tamPagina = 10,bool? disponibilidad = null, int? dniPropietario = null, string? uso = null, string? tipoInmueble = null, int? cantidadAmbientes = null, int? precio = null, DateOnly? fechaDesde = null, DateOnly? fechaHasta = null)//TESTEAR
+        public async Task<(string?, List<Inmueble>?, int? totalRegistros)> ObtenerTodosLosInmuebles(int paginaNro = 1, int tamPagina = 10, bool? disponibilidad = null, int? dniPropietario = null, string? uso = null, string? tipoInmueble = null, int? cantidadAmbientes = null, int? precio = null, DateOnly? fechaDesde = null, DateOnly? fechaHasta = null)//TESTEAR
         {
             try
             {
@@ -399,8 +399,8 @@ namespace project.Services
                                     left join persona as pe on inquil.idPersona = pe.idPersona
                                     
                                     ";
-                    List<string> querys = new ();
-                    if (disponibilidad != null ) //Hay que encontrar una manera de simplificar esto y mejorar porq con muchos filtros va a ser un caos
+                    List<string> querys = new();
+                    if (disponibilidad != null) //Hay que encontrar una manera de simplificar esto y mejorar porq con muchos filtros va a ser un caos
                     {
                         querys.Add(@$" i.Disponible = {((disponibilidad == true) ? "1" : "0")} ");
                     }
@@ -426,7 +426,7 @@ namespace project.Services
                     }
                     if (fechaDesde != null && fechaHasta != null)
                     {
-                       
+
                         querys.Add(@$"  (contract.idContrato IS NULL OR 
                                         (contract.FechaFin < '{fechaDesde!.Value:yyyy-MM-dd}' OR 
                                         contract.FechaInicio > '{fechaHasta.Value:yyyy-MM-dd}')) ");
@@ -499,11 +499,11 @@ namespace project.Services
                                     inquilino.Direccion = reader.GetString("InquilinoDireccion");
                                     inquilino.Email = reader.GetString("InquilinoEmail");
                                     contrato.Inquilino = inquilino;
-                                    
-                                }
-                                
 
-                                
+                                }
+
+
+
 
                                 inmueble.idTipo = reader.GetInt32("id_tipo_inmueble");
                                 tipo_Inmueble.id_tipo_inmueble = inmueble.idTipo;
@@ -523,7 +523,7 @@ namespace project.Services
                         await connection.CloseAsync();
                         if (inmuebles.Count == 0)
                             return ("No se encontraron inmuebles", null, cantidadRegistros);
-                        return (null, inmuebles,cantidadRegistros);
+                        return (null, inmuebles, cantidadRegistros);
                     }
                 }
             }
@@ -745,7 +745,7 @@ namespace project.Services
                                     INNER JOIN persona perso ON perso.idPersona = p.idPersona
                                     INNER JOIN tipo_inmueble as tipoI ON i.id_tipo_inmueble = tipoI.id_tipo_inmueble
                                     ";
-                    
+
 
 
                     System.Console.WriteLine(query);
@@ -805,6 +805,244 @@ namespace project.Services
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerTodosLosInmuebles));
                 return (ex.Message, null);
+            }
+        }
+        public async Task<(string?, bool)> CargarImagen(bool esPortada, int idInmueble, Microsoft.AspNetCore.Http.IFormFile file)
+        {
+            try
+            {
+                string mkdirPath = Path.Combine("wwwroot", "Images", "Inmuebles", idInmueble.ToString());
+                if (!Directory.Exists(mkdirPath))
+                {
+                    Directory.CreateDirectory(mkdirPath);
+                }
+
+                string filePath;
+                if (esPortada)
+                {
+                    filePath = Path.Combine(mkdirPath, $"{idInmueble}_Portada.png");
+                    if (File.Exists(filePath))
+                        return ("La imagen de portada ya existe", false);
+                }
+                else
+                {
+                    var (_, cantidadImagenes) = await ObtenerCantidadImagenes(idInmueble);
+                    if (cantidadImagenes >= 6)
+                        return ("Ya hay 6 imágenes para este inmueble", false);
+
+                    filePath = Path.Combine(mkdirPath, $"{idInmueble}_{cantidadImagenes + 1}.png");
+                    if (File.Exists(filePath))
+                        return ("La imagen ya existe", false);
+                }
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // SE Serializa el array de URLs y se guarda en la base de datos (Formato JSON)
+                string nuevaUrl = $"/Images/Inmuebles/{idInmueble}/{Path.GetFileName(filePath)}";
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+                    // Obtener las URLs existentes, esto para luego concatenar la nueva y no pisar las anteriores
+                    string selectQuery = "SELECT ImagenesUrl FROM inmueble WHERE IdInmueble = @IdInmueble";
+                    using (MySqlCommand selectCommand = new MySqlCommand(selectQuery, connection))
+                    {
+                        selectCommand.Parameters.AddWithValue("@IdInmueble", idInmueble);
+                        object? result = await selectCommand.ExecuteScalarAsync();
+                        List<string> urls = new();
+                        if (result != null && result != DBNull.Value)
+                        {
+                            string json = result.ToString()!;
+                            if (!string.IsNullOrWhiteSpace(json))
+                            {
+                                urls = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+                            }
+                        }
+                        // Agregar la nueva URL
+                        if (!urls.Contains(nuevaUrl))
+                        {
+                            urls.Add(nuevaUrl);
+                        }
+                        // Aca actualizamos el array, lo serializamos (A JSON) y lo guardamos
+                        string updateQuery = "UPDATE inmueble SET ImagenesUrl = @ImagenesUrl WHERE IdInmueble = @IdInmueble";
+                        using (MySqlCommand updateCommand = new MySqlCommand(updateQuery, connection))
+                        {
+                            updateCommand.Parameters.AddWithValue("@ImagenesUrl", System.Text.Json.JsonSerializer.Serialize(urls));
+                            updateCommand.Parameters.AddWithValue("@IdInmueble", idInmueble);
+                            await updateCommand.ExecuteNonQueryAsync();
+                        }
+                    }
+                }
+
+                return (null, true);
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(CargarImagen));
+                return (ex.Message, false);
+            }
+        }
+        public async Task<(string?, int)> ObtenerCantidadImagenes(int idInmueble)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+                    string selectQuery = "SELECT ImagenesUrl FROM inmueble WHERE IdInmueble = @IdInmueble";
+                    using (MySqlCommand selectCommand = new MySqlCommand(selectQuery, connection))
+                    {
+                        selectCommand.Parameters.AddWithValue("@IdInmueble", idInmueble);
+                        object? result = await selectCommand.ExecuteScalarAsync();
+                        List<string> urls = new();
+                        if (result != null && result != DBNull.Value)
+                        {
+                            string json = result.ToString()!;
+                            if (!string.IsNullOrWhiteSpace(json))
+                            {
+                                urls = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+                            }
+                        }
+                        // Excluimos la portada para contar solo las imagenes adicionales
+                        int count = urls.Count(u => !u.Contains("Portada"));
+                        return (null, count);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerCantidadImagenes));
+                return (ex.Message, 0);
+            }
+        }
+
+        public async Task<(string?, List<string>?)> ObtenerImagenesInmueble(int idInmueble)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+                    string selectQuery = "SELECT ImagenesUrl FROM inmueble WHERE IdInmueble = @IdInmueble";
+                    using (MySqlCommand selectCommand = new MySqlCommand(selectQuery, connection))
+                    {
+                        selectCommand.Parameters.AddWithValue("@IdInmueble", idInmueble);
+                        object? result = await selectCommand.ExecuteScalarAsync();
+                        List<string> urls = new();
+                        if (result != null && result != DBNull.Value)
+                        {
+                            string json = result.ToString()!;
+                            if (!string.IsNullOrWhiteSpace(json))
+                            {
+                                urls = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+                            }
+                        }
+                        // Excluimos la portada para traerla por otro metodo
+                        urls = urls.Where(u => !u.Contains("Portada")).ToList();
+                        return (null, urls);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerImagenesInmueble));
+                return (ex.Message, null);
+            }
+        }
+        // ACA traemos la portada wachin
+        public async Task<(string?, string?)> ObtenerImagenPortada(int idInmueble)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+                    string selectQuery = "SELECT ImagenesUrl FROM inmueble WHERE IdInmueble = @IdInmueble";
+                    using (MySqlCommand selectCommand = new MySqlCommand(selectQuery, connection))
+                    {
+                        selectCommand.Parameters.AddWithValue("@IdInmueble", idInmueble);
+                        object? result = await selectCommand.ExecuteScalarAsync();
+                        List<string> urls = new();
+                        if (result != null && result != DBNull.Value)
+                        {
+                            string json = result.ToString()!;
+                            if (!string.IsNullOrWhiteSpace(json))
+                            {
+                                urls = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+                            }
+                        }
+                        // Buscamos la portada
+                        string? portadaUrl = urls.FirstOrDefault(u => u.Contains("Portada"));
+                        return (null, portadaUrl);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerImagenPortada));
+                return (ex.Message, null);
+            }
+        }
+        public async Task<(string?, bool)> EliminarImagen(int idInmueble, string imageUrl)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+                    string selectQuery = "SELECT ImagenesUrl FROM inmueble WHERE IdInmueble = @IdInmueble";
+                    using (MySqlCommand selectCommand = new MySqlCommand(selectQuery, connection))
+                    {
+                        selectCommand.Parameters.AddWithValue("@IdInmueble", idInmueble);
+                        object? result = await selectCommand.ExecuteScalarAsync();
+                        List<string> urls = new();
+                        if (result != null && result != DBNull.Value)
+                        {
+                            string json = result.ToString()!;
+                            if (!string.IsNullOrWhiteSpace(json))
+                            {
+                                urls = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+                            }
+                        }
+
+                        if (!urls.Contains(imageUrl))
+                        {
+                            return ("La imagen no existe en la base de datos", false);
+                        }
+
+                        // DE LA LISTA Q DESERIALIZAMOS, REMOVEMOS LA URL Q DESEAMOS ELIMINAR
+                        urls.Remove(imageUrl);
+
+                        // Actualizar la base de datos
+                        string updateQuery = "UPDATE inmueble SET ImagenesUrl = @ImagenesUrl WHERE IdInmueble = @IdInmueble";
+                        using (MySqlCommand updateCommand = new MySqlCommand(updateQuery, connection))
+                        {
+                            updateCommand.Parameters.AddWithValue("@ImagenesUrl", System.Text.Json.JsonSerializer.Serialize(urls));
+                            updateCommand.Parameters.AddWithValue("@IdInmueble", idInmueble);
+                            await updateCommand.ExecuteNonQueryAsync();
+                        }
+
+                        // ELIMINAMOS EL ARCHIVO FISICAMENTE (Son pesados y es mejor eliminarlos )
+                        string filePath = Path.Combine("wwwroot", imageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                        if (File.Exists(filePath))
+                        {
+                            File.Delete(filePath);
+                        }
+                        else
+                        {
+                            return ("La imagen no existe en el servidor, pero fue eliminada de la base de datos", true);
+                        }
+
+                        return (null, true);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(EliminarImagen));
+                return (ex.Message, false);
             }
         }
     }

@@ -40,6 +40,7 @@ namespace project.Models
         public int IdPropietario { get; set; } = idPropietario;
         public Propietario? Propietario { get; set; }
         public Contrato? contrato { get; set; }
+        public List<string>? ImagenesUrl { get; set; }
 
         [Required(ErrorMessage = "La disponibilidad es requerida")]
         public bool Disponible { get; set; } = true;
