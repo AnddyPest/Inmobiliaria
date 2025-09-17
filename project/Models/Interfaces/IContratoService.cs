@@ -4,7 +4,7 @@
     {
         Task<(string?, bool)> CreateContrato(Contrato contrato);
         Task<(string?, bool)> UpdateContrato(Contrato contrato);
-        Task<(string?, List<Contrato>?)> GetAllContratos(int? nroPagina, int? registrosPorPagina, string? disponibilidad, int? fechaCompare);
+        Task<(string?, List<Contrato>?)> GetAllContratos(int? nroPagina, int? registrosPorPagina, string? disponibilidad, int? fechaCompare,string? inmueble );
 
         Task<(string?, Contrato?)> GetContratoById(int idContrato);
         Task<(string?, bool)> DarAltaContrato(int idContrato);

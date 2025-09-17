@@ -189,7 +189,7 @@ namespace project.Services
             }
         }
 
-        public async Task<(string?, List<Contrato>?)> GetAllContratos(int? nroPagina, int? registrosPorPagina, string? disponibilidad, int? fechaCompare) //testear
+        public async Task<(string?, List<Contrato>?)> GetAllContratos(int? nroPagina, int? registrosPorPagina, string? disponibilidad, int? fechaCompare ,string? inmueble) //testear
         {
             try
             {

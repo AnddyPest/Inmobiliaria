@@ -22,7 +22,7 @@ namespace project.Controllers
         }
 
         [HttpGet("contrato/listar")]
-        public async Task<IActionResult> GetAllContratos(int nroPagina = 1, string? disponibilidad = null, int ? fechaCompare = null)
+        public async Task<IActionResult> GetAllContratos(int nroPagina = 1, string? disponibilidad = null, int ? fechaCompare = null, string? inmueble = null)
             // Depuración: mostrar parámetros recibidos desde el frontend
         {
             Console.WriteLine($"[DEBUG] disponibilidad: {disponibilidad}");
@@ -31,7 +31,7 @@ namespace project.Controllers
             ViewBag.nroPagina = nroPagina;
             const int registrosPorPagina = 5;
             ViewBag.registrosPorPagina = registrosPorPagina;
-            (string?, List<Contrato>?) contratosResult = await _contratoService.GetAllContratos(nroPagina, registrosPorPagina, disponibilidad, fechaCompare);
+            (string?, List<Contrato>?) contratosResult = await _contratoService.GetAllContratos(nroPagina, registrosPorPagina, disponibilidad, fechaCompare, inmueble);
             if (contratosResult.Item2 == null)
             {
                 HelperFor.imprimirMensajeDeError(contratosResult.Item1 ?? "Error desconocido", nameof(ContratoController), nameof(GetAllContratos));
