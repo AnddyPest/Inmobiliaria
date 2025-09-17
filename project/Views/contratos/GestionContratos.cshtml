@@ -73,7 +73,86 @@
 </div>
 
 
+
+
+<div>
+    <h2 class="text-center mt-4 text-white fs-2">Lista de Contratos Registrados</h2>
+</div>
+@{
+    var disponibilidad = Context.Request.Query["disponibilidad"].FirstOrDefault() ?? "";
+    var fechaCompare = Context.Request.Query["fechaCompare"].FirstOrDefault() ?? "";
+}
+<!-- FILTRO POR DISPONIBILIDAD -->
+<div class="d-flex justify-content-start mt-4 mb-3 w-100 align-items-center">
+    <div class="w-25 ms-2">
+        <form method="get" asp-action="GetAllContratos" class="" id="filtroForm">
+            <div class="btn-group" role="group" aria-label="Filtrar por disponibilidad">
+                <input type="radio" class="btn-check" name="disponibilidad" id="todos" value="" @(disponibilidad == "" ? "checked" : "")>
+                <label class="btn btn-outline-primary" for="todos">Todos</label>
+                <input type="radio" class="btn-check" name="disponibilidad" id="vigente" value="vigente" @(disponibilidad == "vigente" ? "checked" : "")>
+                <label class="btn btn-outline-success" for="vigente">Vigentes</label>
+                <input type="radio" class="btn-check" name="disponibilidad" id="no vigente" value="no vigente" @(disponibilidad == "no vigente" ? "checked" : "")>
+                <label class="btn btn-outline-danger" for="no vigente">No vigentes</label>
+            </div>
+            <input type="hidden" name="fechaCompare" value="@fechaCompare" />
+        </form>
+    </div>
+    @* <div class="w-25"></div> *@
+    @* <div class="w-25"></div> *@
+    <div class="w-50 text-center ">
+        <input type="text"  id="inputFiltroInmueble" class="form-control" placeholder="Buscar por inmueble" aria-label="Buscar por inmueble">
+    </div>
+    <!-- FILTRO POR FECHA DE VENCIMIENTO -->
+    <div class="w-25 ms-5">
+        <form method="get" asp-action="GetAllContratos" class="me-3" id="fechaCompareForm">
+        
+            <div class="btn-group" role="group" aria-label="Filtrar por fecha">
+                <input type="radio" class="btn-check" name="fechaCompare" id="dias30" value="30" @(fechaCompare == "30" ? "checked" : "")>
+                <label class="btn btn-outline-danger" for="dias30">30 Días</label>
+                <input type="radio" class="btn-check" name="fechaCompare" id="dias60" value="60" @(fechaCompare == "60" ? "checked" : "")>
+                <label class="btn btn-outline-warning" for="dias60">60 Días</label>
+                <input type="radio" class="btn-check" name="fechaCompare" id="dias90" value="90" @(fechaCompare == "90" ? "checked" : "")>
+                <label class="btn btn-outline-success" for="dias90">90 Días</label>
+            </div>
+            <input type="hidden" name="disponibilidad" value="@disponibilidad" />
+        </form>
+    </div>
+   
+</div>
+<!-- SCRIPT DE LOS FILTROS POR DISPONIBILIDAD -->
 <script>
+    document.querySelectorAll('input[name="disponibilidad"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            document.getElementById('filtroForm').submit();
+        });
+    });
+    // Filtro de fecha: deselecciona si se hace click en el mismo
+    let lastFechaCompare = document.querySelector('input[name="fechaCompare"]:checked')?.value || null;
+    document.querySelectorAll('input[name="fechaCompare"]').forEach(function(radio) {
+        radio.addEventListener('click', function(e) {
+            let form = document.getElementById('fechaCompareForm');
+            if (lastFechaCompare === radio.value) {
+                radio.checked = false;
+                lastFechaCompare = null;
+                document.querySelectorAll('input[name="fechaCompare"]').forEach(r => r.checked = false);
+                let hidden = form.querySelector('input[type="hidden"][name="fechaCompare"]');
+                if (!hidden) {
+                    hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'fechaCompare';
+                    form.appendChild(hidden);
+                }
+                hidden.value = '';
+                form.submit();
+            } else {
+                lastFechaCompare = radio.value;
+                let hidden = form.querySelector('input[type="hidden"][name="fechaCompare"]');
+                if (hidden) hidden.remove();
+                form.submit();
+            }
+        });
+    });
+  
     function abrirModalRenovar(idContrato, idInquilino, idPropietario, idInmueble, monto, fechaFin) {
         
         document.getElementById('hiddenIdContrato').value = idContrato;
@@ -155,83 +234,7 @@
         if (modal) modal.hide();
     } */
     
-</script>
 
-<div>
-    <h2 class="text-center mt-4 text-white fs-2">Lista de Contratos Registrados</h2>
-</div>
-@{
-    var disponibilidad = Context.Request.Query["disponibilidad"].FirstOrDefault() ?? "";
-    var fechaCompare = Context.Request.Query["fechaCompare"].FirstOrDefault() ?? "";
-}
-<!-- FILTRO POR DISPONIBILIDAD -->
-<div class="d-flex justify-content-start mt-4 mb-3 w-100">
-<div class="w-25 ms-2">
-<form method="get" asp-action="GetAllContratos" class="" id="filtroForm">
-    <div class="btn-group" role="group" aria-label="Filtrar por disponibilidad">
-        <input type="radio" class="btn-check" name="disponibilidad" id="todos" value="" @(disponibilidad == "" ? "checked" : "")>
-        <label class="btn btn-outline-primary" for="todos">Todos</label>
-        <input type="radio" class="btn-check" name="disponibilidad" id="vigente" value="vigente" @(disponibilidad == "vigente" ? "checked" : "")>
-        <label class="btn btn-outline-success" for="vigente">Vigentes</label>
-        <input type="radio" class="btn-check" name="disponibilidad" id="no vigente" value="no vigente" @(disponibilidad == "no vigente" ? "checked" : "")>
-        <label class="btn btn-outline-danger" for="no vigente">No vigentes</label>
-    </div>
-    <input type="hidden" name="fechaCompare" value="@fechaCompare" />
-</form>
-</div>
-<div class="w-25"></div>
-<div class="w-25"></div>
-
-<!-- FILTRO POR FECHA DE VENCIMIENTO -->
-<div class="w-25 ms-5">
-<form method="get" asp-action="GetAllContratos" class="me-3" id="fechaCompareForm">
- 
-    <div class="btn-group" role="group" aria-label="Filtrar por fecha">
-        <input type="radio" class="btn-check" name="fechaCompare" id="dias30" value="30" @(fechaCompare == "30" ? "checked" : "")>
-        <label class="btn btn-outline-danger" for="dias30">30 Días</label>
-        <input type="radio" class="btn-check" name="fechaCompare" id="dias60" value="60" @(fechaCompare == "60" ? "checked" : "")>
-        <label class="btn btn-outline-warning" for="dias60">60 Días</label>
-        <input type="radio" class="btn-check" name="fechaCompare" id="dias90" value="90" @(fechaCompare == "90" ? "checked" : "")>
-        <label class="btn btn-outline-success" for="dias90">90 Días</label>
-    </div>
-    <input type="hidden" name="disponibilidad" value="@disponibilidad" />
-</form>
-</div>
-
-</div>
-<!-- SCRIPT DE LOS FILTROS POR DISPONIBILIDAD -->
-<script>
-    document.querySelectorAll('input[name="disponibilidad"]').forEach(function(radio) {
-        radio.addEventListener('change', function() {
-            document.getElementById('filtroForm').submit();
-        });
-    });
-    // Filtro de fecha: deselecciona si se hace click en el mismo
-    let lastFechaCompare = document.querySelector('input[name="fechaCompare"]:checked')?.value || null;
-    document.querySelectorAll('input[name="fechaCompare"]').forEach(function(radio) {
-        radio.addEventListener('click', function(e) {
-            let form = document.getElementById('fechaCompareForm');
-            if (lastFechaCompare === radio.value) {
-                radio.checked = false;
-                lastFechaCompare = null;
-                document.querySelectorAll('input[name="fechaCompare"]').forEach(r => r.checked = false);
-                let hidden = form.querySelector('input[type="hidden"][name="fechaCompare"]');
-                if (!hidden) {
-                    hidden = document.createElement('input');
-                    hidden.type = 'hidden';
-                    hidden.name = 'fechaCompare';
-                    form.appendChild(hidden);
-                }
-                hidden.value = '';
-                form.submit();
-            } else {
-                lastFechaCompare = radio.value;
-                let hidden = form.querySelector('input[type="hidden"][name="fechaCompare"]');
-                if (hidden) hidden.remove();
-                form.submit();
-            }
-        });
-    });
 </script>
     
     <div class="table-container" style="min-height: 400px;">
