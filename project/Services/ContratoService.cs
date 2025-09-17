@@ -198,38 +198,18 @@ namespace project.Services
                     string query = @"SELECT c.*,
                                      inquilinoPersona.idPersona as idPersonaInquilino,
                                      i.idInquilino as InquilinoId,
-
                                      inquilinoPersona.Nombre AS NombreInquilino, 
                                      inquilinoPersona.Apellido AS ApellidoInquilino,
-                                     inquilinoPersona.Dni AS DniInquilino,
-                                     inquilinoPersona.Telefono AS TelefonoInquilino,
-                                     inquilinoPersona.Email AS EmailInquilino,
-                                     inquilinoPersona.Direccion AS DireccionInquilino,
-                                     inquilinoPersona.estado AS EstadoInquilino,
 
                                      propietarioPersona.idPersona as idPersonaPropietario,
                                      p.idPropietario as PropietarioId,
                                      propietarioPersona.Nombre AS NombrePropietario, 
                                      propietarioPersona.Apellido AS ApellidoPropietario,
-                                     propietarioPersona.Dni AS DniPropietario,
-                                     propietarioPersona.Telefono AS TelefonoPropietario,
-                                     propietarioPersona.Email AS EmailPropietario,
-                                     propietarioPersona.Direccion AS DireccionPropietario,
-                                     propietarioPersona.estado AS EstadoPropietario,
-
+                                     
                                      Inmueble.idInmueble as idInmuebleFisico,
                                      Inmueble.id_tipo_inmueble as id_tipo_inmuebleFisico,
-                                     Inmueble.Uso as UsoInmuebleFisico,
-                                     Inmueble.Superficie as SuperficieInmuebleFisico,
-                                     Inmueble.cantidadAmbientes as CantidadAmbientesInmuebleFisico,
-                                     Inmueble.Coordenadas as CoordenadasInmuebleFisico,
-                                     Inmueble.Precio as PrecioInmuebleFisico,
-                                     Inmueble.Direccion as DireccionInmuebleFisico,
-                                     Inmueble.Ciudad as CiudadInmuebleFisico,
                                      Inmueble.idPropietario as idPropietarioFisico,
-                                     Inmueble.Disponible as DisponibleInmuebleFisico,
-                                     Inmueble.Estado as EstadoInmuebleFisico
-
+                                     Inmueble.direccion as InmuebleDireccionFisico
 
                                      FROM Contrato as c
                                      LEFT JOIN Inmueble as Inmueble ON c.IdInmueble = Inmueble.IdInmueble 
@@ -241,9 +221,9 @@ namespace project.Services
                     if (!string.IsNullOrEmpty(disponibilidad))
                     {
                         if (disponibilidad.ToLower() == "vigente")
-                            query += " WHERE estado = 1";
+                            query += " WHERE c.estado = 1";
                         else if (disponibilidad.ToLower() == "no vigente")
-                            query += " WHERE estado = 0";
+                            query += " WHERE c.estado = 0";
                         // Si es 'todos' o vacío, no se agrega WHERE y se muestran ambos estados
                     }
                     if (fechaCompare.HasValue)
@@ -300,11 +280,7 @@ namespace project.Services
                                     inquilino.IdInquilino = reader.GetInt32("InquilinoId");
                                     inquilino.Nombre = reader.GetString("NombreInquilino");
                                     inquilino.Apellido = reader.GetString("ApellidoInquilino");
-                                    inquilino.Dni = reader.GetInt32("DniInquilino");
-                                    inquilino.Telefono = reader.GetString("TelefonoInquilino");
-                                    inquilino.Email = reader.GetString("EmailInquilino");
-                                    inquilino.Direccion = reader.GetString("DireccionInquilino");
-                                    inquilino.Estado = reader.GetBoolean("EstadoInquilino");
+                                    
                                     contrato.Inquilino = inquilino;
 
                                     propietario = new Propietario();
@@ -312,31 +288,16 @@ namespace project.Services
                                     propietario.IdPropietario = reader.GetInt32("PropietarioId");
                                     propietario.Nombre = reader.GetString("NombrePropietario");
                                     propietario.Apellido = reader.GetString("ApellidoPropietario");
-                                    propietario.Dni = reader.GetInt32("DniPropietario");
-                                    propietario.Telefono = reader.GetString("TelefonoPropietario");
-                                    propietario.Email = reader.GetString("EmailPropietario");
-                                    propietario.Direccion = reader.GetString("DireccionPropietario");
-                                    propietario.Estado = reader.GetBoolean("EstadoPropietario");
+                                    
                                     contrato.Propietario = propietario;
 
                                     inmuebleResponse = new Inmueble();
                                     inmuebleResponse.IdInmueble = reader.GetInt32("idInmuebleFisico");
                                     inmuebleResponse.idTipo = reader.GetInt32("id_tipo_inmuebleFisico");
-                                    inmuebleResponse.Uso = reader.GetString("UsoInmuebleFisico");
-                                    inmuebleResponse.Superficie = reader.GetInt32("SuperficieInmuebleFisico");
-                                    inmuebleResponse.CantidadAmbientes = reader.GetInt32("CantidadAmbientesInmuebleFisico");
-                                    inmuebleResponse.Coordenadas = reader.GetDecimal("CoordenadasInmuebleFisico");
-                                    inmuebleResponse.Precio = reader.GetDecimal("PrecioInmuebleFisico");
-                                    inmuebleResponse.Direccion = reader.GetString("DireccionInmuebleFisico");
-                                    inmuebleResponse.Ciudad = reader.GetString("CiudadInmuebleFisico");
                                     inmuebleResponse.IdPropietario = reader.GetInt32("IdPropietarioFisico");
-                                    inmuebleResponse.Disponible = reader.GetBoolean("DisponibleInmuebleFisico");
-                                    inmuebleResponse.Estado = reader.GetBoolean("EstadoInmuebleFisico");
+                                    inmuebleResponse.Direccion = reader.GetString("InmuebleDireccionFisico");
                                     contrato.inmueble = inmuebleResponse;
                                 }
-                                
-
-
                                 contratos.Add(contrato);
                             }
                         }
