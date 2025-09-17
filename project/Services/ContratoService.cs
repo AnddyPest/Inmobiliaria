@@ -218,12 +218,15 @@ namespace project.Services
                                      LEFT JOIN Persona AS inquilinoPersona ON i.IdPersona = inquilinoPersona.IdPersona
                                      LEFT JOIN Persona AS propietarioPersona ON p.IdPersona = propietarioPersona.IdPersona
                                      ";
+                    List<string> parametros = new List<string>();
                     if (!string.IsNullOrEmpty(disponibilidad))
                     {
                         if (disponibilidad.ToLower() == "vigente")
-                            query += " WHERE c.estado = 1";
+                            parametros.Add(" c.estado = 1 ");
+                            //query += " WHERE c.estado = 1 ";
                         else if (disponibilidad.ToLower() == "no vigente")
-                            query += " WHERE c.estado = 0";
+                            parametros.Add(" c.estado = 0 ");
+                           // query += " WHERE c.estado = 0 ";
                         // Si es 'todos' o vacío, no se agrega WHERE y se muestran ambos estados
                     }
                     if (fechaCompare.HasValue)
@@ -243,12 +246,21 @@ namespace project.Services
                         }
                         if (!string.IsNullOrEmpty(filtroSQL))
                         {
-                            if (query.Contains("WHERE"))
-                                query += $" AND {filtroSQL}";
-                            else
-                                query += $" WHERE {filtroSQL}";
+                            parametros.Add(filtroSQL);
+                            // if (query.Contains("WHERE"))
+                            //     query += $" AND {filtroSQL}";
+                            // else
+                            //     query += $" WHERE {filtroSQL}";
                         }
+                        
+                       
                     }
+                    if (!string.IsNullOrEmpty(inmueble))
+                    {
+                        parametros.Add($" Inmueble.direccion LIKE '%{inmueble}%' ");
+                    }
+                    query += HelperFor.construirSqlWhereAnd(parametros);
+                    
                     List<Contrato> contratos = new List<Contrato>();
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
