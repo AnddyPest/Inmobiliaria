@@ -16,17 +16,23 @@
 
 <div class="container-fluid text-center d-flex flex-column align-items-center justify-content-center">
     <div class="text-center mb-3 mt-3 shadow p-2 " style="min-width: 100vh;">
-        <h3 class="text-white mb-2 ms-3">Listado de Empleados</h3>
+        <h3 class="text-white mb-2">Listado de Empleados</h3>
     </div>
 
-    <div class="d-flex flex-column p-2 shadow rounded" style=" min-height: 80vh; min-width: 80vw; ">
+    <div class="d-flex flex-column  p-2 shadow rounded" style=" min-height: 80vh; min-width: 80vw; ">
         
-        <div class="row ">
-            <div class="w-25" style="margin-left: -80px;">
-                <a class="btn btn-dark shadow  w-50" onclick="window.location.href='/Empleado/new'"> Registrar</a>
+        <div class=" d-flex w-100 ">
+            <div class="w-25 d-flex justify-content-center" >
+                <a class="btn btn-dark shadow  w-75" onclick="window.location.href='/Empleado/new'"> Registrar</a>
+            </div>
+            <div class="w-50">
+                <input type="text" id="inputBuscarEmpleado" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, '');" 
+                maxlength="8"
+                class="form-control w-100" placeholder="Buscar Empleado por DNI">
             </div>
             <!--SELECTOR TRIPLE PARA "TODOS" "ACTIVOS" "INACTIVOS"-->
-            <div class="col w-25 mt-2">
+            <div class=" w-25 mt-2">
                 <div class="d-flex justify-content-end gap-3">
                     <div class="form-check form-check-inline">
                         <input class="form-check-input " type="radio" name="estadoEmpleado" id="estadoTodos" value="todos" checked>
@@ -106,27 +112,27 @@
                     {
                         <li class="page-item" onclick="cambiarPagina(@Pagina - 1)">
                             <a class="page-link" id="btnAnterior"  aria-label="Anterior">
-                                <i class="bi bi-chevron-double-left"></i>
+                                <i class="bi bi-chevron-double-left text-black"></i>
                             </a>
                         </li>
                     }
                     else
                     {
                         <li class="page-item disabled" >
-                            <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
+                            <span class="page-link"><i class="bi bi-chevron-double-left text-black"></i></span>
                         </li>
                     }
                     @for(int i = 1; i <= cantidadTotalDePaginas; i++)
                     {
                         <li class="page-item @(i == Pagina ? "active" : "")" onclick="cambiarPagina(@i)">
-                            <a class="page-link" >@i</a>
+                            <a class="page-link " >@i</a>
                         </li>
                     }
                     @if (Pagina < cantidadTotalDePaginas)
                     {
                         <li class="page-item">
                             <a class="page-link" id="btnSiguiente" onclick="cambiarPagina(@Pagina + 1)" aria-label="Siguiente">
-                                <i class="bi bi-chevron-double-right"></i>
+                                <i class="bi bi-chevron-double-right text-black"></i>
                             </a>
                         </li>
                     }
@@ -134,7 +140,7 @@
                     {
                         <li class="page-item disabled">
                             <span class="page-link">
-                                <i class="bi bi-chevron-double-right">
+                                <i class=" bi bi-chevron-double-right text-black">
 
                                 </i>
                             </span>
@@ -160,13 +166,19 @@
             }
         }
     }
+    function verificarFiltroDni(parametros){
+        const inputBusquedaEmpleado = document.getElementById("inputBuscarEmpleado").value;
+        if(inputBusquedaEmpleado.trim() != ""){
+            parametros.append("dni", inputBusquedaEmpleado);
+        }
+    }
     async function actualizarContenido(){
         
         let url = "/Empleado?";
-        
         const parametros = new URLSearchParams();
         parametros.append("nroPagina", pagina);
         verificarFiltrosActivos(parametros);
+        verificarFiltroDni(parametros);
         url += parametros.toString();
         try{
             const response = await fetch(url);
@@ -208,4 +220,5 @@
         }
         console.error("Error al dar de alta el empleado");
     }
+    document.getElementById("inputBuscarEmpleado").addEventListener("input", actualizarContenido);
 </script>

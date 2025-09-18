@@ -16,10 +16,10 @@ public class EmpleadoController : Controller
         this.personaService = personaService;
     }
     [HttpGet("/Empleado")]
-    public async Task<IActionResult> VistaEmpleados(int nroPagina = 1, int? estado = null)
+    public async Task<IActionResult> VistaEmpleados(int nroPagina = 1, int? estado = null, int? dni = null)
     {
         int cantidadRegistrosPorPagina = 5;
-        (string?, List<Empleado>?, int?) empleados = await empleadoService.ObtenerTodos(nroPagina, cantidadRegistrosPorPagina, estado);
+        (string?, List<Empleado>?, int?) empleados = await empleadoService.ObtenerTodos(nroPagina, cantidadRegistrosPorPagina, estado, dni);
         EmpleadoViewModel empleadoViewModel = new EmpleadoViewModel();
         empleadoViewModel.Empleados = empleados.Item2 ?? new List<Empleado>();
         ViewBag.nroPagina = nroPagina;

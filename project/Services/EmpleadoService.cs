@@ -15,7 +15,7 @@ public class EmpleadoService : IEmpleadoService
 
     
 
-    public async Task<(string?, List<Empleado>?, int?)> ObtenerTodos(int? nroPagina, int? registrosPorPagina, int? estado)
+    public async Task<(string?, List<Empleado>?, int?)> ObtenerTodos(int? nroPagina, int? registrosPorPagina, int? estado, int? dni)
     {
         try
         {
@@ -35,8 +35,12 @@ public class EmpleadoService : IEmpleadoService
                                     FROM empleado as empleado
                                     INNER JOIN persona as persona
                                     ON empleado.idPersona = persona.idPersona ";
-                if(estado != null) query += $" WHERE empleado.estado = {estado} ";
+                List<String> parametros = new List<string>();
+                if (dni != null) parametros.Add($" persona.dni like '%{dni}%' ");
+                if (estado != null) parametros.Add($" empleado.estado = {estado} ");
+                query += HelperFor.construirSqlWhereAnd(parametros);
                 query += $" ORDER BY empleado.idEmpleado LIMIT {registrosPorPagina }\n OFFSET {(nroPagina - 1) * registrosPorPagina} ";
+                System.Console.WriteLine(query);
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.CommandType = CommandType.Text;
