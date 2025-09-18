@@ -25,6 +25,7 @@ builder.Services.AddSingleton<IPropietarioService, PropietarioService>();
 builder.Services.AddSingleton<IContratoService, ContratoService>();
 builder.Services.AddSingleton<IInmuebleService, InmuebleService>();
 builder.Services.AddSingleton<ITipo_InmuebleService, Tipo_InmuebleService>();
+builder.Services.AddSingleton<IEmpleadoService, EmpleadoService>();
 
 // Registrar PagosService para IPagosService
 builder.Services.AddSingleton<IPagosService, PagosService>();
