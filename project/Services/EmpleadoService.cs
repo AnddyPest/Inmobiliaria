@@ -15,13 +15,15 @@ public class EmpleadoService : IEmpleadoService
 
     
 
-    public async Task<(string?, List<Empleado>?)> ObtenerTodos()
+    public async Task<(string?, List<Empleado>?, int?)> ObtenerTodos(int? nroPagina, int? registrosPorPagina, int? estado)
     {
         try
         {
+            int cantidadRegistros = 0;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = @"   SELECT empleado.idEmpleado, 
+                string query = @"   SELECT SQL_CALC_FOUND_ROWS
+                                    empleado.idEmpleado, 
                                     persona.idPersona, 
                                     persona.dni, 
                                     persona.nombre, 
@@ -29,16 +31,18 @@ public class EmpleadoService : IEmpleadoService
                                     persona.email, 
                                     persona.telefono, 
                                     persona.direccion, 
-                                    persona.estado
+                                    empleado.estado
                                     FROM empleado as empleado
                                     INNER JOIN persona as persona
-                                    ON empleado.idPersona = persona.idPersona";
+                                    ON empleado.idPersona = persona.idPersona ";
+                if(estado != null) query += $" WHERE empleado.estado = {estado} ";
+                query += $" ORDER BY empleado.idEmpleado LIMIT {registrosPorPagina }\n OFFSET {(nroPagina - 1) * registrosPorPagina} ";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.CommandType = CommandType.Text;
                     await connection.OpenAsync();
                     List<Empleado> empleados = new List<Empleado>();
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
                         {
@@ -56,15 +60,20 @@ public class EmpleadoService : IEmpleadoService
                             empleados.Add(empleado);
                         }
                     }
+                    using (MySqlCommand countCommand = new MySqlCommand("SELECT FOUND_ROWS()", connection))
+                    {
+                        cantidadRegistros = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+                    }
                     await connection.CloseAsync();
-                    return (null, empleados);
+                    if (cantidadRegistros == 0) return ("No se encontraron registros de empleados", null, cantidadRegistros);
+                    return (null, empleados, cantidadRegistros);
                 }
             }
         }
         catch (Exception ex)
         {
             HelperFor.imprimirMensajeDeError(ex.Message, nameof(EmpleadoService), nameof(ObtenerTodos));
-            return ("Error al obtener todos los empleados: Internal Server Error", null);
+            return ("Error al obtener todos los empleados: Internal Server Error", null, null);
         }
     }
     public async Task<(string?, bool)> CreateEmpleado(int idPersona, int? idUsuario) //faltaria agregar usuario

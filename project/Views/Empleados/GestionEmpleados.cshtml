@@ -2,6 +2,8 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Gestion de Empleados";
+    var Pagina = ViewBag.nroPagina ?? 1;
+    var cantidadTotalDePaginas = ViewBag.cantidadTotalDePaginas ?? 1;
 }
 <style>
     /* Placeholder de DNI rojo y negrita cuando hay error texto: "SOLO NUMEROS"*/
@@ -31,17 +33,17 @@
                         <label class="form-check-label " style="color:white; for="estadoTodos">Todos</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="estadoEmpleado" id="estadoActivos" value="activos">
+                        <input class="form-check-input" type="radio" name="estadoEmpleado" id="estadoActivos" value="1">
                         <label class="form-check-label " style="color:white; for="estadoActivos">Activos</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="estadoEmpleado" id="estadoInactivos" value="inactivos">
+                        <input class="form-check-input" type="radio" name="estadoEmpleado" id="estadoInactivos" value="0">
                         <label class="form-check-label  " style="color:white;" for="estadoInactivos">Inactivos</label>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="table-responsive p-2" style="min-height: 600px;">
+    <div id="tablaEmpleados" class="table-responsive p-2" style="min-height: 600px;">
         <table class="table table-dark table-stripped" style="overflow-x: auto;">
             <thead>
                 <tr class="text-center">
@@ -75,14 +77,18 @@
                             }
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-primary me-1" onclick="window.location.href='/Propietario/Update?id=@empleado.IdPersona'"><i class="fa-solid fa-pen-to-square"></i></button>
-                            @if (empleado.Estado)
+                            <button class="btn btn-sm  me-1" onclick="altaEmpleado(@empleado.IdEmpleado)"></button>
+                            @if (!empleado.Estado)
                             {
-                                <button class="btn btn-sm btn-danger me-1" onclick="bajaEstadoPropietario(@empleado.IdEmpleado)"><i class="fa-solid fa-trash"></i></button>
+                                <button class="btn btn-sm btn-outline-success me-1" onclick="altaEmpleado(@empleado.IdEmpleado)" title="Dar de alta">
+                                    <i class="bi bi-person-check-fill"></i>
+                                </button>
                             }
                             else
                             {
-                                <button class="btn btn-sm btn-success me-1" onclick="altaEstadoPropietario(@empleado.IdEmpleado)"><i class="fa-solid fa-recycle"></i></button>
+                                <button class="btn btn-sm btn-outline-danger me-1" onclick="bajaEmpleado(@empleado.IdEmpleado)" title="Dar de baja">
+                                    <i class="bi bi-person-x-fill"></i>
+                                </button>
                             }
 
                             <button class="btn btn-sm btn-warning" onclick="verContratosPropietario(@empleado.IdEmpleado)"><i class="fa-solid fa-key"></i></button>
@@ -93,136 +99,113 @@
             </tbody>
         </table>
     </div>
-    <div class="row justify-content-end w-100">
-        <!--Filtro para buscar por DNI-->
-            <div class="col input w-25">
-                <input type="text" class="form-control" placeholder="Buscar por DNI" id="dniInput">
-                
-            </div>
-            <!--Filtro para buscar por nombre-->
-            <div class="col input w-25">
-                <input type="text" class="form-control" placeholder="Buscar por Nombre" id="nombreInput">
-                
-            </div>
-            <!--Boton de resetear filtros-->
-            <div class="col w-25">
-            <button type="button" class="btn btn-secondary shadow ms-1 me-1 w-100" onclick="window.location.reload()">Resetear</button>
-            </div>
-            <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/propietario'">Cancelar</button>
+    <div id="paginacion" class="col d-flex w-100 justify-content-between">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    @if (Pagina > 1)
+                    {
+                        <li class="page-item" onclick="cambiarPagina(@Pagina - 1)">
+                            <a class="page-link" id="btnAnterior"  aria-label="Anterior">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled" >
+                            <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
+                        </li>
+                    }
+                    @for(int i = 1; i <= cantidadTotalDePaginas; i++)
+                    {
+                        <li class="page-item @(i == Pagina ? "active" : "")" onclick="cambiarPagina(@i)">
+                            <a class="page-link" >@i</a>
+                        </li>
+                    }
+                    @if (Pagina < cantidadTotalDePaginas)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" id="btnSiguiente" onclick="cambiarPagina(@Pagina + 1)" aria-label="Siguiente">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                <i class="bi bi-chevron-double-right">
+
+                                </i>
+                            </span>
+                        </li>
+                    }
+                </ul>
+            </nav>
         </div>
-    </div>
 </div>
 
-
-   
-
-
 <script>
-// Filtro por estado con radio buttons tipo radiobuttons
-//Funcion para evitar que se ingresen NaN en el filtro por DNI, Solo adminte numeros del 0 - 9
-const dniInput = document.getElementById("dniInput");
-dniInput.addEventListener("input", function() {
-    const original = this.value;
-    const filtered = original.replace(/[^0-9]/g, '');
-    if (original !== filtered) {
-        // Feedback visual TEXTO EN ROJO Y BORDE EN ROJO "SOLO NÚMEROS"
-        const prevPlaceholder = this.placeholder;
-        this.value = filtered;
-        this.placeholder = "SOLO NÚMEROS";
-        this.classList.add("placeholder-error");
-        this.style.color = "#dc3545";
-        this.style.fontWeight = "bold";
-        this.style.borderColor = "#dc3545";
-        setTimeout(() => {
-            this.classList.remove("placeholder-error");
-            this.placeholder = prevPlaceholder;
-            this.style.color = "";
-            this.style.fontWeight = "";
-            this.style.borderColor = "";
-        }, 900);
+    let pagina = @Pagina;
+
+    function cambiarPagina(nroPagina){
+        pagina = nroPagina;
+        actualizarContenido();
     }
-});
-
-
-// FILTROS ACUMULATIVOS PARA DNI Y NOMBRE y APELLIDO y AHORA TAMBIEN LOS RADIO BUTNS
-document.getElementById("dniInput").addEventListener("keyup", function() {
-    filtrarTabla();
-});
-document.getElementById("nombreInput").addEventListener("keyup", function() {
-    filtrarTabla();
-});
-document.querySelectorAll('input[name="estadoPropietario"]').forEach(function(radio) {
-    radio.addEventListener('change', filtrarTabla);
-});
-
-function filtrarTabla() {
-    var dni = document.getElementById("dniInput").value;
-    var nombre = document.getElementById("nombreInput").value.toLowerCase();
-    var estado = document.querySelector('input[name="estadoPropietario"]:checked').value;
-    var rows = document.querySelectorAll("table tbody tr");
-    rows.forEach(function(row) {
-        var cellNombre = row.querySelector("td:nth-child(1)");
-        var cellDni = row.querySelector("td:nth-child(2)");
-        var cellEstado = row.querySelector("td:nth-child(6) span");
-        var matchNombre = true;
-        var matchDni = true;
-        var matchEstado = true;
-        if (cellNombre) {
-            var cellNombreValue = cellNombre.textContent || cellNombre.innerText;
-            if (nombre && !cellNombreValue.toLowerCase().startsWith(nombre)) {
-                matchNombre = false;
+    function verificarFiltrosActivos(parametros){
+        const circulitos = document.getElementsByName("estadoEmpleado");
+        for(let i = 0; i < circulitos.length; i++){
+            if(circulitos[i].checked && circulitos[i].value != "todos"){
+                parametros.append("estado", circulitos[i].value);
             }
         }
-        if (cellDni) {
-            var cellDniValue = cellDni.textContent || cellDni.innerText;
-            if (dni && !cellDniValue.startsWith(dni)) {
-                matchDni = false;
+    }
+    async function actualizarContenido(){
+        
+        let url = "/Empleado?";
+        
+        const parametros = new URLSearchParams();
+        parametros.append("nroPagina", pagina);
+        verificarFiltrosActivos(parametros);
+        url += parametros.toString();
+        try{
+            const response = await fetch(url);
+            if(!response.ok){
+                console.error("Error al obtener los empleados");
+                return;
             }
+            const data =  await response.text();
+            const dom = new DOMParser().parseFromString(data, 'text/html');
+            const fragmentoTabla = obtenerFragmentoHTML('tablaEmpleados', dom);
+            const fragmentoPaginacion = obtenerFragmentoHTML('paginacion', dom);
+            document.getElementById("tablaEmpleados").replaceWith(fragmentoTabla);
+            document.getElementById("paginacion").replaceWith(fragmentoPaginacion);
+        }catch(error){
+            console.error(error);
+            return;
         }
-        if (cellEstado && estado !== 'todos') {
-            var estadoText = cellEstado.textContent.trim().toLowerCase();
-            if ((estado === 'activos' && estadoText !== 'activo') || (estado === 'inactivos' && estadoText !== 'inactivo')) {
-                matchEstado = false;
-            }
-        }
-        if (matchNombre && matchDni && matchEstado) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
-    });
-}
-
-//CONTROLADORES PARA METODOS DE ALTA Y BAJA A ENDPOINTS DEL CONTROLLER
-function bajaEstadoPropietario(idPropietario) {
-    fetch('/propietario/Baja', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(idPropietario)
+         
+    }
+    function obtenerFragmentoHTML(id, html){
+        return html.getElementById(id);
+    }
+    document.getElementsByName("estadoEmpleado").forEach(circulo => {
+        circulo.addEventListener("change", actualizarContenido);
     })
-    .then(response => {
-        if (response.ok) {
-            window.location.reload();
+    async function bajaEmpleado(idEmpleado){
+        const response = await fetch('/Empleado/Baja?idEmpleado=' + idEmpleado);
+        if(response.ok){
+            actualizarContenido();
+            return
         }
-    });
-}
-
-function altaEstadoPropietario(idPropietario) {
-
-    fetch('/Propietario/Alta', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(idPropietario)
-    })
-    .then(response => {
-        if (response.ok) {
-            window.location.reload();
+        console.error("Error al dar de baja el empleado");
+    }
+    async function altaEmpleado(idEmpleado){
+        const response = await fetch('/Empleado/Alta?idEmpleado=' + idEmpleado);
+        if(response.ok){
+            actualizarContenido();
+            return
         }
-    });
-}
-
+        console.error("Error al dar de alta el empleado");
+    }
 </script>

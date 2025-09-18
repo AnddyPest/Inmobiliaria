@@ -161,53 +161,6 @@
     dniInput.addEventListener("keyup", function() {
         const dni = this.value;
         if (dni.length >= 8) {
-            // Consultar ambos endpoints en paralelo (rutas absolutas)
-            /* Promise.all([
-                fetch('/Propietario/BuscarPorDni?dni=' + dni).then(r => r.ok ? r.json() : {}),
-                fetch('/Inquilino/BuscarPorDni?dni=' + dni).then(r => r.ok ? r.json() : {})
-            ]).then(([prop, inq]) => {
-                // Completa los campos si la persona existe en propietario o inquilino
-                let nombre = prop.nombre || inq.nombre || '';
-                let apellido = prop.apellido || inq.apellido || '';
-                document.getElementById('nombre').value = nombre;
-                document.getElementById('apellido').value = apellido;
-                document.getElementById('telefono').value = prop.telefono || inq.telefono || '';
-                document.getElementById('direccion').value = prop.direccion || inq.direccion || '';
-                document.getElementById('email').value = prop.email || inq.email || '';
-
-                let mensajes = [];
-                if (prop.esPropietario) {
-                    mensajes.push(`El cliente ${nombre} ${apellido} figura como propietario en nuestra base de datos, no puede guardarse nuevamente.`);
-                }
-                if (inq.esInquilino) {
-                    mensajes.push(`${nombre} ${apellido} figura como inquilino en uno o más contratos vigentes.`);
-                }
-                if (mensajes.length > 0) {
-                    showPersonaModal(mensajes.join('\n'));
-                    if(prop.esPropietario) {
-                        document.querySelector('button[type="submit"]').disabled = true;
-                    }
-                } else {
-                    hidePersonaModal();
-                    document.querySelector('button[type="submit"]').disabled = false;
-                    // Habilitar campos para alta manual
-                    ['nombre','apellido','telefono','direccion','email'].forEach(id => {
-                        document.getElementById(id).removeAttribute('disabled');
-                    });
-                }
-            }).catch(() => {
-                // Si no existe, limpia y habilita los campos
-                document.getElementById('nombre').value = '';
-                document.getElementById('apellido').value = '';
-                document.getElementById('telefono').value = '';
-                document.getElementById('direccion').value = '';
-                document.getElementById('email').value = '';
-                ['nombre','apellido','telefono','direccion','email'].forEach(id => {
-                    document.getElementById(id).removeAttribute('disabled');
-                });
-                hidePersonaModal();
-                document.querySelector('button[type="submit"]').disabled = false;
-            }); */
             verificarSiExisteLaPersona(dni);
         } else {
             // Si la longitud es menor a 8, limpia y deshabilita los campos
