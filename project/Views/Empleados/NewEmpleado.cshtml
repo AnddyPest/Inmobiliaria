@@ -1,65 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuevo Propietario</title>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Registrar Nuevo Empleado";
+}
 
-    <style>
-        .img-shadow {
-            box-shadow: 0 10px 28px rgba(0,0,0,0.20);
-            border-radius: 0.5rem;
-            transition: box-shadow .18s ease, transform .18s ease;
-            transform-origin: center;
-        }
-        .img-shadow:hover {
-            box-shadow: 0 18px 40px rgba(0,0,0,0.28);
-            transform: scale(0.98);
-        }
-        #dni.placeholder-error::placeholder {
-            color: #dc3545 !important;
-            font-weight: bold;
-            opacity: 1;
+<style>
+    .img-shadow {
+        box-shadow: 0 10px 28px rgba(0,0,0,0.20);
+        border-radius: 0.5rem;
+        transition: box-shadow .18s ease, transform .18s ease;
+        transform-origin: center;
     }
-    </style>
-</head>
-<body>
-    <div class="d-flex flex-column p-2 border border-success-subtle shadow rounded" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
+    .img-shadow:hover {
+        box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+        transform: scale(0.98);
+    }
+    #dni.placeholder-error::placeholder {
+        color: #dc3545 !important;
+        font-weight: bold;
+        opacity: 1;
+    }
+</style>
 
-        <h3 class="text-primary mb-3">Registrar Nuevo Propietario</h3>
-    <form action="/Propietario/Create" method="POST" class="p-3 border border-success mb-2 rounded" id="formPropietario">
+<div class="container-fluid d-flex justify-content-center align-items-center flex-column">
+    <div class="d-flex justify-content-center shadow m-2 mb-3 p-3 width-100 rounded"  >
+        <h3 class=" p-2 fs-1 " style="color: white;">Registrar Nuevo Empleado</h3>
+    </div>
+    <div class="d-flex flex-column p-2 border border-success-subtle shadow rounded text-white fs-5" style="  min-width: 80vw; ">
+
+        
+        <form action="/Empleado/registrar" method="POST" class="p-3  mb-2 rounded" id="formPropietario">
             <div class="row mb-3">
                 <div class="col">
-                    <label for="dni">DNI:</label>
+                    <label class="form-label" for="dni">DNI:</label>
                     <input type="text" id="dni" name="dni" class="form-control" required>
                 </div>
                 <div class="col">
-                    <label for="nombre">Nombre:</label>
+                    <label class="form-label" for="nombre">Nombre:</label>
                     <input type="text" id="nombre" name="nombre" class="form-control" required disabled>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col">
-                    <label for="apellido">Apellido:</label>
+                    <label  class="form-label" for="apellido">Apellido:</label>
                     <input type="text" id="apellido" name="apellido" class="form-control" required disabled>
                 </div>
                 <div class="col">
-                    <label for="telefono">Teléfono:</label>
+                    <label class="form-label" for="telefono">Teléfono:</label>
                     <input type="text" id="telefono" name="telefono" class="form-control" required disabled>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col">
-                    <label for="direccion">Dirección:</label>
+                    <label class="form-label" for="direccion">Dirección:</label>
                     <input type="text" id="direccion" name="direccion" class="form-control" required disabled>
                 </div>
                 <div class="col">
-                    <label for="email">Email:</label>
+                    <label class="form-label" for="email">Email:</label>
                     <input type="email" id="email" name="email" class="form-control" required disabled>
                 </div>
             </div>
 
-            <div class="mb-3 p-3 row border border-dark rounded w-100 ms-1">
+            <div class="mb-3 p-3 row rounded w-100 ms-1">
                 <div class="col w-25">
                     <button class="btn btn-warning shadow ms-1 me-1 w-100" type="reset" onclick="window.location.reload()">Limpiar Formulario</button>
                 </div>
@@ -69,24 +70,13 @@
                     <button type="submit" class="btn btn-primary shadow ms-1 me-1 w-100">Registrar Propietario</button>
                 </div>
             </div>
-                </form>
-               
-        <div class="row border-dark mb-2 rounded">
-            <div style="height:25vh; display:flex; align-items:center; justify-content:center; overflow:hidden; width:100%;">
-                <img src="@Url.Content("~/images/inmobiliaria.png")" alt="Inmobiliaria" class="img-fluid img-shadow me-5" style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
-                <img src="@Url.Content("~/images/elegant.png")" alt="Inmobiliaria" class="img-fluid img-shadow ms-5 me-5" style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
-                <img src="@Url.Content("~/images/key.png")" alt="Inmobiliaria" class="img-fluid img-shadow ms-5" style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
-            </div>
-            
-        </div>
-        <div class="row justify-content-end w-100">
-            <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/Propietario'">Cancelar</button>
+        </form>
+        <div class="row justify-content-end w-100 p-3">
+            <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/Empleado'">Cancelar</button>
         </div>
     </div>
+</div>
 
-   
-</body>
-</html>
 
 <script>
     const dniInput = document.getElementById("dni");
@@ -118,13 +108,61 @@
             }, 900);
         }
     });
+    async function verificarSiExisteLaPersona(dni) {
+        const urlParams = new URLSearchParams();
+        urlParams.set('dni', dni);
+        const url = '/persona/dni?' + urlParams.toString();
+        console.log(url);
+        const response = await fetch(url);
+        if(!response.ok) {
+            console.error('Error al obtener la persona');
+            return;
+        }
+        const persona = await response.json();
+        console.log(persona.persona);
+        if(persona.existe == true){
+            const personaValida = persona.persona;
+            document.getElementById('nombre').value = personaValida.nombre;
+            document.getElementById('apellido').value = personaValida.apellido;
+            document.getElementById('telefono').value = personaValida.telefono ;
+            document.getElementById('direccion').value = personaValida.direccion ;
+            document.getElementById('email').value = personaValida.email ;
 
+            const urlEmpleado = '/Empleado/validar?dni=' + urlParams.toString();
+            const responseEmpleado = await fetch(urlEmpleado)
+            if(!responseEmpleado.ok) {
+                console.error('Error al obtener la persona');
+                return;
+            }
+            const validarEmpleado = await responseEmpleado.json();
+            
+            if(validarEmpleado.existe == true){
+                showPersonaModal("El empleado ya se encuentra registrado");
+                document.querySelector('button[type="submit"]').disabled = true;
+            }else{
+                showPersonaModal("La persona se encuentra registrada");
+                document.querySelector('button[type="submit"]').disabled = false;
+                ['nombre','apellido','telefono','direccion','email'].forEach(id => {
+                    document.getElementById(id).removeAttribute('disabled');
+                });
+            }
+        }
+        if(persona.existe == false){
+            showPersonaModal("La persona no se encuentra registrada");
+            document.querySelector('button[type="submit"]').disabled = false;
+            ['nombre','apellido','telefono','direccion','email'].forEach(id => {
+                document.getElementById(id).removeAttribute('disabled');
+                document.getElementById(id).value = '';
+            });
+
+        }
+    }
 
     dniInput.addEventListener("keyup", function() {
         const dni = this.value;
         if (dni.length >= 8) {
             // Consultar ambos endpoints en paralelo (rutas absolutas)
-            Promise.all([
+            /* Promise.all([
                 fetch('/Propietario/BuscarPorDni?dni=' + dni).then(r => r.ok ? r.json() : {}),
                 fetch('/Inquilino/BuscarPorDni?dni=' + dni).then(r => r.ok ? r.json() : {})
             ]).then(([prop, inq]) => {
@@ -169,7 +207,8 @@
                 });
                 hidePersonaModal();
                 document.querySelector('button[type="submit"]').disabled = false;
-            });
+            }); */
+            verificarSiExisteLaPersona(dni);
         } else {
             // Si la longitud es menor a 8, limpia y deshabilita los campos
             document.getElementById('nombre').value = '';

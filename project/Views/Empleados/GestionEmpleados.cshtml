@@ -1,6 +1,7 @@
+@model project.Models.ViewModels.EmpleadoViewModel
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    title = "Gestion de Empleados";
+    ViewData["Title"] = "Gestion de Empleados";
 }
 <style>
     /* Placeholder de DNI rojo y negrita cuando hay error texto: "SOLO NUMEROS"*/
@@ -11,27 +12,31 @@
     }
 </style>
 
-    
+<div class="container-fluid text-center d-flex flex-column align-items-center justify-content-center">
+    <div class="text-center mb-3 mt-3 shadow p-2 " style="min-width: 100vh;">
+        <h3 class="text-white mb-2 ms-3">Listado de Empleados</h3>
+    </div>
 
-    <div class="d-flex flex-column p-2 border border-success-subtle rounded" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
-        <div class="row w-100">
-            <div class="col w-75">
-                <h3 class="text-primary mb-2 ms-3">Listado de Propietarios</h3>
+    <div class="d-flex flex-column p-2 shadow rounded" style=" min-height: 80vh; min-width: 80vw; ">
+        
+        <div class="row ">
+            <div class="w-25" style="margin-left: -80px;">
+                <a class="btn btn-dark shadow  w-50" onclick="window.location.href='/Empleado/new'"> Registrar</a>
             </div>
             <!--SELECTOR TRIPLE PARA "TODOS" "ACTIVOS" "INACTIVOS"-->
             <div class="col w-25 mt-2">
                 <div class="d-flex justify-content-end gap-3">
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="estadoPropietario" id="estadoTodos" value="todos" checked>
-                        <label class="form-check-label" for="estadoTodos">Todos</label>
+                        <input class="form-check-input " type="radio" name="estadoEmpleado" id="estadoTodos" value="todos" checked>
+                        <label class="form-check-label " style="color:white; for="estadoTodos">Todos</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="estadoPropietario" id="estadoActivos" value="activos">
-                        <label class="form-check-label" for="estadoActivos">Activos</label>
+                        <input class="form-check-input" type="radio" name="estadoEmpleado" id="estadoActivos" value="activos">
+                        <label class="form-check-label " style="color:white; for="estadoActivos">Activos</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="estadoPropietario" id="estadoInactivos" value="inactivos">
-                        <label class="form-check-label" for="estadoInactivos">Inactivos</label>
+                        <input class="form-check-input" type="radio" name="estadoEmpleado" id="estadoInactivos" value="inactivos">
+                        <label class="form-check-label  " style="color:white;" for="estadoInactivos">Inactivos</label>
                     </div>
                 </div>
             </div>
@@ -41,7 +46,6 @@
             <thead>
                 <tr class="text-center">
                     <th style="width: 20%;">Nombre</th>
-                    
                     <th style="width: 10%;">DNI</th>
                     <th style="width: 10%;">Teléfono</th>
                     <th style="width: 10%;">Dirección</th>
@@ -51,17 +55,17 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var propietario in Model)
+                @foreach (Empleado empleado in Model.Empleados)
                 {
                     <tr class="text-center">
-                        <td>@propietario.Nombre @propietario.Apellido</td>
+                        <td>@empleado.Nombre @empleado.Apellido</td>
                         
-                        <td>@propietario.Dni</td>
-                        <td>@propietario.Telefono</td>
-                        <td>@propietario.Direccion</td>
-                        <td>@propietario.Email</td>
+                        <td>@empleado.Dni</td>
+                        <td>@empleado.Telefono</td>
+                        <td>@empleado.Direccion</td>
+                        <td>@empleado.Email</td>
                         <td>
-                            @if (@propietario.EstadoPropietario)
+                            @if (@empleado.Estado)
                             {
                                 <span class="badge bg-success">Activo</span>
                             }
@@ -71,26 +75,26 @@
                             }
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-primary me-1" onclick="window.location.href='/Propietario/Update?id=@propietario.IdPersona'"><i class="fa-solid fa-pen-to-square"></i></button>
-                            @if (propietario.EstadoPropietario)
+                            <button class="btn btn-sm btn-primary me-1" onclick="window.location.href='/Propietario/Update?id=@empleado.IdPersona'"><i class="fa-solid fa-pen-to-square"></i></button>
+                            @if (empleado.Estado)
                             {
-                                <button class="btn btn-sm btn-danger me-1" onclick="bajaEstadoPropietario(@propietario.IdPropietario)"><i class="fa-solid fa-trash"></i></button>
+                                <button class="btn btn-sm btn-danger me-1" onclick="bajaEstadoPropietario(@empleado.IdEmpleado)"><i class="fa-solid fa-trash"></i></button>
                             }
                             else
                             {
-                                <button class="btn btn-sm btn-success me-1" onclick="altaEstadoPropietario(@propietario.IdPropietario)"><i class="fa-solid fa-recycle"></i></button>
+                                <button class="btn btn-sm btn-success me-1" onclick="altaEstadoPropietario(@empleado.IdEmpleado)"><i class="fa-solid fa-recycle"></i></button>
                             }
 
-                            <button class="btn btn-sm btn-warning" onclick="verContratosPropietario(@propietario.IdPropietario)"><i class="fa-solid fa-key"></i></button>
+                            <button class="btn btn-sm btn-warning" onclick="verContratosPropietario(@empleado.IdEmpleado)"><i class="fa-solid fa-key"></i></button>
 
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
-        </div>
-        <div class="row justify-content-end w-100">
-            <!--Filtro para buscar por DNI-->
+    </div>
+    <div class="row justify-content-end w-100">
+        <!--Filtro para buscar por DNI-->
             <div class="col input w-25">
                 <input type="text" class="form-control" placeholder="Buscar por DNI" id="dniInput">
                 
@@ -107,10 +111,12 @@
             <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/propietario'">Cancelar</button>
         </div>
     </div>
+</div>
+
 
    
-</body>
-</html>
+
+
 <script>
 // Filtro por estado con radio buttons tipo radiobuttons
 //Funcion para evitar que se ingresen NaN en el filtro por DNI, Solo adminte numeros del 0 - 9
