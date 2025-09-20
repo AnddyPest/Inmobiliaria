@@ -189,7 +189,7 @@ namespace project.Services
             }
         }
 
-        public async Task<(string?, List<Contrato>?)> GetAllContratos(int? nroPagina, int? registrosPorPagina, string? disponibilidad, int? fechaCompare ,string? inmueble) //testear
+        public async Task<(string?, List<Contrato>?)> GetAllContratos(int? nroPagina, int? registrosPorPagina, string? disponibilidad, int? fechaCompare, string? inmueble) //testear
         {
             try
             {
@@ -223,10 +223,10 @@ namespace project.Services
                     {
                         if (disponibilidad.ToLower() == "vigente")
                             parametros.Add(" c.estado = 1 ");
-                            //query += " WHERE c.estado = 1 ";
+                        //query += " WHERE c.estado = 1 ";
                         else if (disponibilidad.ToLower() == "no vigente")
                             parametros.Add(" c.estado = 0 ");
-                           // query += " WHERE c.estado = 0 ";
+                        // query += " WHERE c.estado = 0 ";
                         // Si es 'todos' o vacío, no se agrega WHERE y se muestran ambos estados
                     }
                     if (fechaCompare.HasValue)
@@ -252,15 +252,15 @@ namespace project.Services
                             // else
                             //     query += $" WHERE {filtroSQL}";
                         }
-                        
-                       
+
+
                     }
                     if (!string.IsNullOrEmpty(inmueble))
                     {
                         parametros.Add($" Inmueble.direccion LIKE '%{inmueble}%' ");
                     }
                     query += HelperFor.construirSqlWhereAnd(parametros);
-                    
+
                     List<Contrato> contratos = new List<Contrato>();
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -292,7 +292,7 @@ namespace project.Services
                                     inquilino.IdInquilino = reader.GetInt32("InquilinoId");
                                     inquilino.Nombre = reader.GetString("NombreInquilino");
                                     inquilino.Apellido = reader.GetString("ApellidoInquilino");
-                                    
+
                                     contrato.Inquilino = inquilino;
 
                                     propietario = new Propietario();
@@ -300,7 +300,7 @@ namespace project.Services
                                     propietario.IdPropietario = reader.GetInt32("PropietarioId");
                                     propietario.Nombre = reader.GetString("NombrePropietario");
                                     propietario.Apellido = reader.GetString("ApellidoPropietario");
-                                    
+
                                     contrato.Propietario = propietario;
 
                                     inmuebleResponse = new Inmueble();
@@ -695,6 +695,29 @@ namespace project.Services
             {
                 HelperFor.imprimirMensajeDeError(ex.Message, nameof(ContratoService), nameof(RenovarContrato));
                 return (ex.Message, false);
+            }
+        }
+        public async Task<(string?, int?)> CalcularMesesDeMulta(int idContrato)
+        {
+            try
+            {
+                if (idContrato <= 0) return ("El id del contrato debe ser un número positivo.", null);
+                (string? error, Contrato? contrato) = await this.GetContratoById(idContrato);
+                if (error != null) return (error, null);
+                if (contrato == null) return ($"No se encontró un contrato con Id {idContrato}.", null);
+                if (contrato.estado == false) return ("No se puede calcular la multa de un contrato que está dado de baja.", null);
+                DateTime hoy = DateTime.Now;
+                TimeSpan diferenciaEntreFechasDelContrato = contrato.FechaFin - contrato.FechaInicio;
+                int diasTotales = (int)diferenciaEntreFechasDelContrato.TotalDays;
+                int diasTranscurridos = (int)(hoy - contrato.FechaInicio).TotalDays;
+                int mesesMulta = (diasTranscurridos < (diasTotales / 2)) ? 2 : 1;
+                int valorMulta =(int)(contrato.Monto * mesesMulta);
+                return (null, valorMulta);
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(ContratoService), nameof(CalcularMesesDeMulta));
+                return ("Error al calcular la multa: Internal Server Error", null);
             }
         }
     }

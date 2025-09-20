@@ -790,9 +790,43 @@
                         Swal.fire('Error', 'Error al buscar el contrato por IdInmueble.', 'error');
                         return false;
                     });
+                /* try{
+                    const response =  await fetch(`/contrato/getContratoByIdInmueble/${idInmueble}`);
+                    if(!response.ok){
+                        throw new Error('No se encontró el contrato');
+                    }
+                    const data = await response.json();
+                    if(data && Array.isArray(data) && data.length > 0 && data[0].idContrato){
+                        idContrato = data[0].idContrato;
+                    }else{
+                        console.error('No se encontró un contrato vigente para este inmueble.');
+                        Swal.fire('Error', 'No se encontró un contrato vigente para este inmueble.', 'error');
+                        return false;
+                    }
+                }catch(error){
+                    console.error('Error al buscar el contrato por IdInmueble.');
+                    Swal.fire('Error', 'Error al buscar el contrato por IdInmueble.', 'error');
+                    return false;
+                } */
+                let valorMulta = 0;
+                try{
+                    const responseFromService = await fetch(`/contrato/calcularMulta/${idContrato}`);
+                    if(!responseFromService.ok){
+                        throw new Error('Error en el servicio de calculo de Multa');
+                    }
+                    const dataFromService = await responseFromService.json();
+                    if(dataFromService == null){
+                        throw new Error('Error en el servicio de calculo de Multa: No envio datos');
+                    }
+                    valorMulta = dataFromService.resultadoMulta;
+                }catch(error){
+                    console.error('Error en el servicio de calculo de Multa.');
+                    Swal.fire('Error', 'Error en el servicio de calculo de Multa.', 'error');
+                    return false;
+                }
                 Swal.fire({
                     title: '¿Estás seguro?',
-                    text: "Vas a finalizar este contrato.",
+                    text: "Vas a finalizar este contrato. Se aplicara una multa de $" + valorMulta + " al inquilino.",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
@@ -801,8 +835,7 @@
                     cancelButtonText: 'Cancelar'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        
-                        window.location.href = `/contrato/dardebaja/${idContrato}`;
+                        window.location.href = `/contrato/dardebaja?idContrato=${idContrato}&valorMulta=${valorMulta}`;
                     }
                 });
 

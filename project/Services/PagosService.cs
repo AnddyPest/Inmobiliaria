@@ -18,11 +18,13 @@ public class PagosService : IPagosService
         int res = -1;
         try
         {
-            // Validación de pago duplicado
-            var existePago = ExistePagoAlquiler(pago.IdContrato, pago.FechaConfeccion).Result;
-            if (existePago)
+            if (pago.Detalle != "Multa de contrato")
             {
-                return Task.FromResult<(string?, bool)>( ("Ya existe un pago de alquiler para este mes", false) );
+                var existePago = ExistePagoAlquiler(pago.IdContrato, pago.FechaConfeccion).Result;
+                if (existePago)
+                {
+                    return Task.FromResult<(string?, bool)>( ("Ya existe un pago de alquiler para este mes", false) );
+                }
             }
 
             using (MySqlConnection connection = new MySqlConnection(_connectionString))

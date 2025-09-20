@@ -3,6 +3,7 @@ using project.Models;
 using project.Models.Interfaces;
 using project.Helpers;
 using project.Models.ViewModels;
+using NuGet.Common;
 namespace project.Controllers
 {
     public class ContratoController : Controller
@@ -11,14 +12,15 @@ namespace project.Controllers
         private IInmuebleService _inmuebleService;
         private IInquilinoService _inquilinoService;
         private IPropietarioService _propietarioService;
-
+        private IPagosService _pagosService;
         // Elimina el constructor duplicado y deja solo el que recibe ambos servicios
-        public ContratoController(IContratoService contratoService, IInmuebleService inmuebleService, IInquilinoService inquilinoService, IPropietarioService propietarioService)
+        public ContratoController(IContratoService contratoService, IInmuebleService inmuebleService, IInquilinoService inquilinoService, IPropietarioService propietarioService, IPagosService pagosService)
         {
             _contratoService = contratoService;
             _inmuebleService = inmuebleService;
             _inquilinoService = inquilinoService;
             _propietarioService = propietarioService;
+            _pagosService = pagosService;
         }
 
         [HttpGet("contrato/listar")]
@@ -88,19 +90,28 @@ namespace project.Controllers
                 return BadRequest("No se pudo actualizar el contrato.");
             return Ok(true);
         }
-        [HttpGet("contrato/darDeBaja/{idContrato}")]
-        public async Task<IActionResult> DarDeBajaContrato(int idContrato)
+        [HttpGet("contrato/darDeBaja")]
+        public async Task<IActionResult> DarDeBajaContrato(int idContrato, decimal valorMulta)
         {
+            if (idContrato <= 0 || valorMulta <= 0)
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "El id del contrato y el valor de la multa deben ser mayores a 0.", "No se pudo dar de baja el contrato.");
+            
+            Pago pagoMulta = new Pago(2, "Multa de contrato",false,true,valorMulta,DateOnly.FromDateTime(DateTime.Now),idContrato);
             (string?, Contrato?) contrato = await _contratoService.GetContratoById(idContrato);
             if (contrato.Item1 != null || contrato.Item2 == null)
-                return BadRequest(contrato.Item1 ?? "No se encontró el contrato");
-
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error en el servicio de contratos", "No se pudo dar de baja el contrato.");
+            (string?, bool) pagoMultaCreated = await _pagosService.CreatePago(pagoMulta);
+            if (pagoMultaCreated.Item1 != null)
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", pagoMultaCreated.Item1, "Error al registrar el pago de la multa");
+            if (!pagoMultaCreated.Item2)
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "No se pudo registrar el pago de la multa", "Error al registrar el pago de la multa");
             (string?, bool) contratoDeleted = await _contratoService.DarBajaContrato(idContrato);
             if (contratoDeleted.Item1 != null)
-                return BadRequest(contratoDeleted.Item1);
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", contratoDeleted.Item1, "Error al dar de baja el contrato");
             if (!contratoDeleted.Item2)
-                return BadRequest("No se pudo dar de baja el contrato.");
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "No se pudo dar de baja el contrato", "Error al dar de baja el contrato");
 
+            
             // Marcar inmueble como disponible
             int idInmueble = contrato.Item2.IdInmueble;
             (string?, bool) disponibleResult = await _inmuebleService.MarcarLibre(idInmueble);
@@ -164,7 +175,16 @@ namespace project.Controllers
 
             return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble","El contrato no será renovado","Inmueble disponible!!");
         }
-
+        [HttpGet("contrato/calcularMulta/{idContrato}")]
+        public async Task<IActionResult> CalcularMulta(int idContrato)
+        {
+            if (idContrato <= 0)
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error en el servicio de contratos", "No se pudo calcular la multa.");
+            (string? errorServicio, int? resultadoMulta) = await _contratoService.CalcularMesesDeMulta(idContrato);
+            if (errorServicio != null)
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error en el servicio de contratos", "No se pudo calcular la multa.");
+            return Json( new { resultadoMulta = resultadoMulta });
+        }
         //VISTAS
         [HttpGet("contrato")]
         public IActionResult VistaContratos()
