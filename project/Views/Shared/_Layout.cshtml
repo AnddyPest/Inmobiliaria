@@ -75,14 +75,9 @@
                             }
                             else
                             {
-                                <!-- Usuario no logueado -->
+                                
                                 <li class="nav-item">
-                                    <a class="nav-link text-white fw-bold" asp-controller="Account" asp-action="Login">
-                                        <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-white fw-bold" asp-controller="Account" asp-action="Register">
+                                    <a class="nav-link text-white fw-bold" href="@Url.Action("Login","Auth")">
                                         <i class="bi bi-person-plus me-1"></i>Registrarse
                                     </a>
                                 </li>
