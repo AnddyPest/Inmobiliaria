@@ -835,9 +835,9 @@ namespace project.Services
                         return ("La imagen ya existe", false);
                 }
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                using (var flujo = new FileStream(filePath, FileMode.Create))
                 {
-                    await file.CopyToAsync(stream);
+                    await file.CopyToAsync(flujo);
                 }
 
                 // SE Serializa el array de URLs y se guarda en la base de datos (Formato JSON)

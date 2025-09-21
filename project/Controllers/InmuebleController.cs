@@ -236,17 +236,17 @@ namespace project.Controllers
         [HttpGet("Inmueble/VerImagenes/{idInmueble}")]
         public async Task<IActionResult> VerImagenes(int idInmueble)
         {
-            (string?, Inmueble?) inmuebleCheck = await _inmuebleService.ObtenerInmueblePorId(idInmueble);
-            if (inmuebleCheck.Item1 != null)
+            (string?, Inmueble?) inmueble = await _inmuebleService.ObtenerInmueblePorId(idInmueble);
+            if (inmueble.Item1 != null)
             {
-                HelperFor.imprimirMensajeDeError(inmuebleCheck.Item1, nameof(InmuebleController), nameof(VerImagenes));
-                return this.RedirectToActionWithError(nameof(GetAllInmuebles), inmuebleCheck.Item1);
+                HelperFor.imprimirMensajeDeError(inmueble.Item1, nameof(InmuebleController), nameof(VerImagenes));
+                return this.RedirectToActionWithError(nameof(GetAllInmuebles), inmueble.Item1);
             }
-            if (inmuebleCheck.Item2 == null)
+            if (inmueble.Item2 == null)
             {
                 return this.RedirectToActionWithError(nameof(GetAllInmuebles), "No se encontro el inmueble");
             }
-            ViewBag.Inmueble = inmuebleCheck.Item2;
+            ViewBag.Inmueble = inmueble.Item2;
             (string?, String?) inmuebleFromService = await _inmuebleService.ObtenerImagenPortada(idInmueble);
             (string?, List<String>?) imagenesInmueble = await _inmuebleService.ObtenerImagenesInmueble(idInmueble);
             if (inmuebleFromService.Item1 != null)
