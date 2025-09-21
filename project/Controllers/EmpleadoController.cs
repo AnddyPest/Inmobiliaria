@@ -66,15 +66,7 @@ public class EmpleadoController : Controller
         return this.RedirectToActionWithSuccess(nameof(VistaEmpleados), "El empleado se ha registrado correctamente", "Empleado Registrado!!!");
 
     }
-    [HttpGet("Empleado/validar")]
-    public async Task<IActionResult> ValidarDniRegistro(int dni)
-    {
-        (string? error, Empleado? empleado) = await empleadoService.getEmpleadoById(dni);
-        if (error != null)
-            HelperFor.imprimirMensajeDeError(error, nameof(EmpleadoController), nameof(ValidarDniRegistro));
-        if (empleado != null) return Json(new { empleado = empleado, existe = true });
-        return Json(new { empleado = empleado, existe = false });
-    }
+    
     [HttpGet("Empleado/Baja")]
     public async Task<IActionResult> BajaEmpleado(int idEmpleado)
     {
@@ -97,5 +89,16 @@ public class EmpleadoController : Controller
             return this.RedirectToActionWithError(nameof(VistaEmpleados), error);
         }
         return this.RedirectToActionWithSuccess(nameof(VistaEmpleados), "El empleado se ha dado de alta correctamente", "Empleado dado de alta!!!");
+    }
+    [HttpGet("Empleado/Validar")]
+    public async Task<IActionResult> ValidarDni(int dni)
+    {
+        if (dni < 8)
+            return this.RedirectToActionWithError("Login", "Auth", "El dni debe tener al menos 8 digitos.", "Bad request");
+        (string?, Empleado?) empleado = await empleadoService.getEmpleadoByDni(dni);
+        if (empleado.Item1 != null || empleado.Item2 == null)
+            return Json(new{ existe = false});
+        System.Console.WriteLine(empleado.Item2);
+        return Json(new { empleado = empleado.Item2, existe = true });
     }
 }

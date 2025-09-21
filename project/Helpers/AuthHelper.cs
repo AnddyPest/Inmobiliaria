@@ -5,8 +5,8 @@ public class AuthHelper
 {
     public static string HashContraseña(string contrasena)
     {
-        BCrypt.Net.BCrypt.HashPassword(contrasena);
-        return contrasena;
+        
+        return BCrypt.Net.BCrypt.HashPassword(contrasena);
     }
     public static bool VerificarContrasena(string contrasena, string hashContrasena)
     {

@@ -272,4 +272,58 @@ public class EmpleadoService : IEmpleadoService
             return ("Error al dar de baja empleado: Internal Server Error", false); 
         }
     }
+
+    public async Task<(string?, Empleado?)> getEmpleadoByDni(int dni)
+    {
+        try
+        {
+            using(MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT empleado.idEmpleado, 
+                                    persona.idPersona, 
+                                    persona.dni, 
+                                    persona.nombre, 
+                                    persona.apellido, 
+                                    persona.email, 
+                                    persona.telefono, 
+                                    persona.direccion, 
+                                    empleado.estado
+                                    FROM empleado as empleado
+                                    INNER JOIN persona as persona
+                                    ON empleado.idPersona = persona.idPersona
+                                    WHERE persona.dni = @dni";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@dni", dni);
+                    await connection.OpenAsync();
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            Empleado empleado = new Empleado();
+                            empleado.IdEmpleado = reader.GetInt32("idEmpleado");
+                            empleado.IdPersona = reader.GetInt32("idPersona");
+                            empleado.Dni = reader.GetInt32("dni");
+                            empleado.Nombre = reader.GetString("nombre");
+                            empleado.Apellido = reader.GetString("apellido");
+                            empleado.Email = reader.GetString("email");
+                            empleado.Telefono = reader.GetString("telefono");
+                            empleado.Direccion = reader.GetString("direccion");
+                            empleado.Estado = reader.GetBoolean("estado");
+                            await connection.CloseAsync();
+                            return (null, empleado);
+                        }
+                    }
+                    await connection.CloseAsync();
+                    return ("Empleado no encontrado", null);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(EmpleadoService), nameof(getEmpleadoByDni));
+            return ("Error al obtener empleado: Internal Server Error", null);
+        }
+    }
 }
