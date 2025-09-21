@@ -8,6 +8,7 @@ using project.Models.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +27,12 @@ builder.Services.AddSingleton<IContratoService, ContratoService>();
 builder.Services.AddSingleton<IInmuebleService, InmuebleService>();
 builder.Services.AddSingleton<ITipo_InmuebleService, Tipo_InmuebleService>();
 builder.Services.AddSingleton<IEmpleadoService, EmpleadoService>();
-
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+.AddCookie(options =>
+{
+    options.LoginPath = "/auth/login";
+    options.LogoutPath = "/Logout";
+});
 // Registrar PagosService para IPagosService
 builder.Services.AddSingleton<IPagosService, PagosService>();
 
