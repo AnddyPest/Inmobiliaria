@@ -57,7 +57,7 @@ namespace project.Controllers
             return View("~/Views/Inmuebles/VistaActualizarInmueble.cshtml", viewModel);
         }
         [HttpGet("Inmueble/Agregar")]
-        public async Task<IActionResult> Agregar(string? propietarioFiltro, int? validacion = 0 )
+        public async Task<IActionResult> Agregar(string? propietarioFiltro, int? validacion = 0)
         {
             InmuebleViewModel viewModel = new();
             (string?, List<Tipo_Inmueble>?) listaInmueblesFromService = await _tipoInmuebleService.getAllTipoInmueble();
@@ -69,28 +69,28 @@ namespace project.Controllers
                 (string?, List<Propietario>?) propietariosFromService = await _propietarioService.ObtenerTodos(propietarioFiltro);
                 if (propietariosFromService.Item2 != null) viewModel.propietarios = propietariosFromService.Item2;
             }
-           
+
             return View("~/Views/Inmuebles/VistaRegistrarInmueble.cshtml", viewModel);
         }
 
 
         [HttpGet("inmueble/listar")]
-        public async Task<IActionResult> GetAllInmuebles( int nroPagina = 1, bool? disponibilidad = null ,int? dniPropietario = null,string? uso = null, string? tipo = null, int? cantAmbientes = null, int? precio = null,DateOnly? fechaDesde = null, DateOnly? fechaHasta = null)
+        public async Task<IActionResult> GetAllInmuebles(int nroPagina = 1, bool? disponibilidad = null, int? dniPropietario = null, string? uso = null, string? tipo = null, int? cantAmbientes = null, int? precio = null, DateOnly? fechaDesde = null, DateOnly? fechaHasta = null)
         {
             InmuebleViewModel viewModel = new();
             ViewBag.nroPagina = nroPagina;
             const int registrosPorPagina = 4;
-            (string?, List<Inmueble>?, int? cantidadTotalRegistros) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina,1), registrosPorPagina, disponibilidad, dniPropietario, uso, tipo, cantAmbientes, precio, fechaDesde, fechaHasta);
+            (string?, List<Inmueble>?, int? cantidadTotalRegistros) inmuebles = await _inmuebleService.ObtenerTodosLosInmuebles(Math.Max(nroPagina, 1), registrosPorPagina, disponibilidad, dniPropietario, uso, tipo, cantAmbientes, precio, fechaDesde, fechaHasta);
             if (inmuebles.Item1 != null && inmuebles.Item1 != "No se encontraron inmuebles")
             {
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
                 return this.RedirectToActionWithError(nameof(Index), inmuebles.Item1);
             }
-         
+
             (string?, List<Tipo_Inmueble>?) tiposDeInmuebleFromService = await _tipoInmuebleService.getAllTipoInmueble();
             if (tiposDeInmuebleFromService.Item1 != null)
-                return this.RedirectToActionWithError(nameof(Index),"Error del servicio que obtiene los tipos de Inmueble", "Internal Server Error");
-           
+                return this.RedirectToActionWithError(nameof(Index), "Error del servicio que obtiene los tipos de Inmueble", "Internal Server Error");
+
             viewModel.cantidadTotalDePaginas = inmuebles.cantidadTotalRegistros % registrosPorPagina == 0 ? inmuebles.cantidadTotalRegistros / registrosPorPagina : inmuebles.cantidadTotalRegistros / registrosPorPagina + 1;
             viewModel.inmueble = inmuebles.Item2;
             viewModel.tipo_Inmueble = tiposDeInmuebleFromService.Item2;
@@ -128,7 +128,7 @@ namespace project.Controllers
                 ViewBag.fechaDesde = fechaDesde.Value.ToString("yyyy-MM-dd");
                 ViewBag.fechaHasta = fechaHasta.Value.ToString("yyyy-MM-dd");
             }
-            
+
             return View("~/Views/Inmuebles/VistaLIstaInmuebles.cshtml", viewModel);
         }
         //BUSCAR INMUEBLE POR ID
@@ -222,7 +222,7 @@ namespace project.Controllers
             }
             return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles), "Inmueble marcado como disponible", "Inmueble Disponible!");
         }
-        
+
         [HttpGet("Inmueble/API/listar")]
         public async Task<IActionResult> ListarInmueblesAPI(int nroPagina = 1, bool? disponibilidad = null, int? dniPropietario = null)
         {
@@ -232,6 +232,36 @@ namespace project.Controllers
                 return BadRequest(inmuebles.Item1);
             }
             return Ok(inmuebles.Item2);
+        }
+        [HttpGet("Inmueble/VerImagenes/{idInmueble}")]
+        public async Task<IActionResult> VerImagenes(int idInmueble)
+        {
+            (string?, Inmueble?) inmuebleCheck = await _inmuebleService.ObtenerInmueblePorId(idInmueble);
+            if (inmuebleCheck.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(inmuebleCheck.Item1, nameof(InmuebleController), nameof(VerImagenes));
+                return this.RedirectToActionWithError(nameof(GetAllInmuebles), inmuebleCheck.Item1);
+            }
+            if (inmuebleCheck.Item2 == null)
+            {
+                return this.RedirectToActionWithError(nameof(GetAllInmuebles), "No se encontro el inmueble");
+            }
+            ViewBag.Inmueble = inmuebleCheck.Item2;
+            (string?, String?) inmuebleFromService = await _inmuebleService.ObtenerImagenPortada(idInmueble);
+            (string?, List<String>?) imagenesInmueble = await _inmuebleService.ObtenerImagenesInmueble(idInmueble);
+            if (inmuebleFromService.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(inmuebleFromService.Item1, nameof(InmuebleController), nameof(VerImagenes));
+                return this.RedirectToActionWithError(nameof(GetAllInmuebles), inmuebleFromService.Item1);
+            }
+            ViewBag.ImagenPortada = inmuebleFromService.Item2;
+            if (imagenesInmueble.Item1 != null)
+            {
+                HelperFor.imprimirMensajeDeError(imagenesInmueble.Item1, nameof(InmuebleController), nameof(VerImagenes));
+                return this.RedirectToActionWithError(nameof(GetAllInmuebles), imagenesInmueble.Item1);
+            }
+            ViewBag.Imagenes = imagenesInmueble.Item2;
+            return View ("~/Views/Inmuebles/ImagenesInmuebles.cshtml");
         }
     }
 }
