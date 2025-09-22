@@ -10,7 +10,8 @@ public interface IEmpleadoService
     Task<(string?, Empleado?)> getEmpleadoByIdPersona(int idPersona);
     Task<(string?, Boolean)> BajaLogica(int idEmpleado);
     Task<(string?, Boolean)> AltaLogica(int idEmpleado);
-    Task<(string?,Empleado?)> getEmpleadoByDni(int dni);
+    Task<(string?, Empleado?)> getEmpleadoByDni(int dni);
+    Task<(string?, Boolean)> asignarUsuario(int idUsuario, int idEmpleado);
 
 
 }

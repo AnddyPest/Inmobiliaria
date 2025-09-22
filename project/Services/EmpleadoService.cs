@@ -9,11 +9,12 @@ using project.Models;
 public class EmpleadoService : IEmpleadoService
 {
     public string connectionString;
-    public EmpleadoService(IConfiguration config) {
+    public EmpleadoService(IConfiguration config)
+    {
         connectionString = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
     }
 
-    
+
 
     public async Task<(string?, List<Empleado>?, int?)> ObtenerTodos(int? nroPagina, int? registrosPorPagina, int? estado, int? dni)
     {
@@ -39,7 +40,7 @@ public class EmpleadoService : IEmpleadoService
                 if (dni != null) parametros.Add($" persona.dni like '%{dni}%' ");
                 if (estado != null) parametros.Add($" empleado.estado = {estado} ");
                 query += HelperFor.construirSqlWhereAnd(parametros);
-                query += $" ORDER BY empleado.idEmpleado LIMIT {registrosPorPagina }\n OFFSET {(nroPagina - 1) * registrosPorPagina} ";
+                query += $" ORDER BY empleado.idEmpleado LIMIT {registrosPorPagina}\n OFFSET {(nroPagina - 1) * registrosPorPagina} ";
                 System.Console.WriteLine(query);
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -84,7 +85,7 @@ public class EmpleadoService : IEmpleadoService
     {
         try
         {
-            if( await getEmpleadoByIdPersona(idPersona) is (null, Empleado empleado)) return ("El empleado ya se encuentra registrado", false);
+            if (await getEmpleadoByIdPersona(idPersona) is (null, Empleado empleado)) return ("El empleado ya se encuentra registrado", false);
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
@@ -99,7 +100,7 @@ public class EmpleadoService : IEmpleadoService
                     await connection.OpenAsync();
                     int result = await command.ExecuteNonQueryAsync();
                     await connection.CloseAsync();
-                    if(result == 0) return ("Error al crear empleado: Database Error", false);
+                    if (result == 0) return ("Error al crear empleado: Database Error", false);
                 }
                 return ("Empleado dado de alta correctamente", true);
             }
@@ -161,7 +162,7 @@ public class EmpleadoService : IEmpleadoService
         {
             HelperFor.imprimirMensajeDeError(ex.Message, nameof(EmpleadoService), nameof(getEmpleadoById));
             return ("Error al obtener empleado: Internal Server Error", null);
-            
+
         }
     }
 
@@ -222,7 +223,7 @@ public class EmpleadoService : IEmpleadoService
     {
         try
         {
-            if(await this.getEmpleadoById(idEmpleado) is (string error, null)) return (error, false);
+            if (await this.getEmpleadoById(idEmpleado) is (string error, null)) return (error, false);
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = @"UPDATE empleado SET estado = 1 WHERE idEmpleado = @idEmpleado;";
@@ -242,7 +243,7 @@ public class EmpleadoService : IEmpleadoService
         {
             HelperFor.imprimirMensajeDeError(ex.Message, nameof(EmpleadoService), nameof(AltaLogica));
             return ("Error al dar de alta empleado: Internal Server Error", false);
-            
+
         }
     }
 
@@ -250,7 +251,7 @@ public class EmpleadoService : IEmpleadoService
     {
         try
         {
-            if(await this.getEmpleadoById(idEmpleado) is (string error, null)) return (error, false);
+            if (await this.getEmpleadoById(idEmpleado) is (string error, null)) return (error, false);
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = @"UPDATE empleado SET estado = 0 WHERE idEmpleado = @idEmpleado;";
@@ -269,7 +270,7 @@ public class EmpleadoService : IEmpleadoService
         catch (Exception ex)
         {
             HelperFor.imprimirMensajeDeError(ex.Message, nameof(EmpleadoService), nameof(BajaLogica));
-            return ("Error al dar de baja empleado: Internal Server Error", false); 
+            return ("Error al dar de baja empleado: Internal Server Error", false);
         }
     }
 
@@ -277,7 +278,7 @@ public class EmpleadoService : IEmpleadoService
     {
         try
         {
-            using(MySqlConnection connection = new MySqlConnection(connectionString))
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = @"SELECT empleado.idEmpleado, 
                                     persona.idPersona, 
@@ -324,6 +325,33 @@ public class EmpleadoService : IEmpleadoService
         {
             HelperFor.imprimirMensajeDeError(ex.Message, nameof(EmpleadoService), nameof(getEmpleadoByDni));
             return ("Error al obtener empleado: Internal Server Error", null);
+        }
+    }
+    public async Task<(string?, Boolean)> asignarUsuario(int idUsuario, int idEmpleado)
+    {
+        try
+        {
+            if (await this.getEmpleadoById(idEmpleado) is (string error, null)) return (error, false);
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"UPDATE empleado SET idUsuario = @idUsuario WHERE idEmpleado = @idEmpleado;";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@idEmpleado", idEmpleado);
+                    command.Parameters.AddWithValue("@idUsuario", idUsuario);
+                    await connection.OpenAsync();
+                    int result = await command.ExecuteNonQueryAsync();
+                    await connection.CloseAsync();
+                    if (result == 0) return ("Error al dar de alta empleado: Database Error", false);
+                }
+                return ("Empleado dado de alta correctamente", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(EmpleadoService), nameof(asignarUsuario));
+            return ("Error al dar de alta empleado: Internal Server Error", false);
         }
     }
 }

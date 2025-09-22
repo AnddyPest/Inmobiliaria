@@ -12,31 +12,40 @@ public class UsuarioService : IUsuarioService
     public UsuarioService(IConfiguration config) {
         _connectionString = config.GetConnectionString("Connection")!;
     }
-    public async Task<(string?, bool)> CreateUsuario(Usuario usuario)
+    public async Task<(string?, bool, int)> CreateUsuario(Usuario usuario)
     {
-        if(await this.GetUsuarioByEmail(usuario.email) is (null, Usuario)) return ("Ya hay un usuario registrado con ese email", false);
+        if(await this.GetUsuarioByEmail(usuario.email) is (null, Usuario)) return ("Ya hay un usuario registrado con ese email", false,0);
         try
         {
             using(MySqlConnection connection = new MySqlConnection(_connectionString)){
-                string query = @"INSERT INTO usuario (email,contrasena,idRol,estado) VALUES (@email,@contrasena,@idRol,@estado);";
-                using(MySqlCommand command = new MySqlCommand(query, connection)){
+                string query = @"   INSERT INTO usuario (email,contraseña,idRol,estado) 
+                                    VALUES (@email,@contrasena,@idRol,@estado);
+                                    SELECT LAST_INSERT_ID();";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
                     command.CommandType = CommandType.Text;
                     command.Parameters.AddWithValue("@email", usuario.email);
                     command.Parameters.AddWithValue("@contrasena", usuario.contrasena);
                     command.Parameters.AddWithValue("@idRol", usuario.IdRol);
                     command.Parameters.AddWithValue("@estado", usuario.estado);
                     await connection.OpenAsync();
-                    int result = await command.ExecuteNonQueryAsync();
+                    var result = await command.ExecuteScalarAsync();
                     await connection.CloseAsync();
-                    if(result == 0) return ("Error al crear usuario: Database Error", false);
+                    if (result != null && int.TryParse(result.ToString(), out int idUsuario))
+                    {
+                        return (null, true, idUsuario);
+                    }
+                    else
+                    {
+                        return ("Error al crear usuario: Database Error", false,0);
+                    }
                 }
-                return ("Usuario creado correctamente", true);
             }
         }
         catch (Exception ex)
         {
             HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(CreateUsuario));
-            return ("Error al crear usuario: Internal Server Error", false);
+            return ("Error al crear usuario: Internal Server Error", false,0);
         }
     }
     public async Task<(string?, bool)> UpdateUsuario(Usuario usuario)
@@ -115,7 +124,12 @@ public class UsuarioService : IUsuarioService
         try
         {
             using(MySqlConnection connection = new MySqlConnection(_connectionString)){
-                string query = @"SELECT * FROM usuario WHERE email = @email;";
+                string query = @"SELECT 
+                                user.*,
+                                rol.* 
+                                FROM usuario as user 
+                                INNER JOIN rol ON user.idRol = rol.idRol
+                                WHERE email = @email;";
                 using(MySqlCommand command = new MySqlCommand(query, connection)){
                     command.CommandType = CommandType.Text;
                     command.Parameters.AddWithValue("@email", email);
@@ -123,11 +137,15 @@ public class UsuarioService : IUsuarioService
                     using(DbDataReader reader = await command.ExecuteReaderAsync()){
                         if(await reader.ReadAsync()){
                             Usuario usuario = new Usuario();
+                            Rol rol = new Rol();
                             usuario.idUsuario = reader.GetInt32("idUsuario");
                             usuario.email= reader.GetString("email");
                             usuario.contrasena = reader.GetString("contraseña");
                             usuario.IdRol = reader.GetInt32("idRol");
                             usuario.estado = reader.GetBoolean("estado");
+                            rol.IdRol = reader.GetInt32("idRol");
+                            rol.Nombre = reader.GetString("nombre");
+                            usuario.Rol = rol;
                             await connection.CloseAsync();
                             return (null, usuario);
                         }

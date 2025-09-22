@@ -53,7 +53,10 @@
                         
                         <!-- Área de usuario/login -->
                         <ul class="navbar-nav">
-                            @if (User.Identity.IsAuthenticated)
+                            @{
+                                var AhoraSI = false;
+                            }
+                            @if (User.Identity.IsAuthenticated && AhoraSI)
                             {
                                 <!-- Usuario logueado -->
                                 <li class="nav-item dropdown">
@@ -77,7 +80,7 @@
                             {
                                 
                                 <li class="nav-item">
-                                    <a class="nav-link text-white fw-bold" href="@Url.Action("Login","Auth")">
+                                    <a class="nav-link text-white fw-bold" href="@Url.Action("Registro","Auth")">
                                         <i class="bi bi-person-plus me-1"></i>Registrarse
                                     </a>
                                 </li>

@@ -27,15 +27,23 @@ builder.Services.AddSingleton<IContratoService, ContratoService>();
 builder.Services.AddSingleton<IInmuebleService, InmuebleService>();
 builder.Services.AddSingleton<ITipo_InmuebleService, Tipo_InmuebleService>();
 builder.Services.AddSingleton<IEmpleadoService, EmpleadoService>();
+builder.Services.AddSingleton<IUsuarioService, UsuarioService>();
+builder.Services.AddSingleton<IAuthService, AuthService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddCookie(options =>
 {
     options.LoginPath = "/auth/login";
-    options.LogoutPath = "/Logout";
+    options.LogoutPath = "/auth/logout";
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.SlidingExpiration = true;
+    options.Cookie.HttpOnly = true;
 });
+builder.Services.AddAuthorization(options =>
+    options.AddPolicy("SoloAdministrador", policy => policy.RequireRole("Administrador"))
+);
 // Registrar PagosService para IPagosService
 builder.Services.AddSingleton<IPagosService, PagosService>();
-
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -43,7 +51,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    
     app.UseHsts();
 }
 
@@ -51,7 +58,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
