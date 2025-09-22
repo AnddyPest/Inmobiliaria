@@ -263,7 +263,93 @@ namespace project.Controllers
                 return this.RedirectToActionWithError(nameof(GetAllInmuebles), imagenesInmueble.Item1);
             }
             ViewBag.Imagenes = imagenesInmueble.Item2;
-            return View ("~/Views/Inmuebles/ImagenesInmuebles.cshtml");
+            return View("~/Views/Inmuebles/ImagenesInmuebles.cshtml");
+        }
+
+        [HttpPost("Inmueble/UploadImages")]
+        public async Task<IActionResult> UploadImages(int idInmueble, List<IFormFile> imageFiles, bool esPortada = false)
+        {
+            try
+            {
+                if (imageFiles == null || imageFiles.Count == 0)
+                {
+                    return this.RedirectToActionWithError(nameof(VerImagenes), "Inmueble", "No se seleccionaron imágenes para subir.", new { idInmueble });
+                }
+
+                int sucessfulUploads = 0;
+                int failedUploads = 0;
+                string? lastError = null;
+
+                foreach (var file in imageFiles)
+                {
+                    if (file != null && file.Length > 0)
+                    {
+                        (string?, bool) uploadResult = await _inmuebleService.CargarImagen(esPortada, idInmueble, file);
+                        if (uploadResult.Item1 != null)
+                        {
+                            HelperFor.imprimirMensajeDeError(uploadResult.Item1, nameof(InmuebleController), nameof(UploadImages));
+                            lastError = uploadResult.Item1;
+                            failedUploads++;
+                        }
+                        else if (uploadResult.Item2)
+                        {
+                            sucessfulUploads++;
+                        }
+                        else
+                        {
+                            failedUploads++;
+                        }
+                    }
+                }
+
+                string messageType = esPortada ? "imagen de portada" : "imágenes";
+                if (sucessfulUploads > 0 && failedUploads == 0)
+                {
+                    return this.RedirectToActionWithSuccess(nameof(VerImagenes), "Inmueble", $"Se subió la {messageType} con éxito.", new { idInmueble }, esPortada ? "Portada Subida!" : "Imágenes Subidas!");
+                }
+                else if (sucessfulUploads > 0)
+                {
+                    return this.RedirectToActionWithSuccess(nameof(VerImagenes), "Inmueble", $"Se subieron {sucessfulUploads} {messageType}. {failedUploads} fallaron.", new { idInmueble }, "Subida Parcial");
+                }
+                else
+                {
+                    return this.RedirectToActionWithError(nameof(VerImagenes), "Inmueble", lastError ?? $"No se pudo subir la {messageType}.", new { idInmueble });
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleController), nameof(UploadImages));
+                return this.RedirectToActionWithError(nameof(VerImagenes), "Inmueble", "Error al subir las imágenes: " + ex.Message, new { idInmueble });
+            }
+        }
+        [HttpPost("Inmueble/DeleteImage")]
+        public async Task<IActionResult> DeleteImage(int idInmueble, string imageUrl)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(imageUrl))
+                {
+                    return this.RedirectToActionWithError(nameof(VerImagenes), "Inmueble", "No se proporcionó una URL de imagen válida para eliminar.", new { idInmueble });
+                }
+
+                (string?, bool) deleteResult = await _inmuebleService.EliminarImagen(idInmueble, imageUrl);
+                if (deleteResult.Item1 != null)
+                {
+                    HelperFor.imprimirMensajeDeError(deleteResult.Item1, nameof(InmuebleController), nameof(DeleteImage));
+                    return this.RedirectToActionWithError(nameof(VerImagenes), "Inmueble", deleteResult.Item1, new { idInmueble });
+                }
+                if (!deleteResult.Item2)
+                {
+                    return this.RedirectToActionWithError(nameof(VerImagenes), "Inmueble", "No se pudo eliminar la imagen.", new { idInmueble });
+                }
+
+                return this.RedirectToActionWithSuccess(nameof(VerImagenes), "Inmueble", "Imagen eliminada con éxito.", new { idInmueble }, "Imagen Eliminada!");
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleController), nameof(DeleteImage));
+                return this.RedirectToActionWithError(nameof(VerImagenes), "Inmueble", "Error al eliminar la imagen: " + ex.Message, new { idInmueble });
+            }
         }
     }
 }
