@@ -126,10 +126,13 @@ public class UsuarioService : IUsuarioService
             using(MySqlConnection connection = new MySqlConnection(_connectionString)){
                 string query = @"SELECT 
                                 user.*,
-                                rol.* 
+                                rol.*,
+                                persona.* 
                                 FROM usuario as user 
                                 INNER JOIN rol ON user.idRol = rol.idRol
-                                WHERE email = @email;";
+                                inner join empleado on user.idUsuario = empleado.idUsuario
+                                INNER JOIN persona ON empleado.idPersona = persona.idPersona
+                                WHERE user.email = @email;";
                 using(MySqlCommand command = new MySqlCommand(query, connection)){
                     command.CommandType = CommandType.Text;
                     command.Parameters.AddWithValue("@email", email);
@@ -138,13 +141,21 @@ public class UsuarioService : IUsuarioService
                         if(await reader.ReadAsync()){
                             Usuario usuario = new Usuario();
                             Rol rol = new Rol();
+                            Empleado empleado = new Empleado();
                             usuario.idUsuario = reader.GetInt32("idUsuario");
                             usuario.email= reader.GetString("email");
                             usuario.contrasena = reader.GetString("contraseña");
                             usuario.IdRol = reader.GetInt32("idRol");
                             usuario.estado = reader.GetBoolean("estado");
+
+                            empleado.Nombre = reader.GetString("nombre");
+                            empleado.Apellido = reader.GetString("apellido");
+                            empleado.Dni = reader.GetInt32("dni");
+                            
                             rol.IdRol = reader.GetInt32("idRol");
                             rol.Nombre = reader.GetString("nombre");
+
+                            usuario.Empleado = empleado;
                             usuario.Rol = rol;
                             await connection.CloseAsync();
                             return (null, usuario);

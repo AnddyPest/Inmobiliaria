@@ -91,6 +91,7 @@ public class EmpleadoController : Controller
         }
         return this.RedirectToActionWithSuccess(nameof(VistaEmpleados), "El empleado se ha dado de alta correctamente", "Empleado dado de alta!!!");
     }
+    [AllowAnonymous]
     [HttpGet("Empleado/Validar")]
     public async Task<IActionResult> ValidarDni(int dni)
     {

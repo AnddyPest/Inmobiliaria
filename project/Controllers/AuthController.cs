@@ -83,8 +83,9 @@ public class AuthController : Controller
     [HttpGet("auth/logout")]
     public async Task<IActionResult> Logout()
     {
+       
         var logout = await _authService.Logout();
-        return this.RedirectToActionWithSuccess("Index", nameof(HomeController), "Hasta pronto!!", "Hasta pronto!!");
+        return this.RedirectToActionWithSuccess(nameof(Login), "Hasta pronto!!", "Hasta pronto!!");
     }
     
 }
