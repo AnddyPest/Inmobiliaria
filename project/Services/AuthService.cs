@@ -32,6 +32,7 @@ public class AuthService : IAuthService
         }
         try
         {
+            System.Console.WriteLine(usuario.Empleado);
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario!.Empleado.Nombre),

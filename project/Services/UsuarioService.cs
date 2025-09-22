@@ -127,7 +127,9 @@ public class UsuarioService : IUsuarioService
                 string query = @"SELECT 
                                 user.*,
                                 rol.*,
-                                persona.* 
+                                persona.nombre as Pnombre,
+                                persona.apellido as Papellido,
+                                persona.dni as Pdni
                                 FROM usuario as user 
                                 INNER JOIN rol ON user.idRol = rol.idRol
                                 inner join empleado on user.idUsuario = empleado.idUsuario
@@ -148,9 +150,9 @@ public class UsuarioService : IUsuarioService
                             usuario.IdRol = reader.GetInt32("idRol");
                             usuario.estado = reader.GetBoolean("estado");
 
-                            empleado.Nombre = reader.GetString("nombre");
-                            empleado.Apellido = reader.GetString("apellido");
-                            empleado.Dni = reader.GetInt32("dni");
+                            empleado.Nombre = reader.GetString("Pnombre");
+                            empleado.Apellido = reader.GetString("Papellido");
+                            empleado.Dni = reader.GetInt32("Pdni");
                             
                             rol.IdRol = reader.GetInt32("idRol");
                             rol.Nombre = reader.GetString("nombre");
