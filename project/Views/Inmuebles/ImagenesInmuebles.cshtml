@@ -70,6 +70,12 @@
                     </div>
                 }
             </div>
+        <!--Boton para abrir el modal de cargar nuevas imagenes y borrar imagenes -->
+        <div class="col-12 text-center mt-5">
+            <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                <i class="bi bi-plus-circle"></i> Cargar nuevas imágenes
+            </button>
+        </div>
         </div>
     </div>
     <div class="row mt-4 justify-content-center">
@@ -80,7 +86,7 @@
         </div>
     </div>
 </div>
-<!-- Modal para imagen grande -->
+<!-- Modal para imagen grande se abre al clickear la imagen en cuestión-->
 <div class="modal fade" id="imgModal" tabindex="-1" aria-labelledby="imgModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content bg-dark">
@@ -93,11 +99,106 @@
         </div>
     </div>
 </div>
+<!-- Modal para cargar nuevas imagenes y borrar imagenes -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="upload" aria-hiden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="upload">Cargar nuevas imágenes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="UploadImages" asp-controller="Inmueble" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="idInmueble" value="@inmueble?.IdInmueble" />
+                    <div class="mb-3">
+                        <label for="imageFiles" class="form-label">Selecciona imágenes (puedes seleccionar múltiples):</label>
+                        <input type="file" class="form-control" id="imageFiles" name="imageFiles" multiple accept="image/*" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Subir Imágenes</button>
+                </form>
+                <hr />
+                <h5>Imágenes Actuales</h5>
+                <div class="row">
+                    <!-- Espacio para la imagen de la portada, lo puse aca a la izquierda mas grande -->
+                    <!-- Esta, cuando no tiene cargada tiene un signo + que es para cargarla, manda boole esportada = true -->
+                    <div class="col-md-5">
+                        <h6 class="text-muted mb-2">Imagen de Portada</h6>
+                        @if (!string.IsNullOrEmpty(imagenPortada)) {
+                            <div class="shadow rounded overflow-hidden position-relative" style="background:#f8f9fa;">
+                                <img src="@imagenPortada" alt="Imagen de portada" class="img-hover" style="width:100%;height:250px;object-fit:cover;" onclick="showModal('@imagenPortada')" />
+                                <form asp-action="DeleteImage" asp-controller="Inmueble" method="post" class="position-absolute top-0 end-0 m-2">
+                                    <input type="hidden" name="idInmueble" value="@inmueble?.IdInmueble" />
+                                    <input type="hidden" name="imageUrl" value="@imagenPortada" />
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Eliminar Imagen de Portada">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                                <div class="position-absolute bottom-0 start-0 m-2">
+                                    <span class="badge bg-primary">Portada</span>
+                                </div>
+                            </div>
+                        } else {
+                            <div class="shadow rounded d-flex align-items-center justify-content-center position-relative" style="background:#f8f9fa;height:250px;cursor:pointer;border: 2px dashed #dee2e6;" onclick="document.getElementById('portadaFileInput').click();">
+                                <div class="text-center">
+                                    <i class="bi bi-plus-circle" style="font-size: 3rem; color: #6c757d;"></i>
+                                    <p class="text-muted mt-2 mb-0">Agregar imagen de portada</p>
+                                </div>
+                                <!-- Este es el formulario de la imagen de la portada donde manda el boolean = true y el resto de los datos -->
+                                <form asp-action="UploadImages" asp-controller="Inmueble" method="post" enctype="multipart/form-data" style="display: none;" id="portadaForm">
+                                    <input type="hidden" name="idInmueble" value="@inmueble?.IdInmueble" />
+                                    <input type="hidden" name="esPortada" value="true" />
+                                    <input type="file" id="portadaFileInput" name="imageFiles" accept="image/*" onchange="submitPortadaForm()" />
+                                </form>
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Aca estan todas las otras imagenes q no son de portada, las acomoda de forma simetrica similar a la vista -->
+                    <!-- En el formuilario que esta mas abajo se manda el bolleano en false para q sean imagenes normales -->
+                    <div class="col-md-7">
+                        <h6 class="text-muted mb-2">Otras Imágenes</h6>
+                        @if (imagenes != null && imagenes.Count > 0) {
+                            <div class="row g-2" style="max-height: 300px; overflow-y: auto;">
+                                @foreach (var img in imagenes) {
+                                    <div class="col-6 col-lg-4">
+                                        <div class="shadow rounded overflow-hidden position-relative" style="background:#f8f9fa;">
+                                            <img src="@img" alt="Imagen inmueble" class="img-hover" style="width:100%;height:120px;object-fit:cover;" onclick="showModal('@img')" />
+                                            <form asp-action="DeleteImage" asp-controller="Inmueble" method="post" class="position-absolute top-0 end-0 m-1">
+                                                <input type="hidden" name="idInmueble" value="@inmueble?.IdInmueble" />
+                                                <input type="hidden" name="esPortada" value="false" />
+                                                <input type="hidden" name="imageUrl" value="@img" />
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Eliminar Imagen" style="padding: 0.25rem;">
+                                                    <i class="bi bi-trash" style="font-size: 0.75rem;"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        } else {
+                            <div class="shadow rounded d-flex align-items-center justify-content-center" style="background:#f8f9fa;height:150px;">
+                                <p class="text-muted mb-0">No hay otras imágenes para mostrar.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-        function showModal(src) {
-                var modalImg = document.getElementById('modalImg');
-                modalImg.src = src;
-                var myModal = new bootstrap.Modal(document.getElementById('imgModal'));
-                myModal.show();
+    function showModal(src) {
+        var modalImg = document.getElementById('modalImg');
+        modalImg.src = src;
+        var myModal = new bootstrap.Modal(document.getElementById('imgModal'));
+        myModal.show();
+    }
+    
+    function submitPortadaForm() {
+        var fileInput = document.getElementById('portadaFileInput');
+        if (fileInput.files && fileInput.files.length > 0) {
+            document.getElementById('portadaForm').submit();
         }
+    }
 </script>
