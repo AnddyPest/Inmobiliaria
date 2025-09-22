@@ -1,8 +1,9 @@
 
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using project.Models;
-
+[Authorize]
 public class UsuarioController : Controller
 {
     private readonly IUsuarioService _usuarioService;

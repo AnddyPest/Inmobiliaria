@@ -4,8 +4,10 @@ using project.Models.Interfaces;
 using project.Helpers;
 using project.Models.ViewModels;
 using NuGet.Common;
+using Microsoft.AspNetCore.Authorization;
 namespace project.Controllers
 {
+    [Authorize]
     public class ContratoController : Controller
     {
         private IContratoService _contratoService;

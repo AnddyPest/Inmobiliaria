@@ -1,11 +1,12 @@
 
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
 using project.Models.ViewModels;
-
+[Authorize(Roles = "Administrador")]
 public class EmpleadoController : Controller
 {
     private readonly IEmpleadoService empleadoService;

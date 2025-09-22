@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
@@ -6,6 +7,7 @@ using project.Models.ViewModels;
 
 namespace project.Controllers
 {
+    [Authorize]
     public class Tipo_InmuebleController : Controller
     {
         ITipo_InmuebleService _tipoInmuebleService;
@@ -72,6 +74,7 @@ namespace project.Controllers
             return this.RedirectToActionWithSuccess(nameof(ListarTiposDeInmueble), $"Tipo de Inmueble Actualizado con exito","Registro Actualizado con Exito!!!");
 
         }
+        [Authorize(Roles = "Administrador")]
         [HttpGet("EliminarTipoInmueble/{id}")]
         public async Task<IActionResult> EliminarTipoInmueble(int id)
         {

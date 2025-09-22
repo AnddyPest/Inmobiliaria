@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
 using project.Services;
 
 namespace project.Controllers
-{
+{   
+    [Authorize]
     public class InquilinoController : Controller
     {
         private IInquilinoService inquilinoService;

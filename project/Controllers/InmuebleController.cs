@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
@@ -7,6 +8,7 @@ using project.Models.ViewModels;
 
 namespace project.Controllers
 {
+    [Authorize]
     public class InmuebleController : Controller
     {
         private IInmuebleService _inmuebleService;

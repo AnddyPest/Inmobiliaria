@@ -1,10 +1,12 @@
 
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
 using project.Models;
 using project.Models.Interfaces;
 
+[Authorize]
 public class PersonaController : Controller
 {
     private readonly IPersonaService _personaService;
@@ -18,9 +20,9 @@ public class PersonaController : Controller
     {
         System.Console.WriteLine("[PersonaController] getPersonaByDni");
         Persona? persona = await _personaService.ObtenerPorDni(dni);
-        if(persona == null)
-            return Json(new {persona = persona, existe = false});
-        return Json(new {persona = persona, existe = true}); ;
+        if (persona == null)
+            return Json(new { persona = persona, existe = false });
+        return Json(new { persona = persona, existe = true }); ;
     }
 
 }

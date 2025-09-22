@@ -1,11 +1,12 @@
 
 
 using System.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using project.Controllers;
 using project.Helpers;
 using project.Models;
-
+[AllowAnonymous]
 public class AuthController : Controller
 {
     private readonly IEmpleadoService _empleadoService;
@@ -26,6 +27,11 @@ public class AuthController : Controller
     public IActionResult Registro()
     {
         return View("~/Views/Auth/VistaRegistroUsuario.cshtml");
+    }
+    [HttpGet("auth/unauthorized")]
+    public IActionResult UnauthorizedView()
+    {
+        return View("~/Views/Auth/VistaNoAutorizado.cshtml");
     }
     [HttpPost("auth/login")]
     public async Task<IActionResult> Login(string email, string contrasena)

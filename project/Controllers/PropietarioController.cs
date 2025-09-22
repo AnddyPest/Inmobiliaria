@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
@@ -6,6 +7,7 @@ using project.Models.Interfaces;
 
 namespace project.Controllers
 {
+    [Authorize]
     public class PropietarioController : Controller
     {
         private IPropietarioService propietarioService;

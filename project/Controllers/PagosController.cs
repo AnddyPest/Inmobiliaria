@@ -3,10 +3,11 @@ using project.Models;
 using project.Models.Interfaces;
 using project.Helpers;
 using project.Models.ViewModels;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
 
 namespace project.Controllers
 {
+    [Authorize]
     public class PagosController : Controller
     {
         private IContratoService _contratoService;
