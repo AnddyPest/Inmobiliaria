@@ -16,8 +16,18 @@ public class UsuarioController : Controller
     [HttpPost("Usuario/actualizar")]
     public async Task<IActionResult> ActualizarUsuario(Usuario usuario)
     {
-        if(!ModelState.IsValid) return BadRequest(ModelState);
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         (string?, bool) result = await _usuarioService.UpdateUsuario(usuario);
+        return Ok(result);
+    }
+    [HttpGet("Usuario/cambiarRol")]
+    public async Task<IActionResult> CambiarRol(int idUsuario, int idRolActual)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        int rolACambiar = idRolActual == 1 ? 2 : 1;
+        
+        (string?, bool) result = await _usuarioService.CambiarRol(idUsuario, rolACambiar);
+        if(result.Item1 != null && !result.Item2) return BadRequest(result.Item1);
         return Ok(result);
     }
 }

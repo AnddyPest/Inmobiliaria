@@ -9,7 +9,8 @@ namespace project.Models
         public int IdEmpleado { get; set; }
         [ForeignKey("Usuario")]
         public int IdUsuario { get; set; }
+        public Usuario? Usuario { get; set; }
     // Constructor vacío
-    public Empleado() : this(default!, default!, default, default!, default!, default!, default) { }
+        public Empleado() : this(default!, default!, default, default!, default!, default!, default) { }
     }
 }

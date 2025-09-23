@@ -304,9 +304,9 @@ public class UsuarioService : IUsuarioService
                 }
             }
         }
-        catch (System.Exception)
+        catch (Exception ex )
         {
-            HelperFor.imprimirMensajeDeError("Error al dar de baja usuario: Internal Server Error", nameof(UsuarioService), nameof(BajaLogicaByIdEmpleado));
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(BajaLogicaByIdEmpleado));
             return("Error al dar de baja usuario: Internal Server Error", false);
         }
     }
@@ -333,10 +333,35 @@ public class UsuarioService : IUsuarioService
                 }
             }
         }
-        catch (System.Exception)
+        catch (Exception ex)
         {
-            HelperFor.imprimirMensajeDeError("Error al dar de alta usuario: Internal Server Error", nameof(UsuarioService), nameof(AltaLogicaByIdEmpleado));
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(AltaLogicaByIdEmpleado));
             return("Error al dar de alta usuario: Internal Server Error", false);
+        }
+    }
+
+    public async Task<(string?, bool)> CambiarRol(int idUsuario, int idRol)
+    {
+        try
+        {
+            using(MySqlConnection connection = new MySqlConnection(_connectionString)){
+                string query = @"UPDATE usuario SET idRol = @idRol WHERE idUsuario = @idUsuario;";
+                using(MySqlCommand command = new MySqlCommand(query, connection)){
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@idUsuario", idUsuario);
+                    command.Parameters.AddWithValue("@idRol", idRol);
+                    await connection.OpenAsync();
+                    int result = await command.ExecuteNonQueryAsync();
+                    await connection.CloseAsync();
+                    if(result == 0) return ("Error al cambiar rol: Database Error", false);
+                }
+                return ("Rol cambiado correctamente", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(CambiarRol));
+            return ("Error al cambiar rol: Internal Server Error", false);
         }
     }
 }
