@@ -77,7 +77,8 @@ public class AuthController : Controller
         (string?, bool) login = await _authService.Login(usuario.email, contrasena);
         if (login.Item1 != null && !login.Item2) return this.RedirectToActionWithError(nameof(Registro), login.Item1);
 
-        return this.RedirectToActionWithSuccess(nameof(Login), nameof(AuthController), "Bienvenido!!", "Bienvenido!!");
+        this.SweetAlertSuccess("Bienvenido!!", "Bienvenido!!");
+        return RedirectToAction("Index", "Home");
 
     }
     [HttpGet("auth/logout")]
