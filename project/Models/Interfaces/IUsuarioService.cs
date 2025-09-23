@@ -12,5 +12,9 @@ public interface IUsuarioService
     Task<(string?, bool)> resetearContraseña(int idUsuario);
     Task<(string?, bool)> BajaLogica(int idUsuario);
     Task<(string?, bool)> AltaLogica(int idUsuario);
-    Task<(string?,bool)> validarCredenciales(string username, string password);
+    Task<(string?, bool)> validarCredenciales(string username, string password);
+    //AVATARES
+    Task<(string?, bool)> SetearAvatar(int idUsuario, string avatarUrl);
+    Task<(string?, string?)> GetAvatarUrl(int idUsuario);   
+    
 }

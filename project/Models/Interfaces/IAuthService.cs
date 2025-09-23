@@ -6,4 +6,5 @@ public interface IAuthService
 {
     Task<(string?, bool)> Login(string email, string password);
     Task<(string?, bool)> Logout();
+    Task<(string?, bool)> UpdateAvatarClaim(string newAvatarUrl);
 }

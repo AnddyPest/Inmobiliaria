@@ -1,0 +1,306 @@
+@model project.Models.Usuario
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<style>
+    .profile-container {
+        background: #fff8f0;
+        border-radius: 18px;
+        box-shadow: 0 2px 12px 0 #b6a88a33;
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+        border: 2px solid #e0d3c2;
+    }
+
+    .profile-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #7c5c3e;
+        letter-spacing: 1px;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .avatar-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .avatar-container {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .avatar-img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 4px solid #e0d3c2;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        object-fit: cover;
+    }
+
+    .avatar-img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .avatar-container:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .profile-info {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .profile-field {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .profile-field:last-child {
+        border-bottom: none;
+    }
+
+    .field-label {
+        font-weight: 600;
+        color: #7c5c3e;
+        min-width: 120px;
+    }
+
+    .field-value {
+        color: #5a4633;
+        flex: 1;
+        text-align: right;
+    }
+
+    .avatar-selector {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .avatar-selector.show {
+        display: flex;
+    }
+
+    .avatar-modal {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 500px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    .avatar-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .avatar-option {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        object-fit: cover;
+    }
+
+    .avatar-option:hover {
+        border-color: #7c5c3e;
+        transform: scale(1.1);
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+    }
+
+    .close-modal:hover {
+        color: #333;
+    }
+</style>
+
+<div class="profile-container">
+    <div class="row text-end">
+    <a href="/" style="text-decoration:none;"><h4 style="color:#7c5c3e;">X</h4></a>
+    </div>
+    <h2 class="profile-title">Mi Perfil</h2>
+    
+    <div class="avatar-section">
+        <div class="avatar-container" onclick="openAvatarSelector()">
+            @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+            {
+                <img src="@Model.AvatarUrl" alt="Avatar" class="avatar-img" />
+            }
+            else
+            {
+                <img src="~/images/avatares/Avatar_Empty.png" alt="Avatar por defecto" class="avatar-img" />
+            }
+            <div class="avatar-overlay">
+                <span>Cambiar Avatar</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-info">
+        <div class="profile-field">
+            <span class="field-label">ID Usuario:</span>
+            <span class="field-value">@Model.idUsuario</span>
+        </div>
+        <div class="profile-field">
+            <span class="field-label">Nombre:</span>
+            <span class="field-value">@Model.Empleado?.nombre</span>
+        </div>
+        <div class="profile-field">
+            <span class="field-label">Apellido:</span>
+            <span class="field-value">@Model.Empleado?.apellido</span>
+        </div>
+        <div class="profile-field">
+            <span class="field-label">Email:</span>
+            <span class="field-value">@Model.email</span>
+        </div>
+        <div class="profile-field">
+            <span class="field-label">Rol:</span>
+            <span class="field-value">@Model.Rol?.Nombre</span>
+        </div>
+        <div class="profile-field">
+            <span class="field-label">Estado:</span>
+            <span class="field-value">@(Model.estado ? "Activo" : "Inactivo")</span>
+        </div>
+    </div>
+</div>
+
+<!-- Aca cargamos todos los avatares disponibles, no se si el profe estara de acuerdo -->
+<div id="avatarSelector" class="avatar-selector">
+    <div class="avatar-modal">
+        <button class="close-modal" onclick="closeAvatarSelector()">&times;</button>
+        <h3 style="text-align: center; color: #7c5c3e; margin-bottom: 1rem;">Selecciona tu Avatar</h3>
+        <div class="avatar-grid">
+            <img src="~/images/avatares/Avatar_1.png" alt="Avatar 1" class="avatar-option" onclick="selectAvatar('/images/avatares/Avatar_1.png')" />
+            <img src="~/images/avatares/Avatar_2.png" alt="Avatar 2" class="avatar-option" onclick="selectAvatar('/images/avatares/Avatar_2.png')" />
+            <img src="~/images/avatares/Avatar_3.png" alt="Avatar 3" class="avatar-option" onclick="selectAvatar('/images/avatares/Avatar_3.png')" />
+            <img src="~/images/avatares/Avatar_4.png" alt="Avatar 4" class="avatar-option" onclick="selectAvatar('/images/avatares/Avatar_4.png')" />
+            <img src="~/images/avatares/Avatar_5.png" alt="Avatar 5" class="avatar-option" onclick="selectAvatar('/images/avatares/Avatar_5.png')" />
+            <img src="~/images/avatares/Avatar_6.png" alt="Avatar 6" class="avatar-option" onclick="selectAvatar('/images/avatares/Avatar_6.png')" />
+            <img src="~/images/avatares/Avatar_7.png" alt="Avatar 7" class="avatar-option" onclick="selectAvatar('/images/avatares/Avatar_7.png')" />
+            <img src="~/images/avatares/Avatar_8.png" alt="Avatar 8" class="avatar-option" onclick="selectAvatar('/images/avatares/Avatar_8.png')" />
+            <img src="~/images/avatares/Avatar_9.png" alt="Avatar 9" class="avatar-option" onclick="selectAvatar('/images/avatares/Avatar_9.png')" />
+        </div>
+    </div>
+</div>
+
+<script>
+    function openAvatarSelector() {
+        document.getElementById('avatarSelector').classList.add('show');
+    }
+
+    function closeAvatarSelector() {
+        document.getElementById('avatarSelector').classList.remove('show');
+    }
+
+    function selectAvatar(avatarUrl) {
+        // Actualiza la imagen del avatar en el perfil actual
+        document.querySelector('.avatar-img').src = avatarUrl;
+        
+        // enviamos data al backend
+        const formData = new FormData();
+        formData.append('idUsuario', '@Model.idUsuario');
+        formData.append('avatarUrl', avatarUrl);
+        
+        fetch('/Usuario/setearAvatar', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Avatar actualizado correctamente',
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#3085d6'
+                }).then(() => {
+                    // Recargamos para ver el nuevo avatar en el navbar
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: data.message || 'Error al actualizar el avatar',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#3085d6'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Error de conexión al actualizar el avatar',
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#3085d6'
+            });
+        });
+        
+        closeAvatarSelector();
+    }
+
+    // pa cerrar el modal selector haciendo clock fuera de el
+    document.getElementById('avatarSelector').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAvatarSelector();
+        }
+    });
+</script>
+

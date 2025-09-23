@@ -12,6 +12,7 @@ namespace project.Models
         public Rol Rol { get; set; } = rol;
         public Empleado Empleado { get; set; } = empleado;
         public bool estado { get; set; }
+        public string? AvatarUrl { get; set; }
 
         public Usuario() : this(default!, default!, default!, default!) { }
     }
