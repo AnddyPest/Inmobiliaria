@@ -1,5 +1,6 @@
 
 
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using project.Models;
@@ -25,7 +26,7 @@ public class UsuarioController : Controller
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         int rolACambiar = idRolActual == 1 ? 2 : 1;
-        
+        if(User.FindFirst("idUsuario")!.Value == idUsuario.ToString()) return BadRequest("No puedes cambiar tu propio rol");
         (string?, bool) result = await _usuarioService.CambiarRol(idUsuario, rolACambiar);
         if(result.Item1 != null && !result.Item2) return BadRequest(result.Item1);
         return Ok(result);

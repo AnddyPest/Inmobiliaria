@@ -196,7 +196,7 @@
                 const response = await fetch(`/Usuario/cambiarRol?idUsuario=${idUsuario}&idRolActual=${rolActual}`);
                 
                 if (!response.ok) {
-                    throw new Error("Error al cambiar el rol del empleado");
+                    throw new Error(await response.text());
                 }
                 
                 actualizarContenido();
@@ -211,7 +211,7 @@
             console.error("Error:", error);
             Swal.fire({
                 title: 'Error',
-                text: 'Error al cambiar el rol del empleado',
+                text: error,
                 icon: 'error',
                 confirmButtonText: 'Aceptar'
             });
