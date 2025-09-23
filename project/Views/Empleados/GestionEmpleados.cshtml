@@ -177,8 +177,50 @@
             }
         }
     }
-    function resetearContraseniaEmpleado(idUsuario){
-        
+    async function resetearContraseniaEmpleado(idUsuario){
+        try{
+            const respuesta = await Swal.fire({
+                title: 'Confirmar reseteo de contraseña',
+                icon: 'warning',
+                input: 'password',
+                inputLabel: 'Escriba "CONFIRMAR" para verificar la acción:',
+                inputPlaceholder: 'Escriba CONFIRMAR...',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Resetear Contraseña',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Este campo es obligatorio';
+                    }
+                    if (value.toUpperCase() !== 'CONFIRMAR') {
+                        return 'Debe escribir exactamente "CONFIRMAR"';
+                    }
+                }
+            });
+
+            if(respuesta.isConfirmed){
+                const response = await fetch(`/Usuario/resetearContrasena?idUsuario=${idUsuario}`);
+                if(!response.ok){
+                    throw new Error(await response.text());
+                }
+                actualizarContenido();
+                Swal.fire({
+                    title: 'Éxito',
+                    text: 'Contraseña reseteada correctamente',
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        }catch(error){
+            swal.fire({
+                title: 'Error',
+                text: error,
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
+        }
     }
     async function cambiarRolEmpleado(idUsuario, rolActual) {
         try {
