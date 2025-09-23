@@ -19,10 +19,16 @@ public class AuthService : IAuthService
     public async Task<(string?, bool)> Login(string email, string password)
     {
         (string? errorService, Usuario? usuario) = await _usuarioService.GetUsuarioByEmail(email);
-        if (errorService != null)
+        if (errorService != null && usuario == null)
         {
             HelperFor.imprimirMensajeDeError(errorService, nameof(AuthService), nameof(Login));
             return (errorService, false);
+        }
+        System.Console.WriteLine(usuario.estado);
+        if (usuario!.estado == false)
+        {
+            HelperFor.imprimirMensajeDeError("El usuario esta deshabilitado", nameof(AuthService), nameof(Login));
+            return ("El usuario esta dado de baja por el administrador", false);
         }
         (string?, bool) validarCredenciales = await _usuarioService.validarCredenciales(email, password);
         if (validarCredenciales.Item1 != null && !validarCredenciales.Item2)
@@ -32,10 +38,9 @@ public class AuthService : IAuthService
         }
         try
         {
-            System.Console.WriteLine(usuario.Empleado);
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, usuario!.Empleado.Nombre),
+                new Claim(ClaimTypes.Name, usuario!.Empleado.Nombre + " " + usuario.Empleado.Apellido),
                 new Claim("idUsuario", usuario!.idUsuario.ToString()),
                 new Claim(ClaimTypes.Email, email),
                 new Claim(ClaimTypes.Role, usuario!.Rol.Nombre)

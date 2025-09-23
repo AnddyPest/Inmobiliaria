@@ -11,10 +11,12 @@ public class EmpleadoController : Controller
 {
     private readonly IEmpleadoService empleadoService;
     private readonly IPersonaService personaService;
-    public EmpleadoController(IPersonaService personaService, IEmpleadoService empleadoService)
+    private readonly IUsuarioService usuarioService;
+    public EmpleadoController(IPersonaService personaService, IEmpleadoService empleadoService, IUsuarioService usuarioService)
     {
         this.empleadoService = empleadoService;
         this.personaService = personaService;
+        this.usuarioService = usuarioService;
     }
     [HttpGet("/Empleado")]
     public async Task<IActionResult> VistaEmpleados(int nroPagina = 1, int? estado = null, int? dni = null)
@@ -77,7 +79,12 @@ public class EmpleadoController : Controller
             HelperFor.imprimirMensajeDeError(error, nameof(EmpleadoController), nameof(BajaEmpleado));
             return this.RedirectToActionWithError(nameof(VistaEmpleados), error);
         }
-        //return this.RedirectToActionWithSuccess(nameof(VistaEmpleados), "El empleado se ha dado de baja correctamente");
+        (string? errorBaja, bool confirmacionBaja) = await usuarioService.BajaLogicaByIdEmpleado(idEmpleado);
+        if (errorBaja != null && !confirmacionBaja)
+        {
+            HelperFor.imprimirMensajeDeError(errorBaja, nameof(EmpleadoController), nameof(BajaEmpleado));
+            return this.RedirectToActionWithError(nameof(VistaEmpleados), errorBaja);
+        }
         return Ok();
     }
     [HttpGet("Empleado/Alta")]
@@ -88,6 +95,12 @@ public class EmpleadoController : Controller
         {
             HelperFor.imprimirMensajeDeError(error, nameof(EmpleadoController), nameof(AltaEmpleado));
             return this.RedirectToActionWithError(nameof(VistaEmpleados), error);
+        }
+        (string? errorAlta, bool confirmacionAlta) = await usuarioService.AltaLogicaByIdEmpleado(idEmpleado);
+        if (errorAlta != null && !confirmacionAlta)
+        {
+            HelperFor.imprimirMensajeDeError(errorAlta, nameof(EmpleadoController), nameof(AltaEmpleado));
+            return this.RedirectToActionWithError(nameof(VistaEmpleados), errorAlta);
         }
         return this.RedirectToActionWithSuccess(nameof(VistaEmpleados), "El empleado se ha dado de alta correctamente", "Empleado dado de alta!!!");
     }

@@ -282,5 +282,61 @@ public class UsuarioService : IUsuarioService
         }
     }
 
-    
+    public async Task<(string?, bool)> BajaLogicaByIdEmpleado(int idEmpleado)
+    {
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                string query = @"   Update usuario 
+                                    Inner join empleado on empleado.idUsuario = usuario.idUsuario
+                                    set usuario.estado = 0 
+                                    where empleado.idEmpleado = @idEmpleado;";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@idEmpleado", idEmpleado);
+                    await connection.OpenAsync();
+                    int result = await command.ExecuteNonQueryAsync();
+                    await connection.CloseAsync();
+                    if (result == 0) return ("Error al dar de baja usuario: Database Error", false);
+                    return ("Usuario dado de baja correctamente", true);
+                }
+            }
+        }
+        catch (System.Exception)
+        {
+            HelperFor.imprimirMensajeDeError("Error al dar de baja usuario: Internal Server Error", nameof(UsuarioService), nameof(BajaLogicaByIdEmpleado));
+            return("Error al dar de baja usuario: Internal Server Error", false);
+        }
+    }
+
+    public async Task<(string?, bool)> AltaLogicaByIdEmpleado(int idEmpleado)
+    {
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                string query = @"   Update usuario 
+                                    Inner join empleado on empleado.idUsuario = usuario.idUsuario
+                                    set usuario.estado = 1 
+                                    where empleado.idEmpleado = @idEmpleado;";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@idEmpleado", idEmpleado);
+                    await connection.OpenAsync();
+                    int result = await command.ExecuteNonQueryAsync();
+                    await connection.CloseAsync();
+                    if (result == 0) return ("Error al dar de Alta usuario: Database Error", false);
+                    return ("Usuario dado de alta correctamente", true);
+                }
+            }
+        }
+        catch (System.Exception)
+        {
+            HelperFor.imprimirMensajeDeError("Error al dar de alta usuario: Internal Server Error", nameof(UsuarioService), nameof(AltaLogicaByIdEmpleado));
+            return("Error al dar de alta usuario: Internal Server Error", false);
+        }
+    }
 }
