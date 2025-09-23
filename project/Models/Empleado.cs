@@ -11,7 +11,7 @@ namespace project.Models
         public int IdUsuario { get; set; }
         public string nombre { get; set; } = nombre;
         public string apellido { get; set; } = apellido;
-    // Constructor vacío
+    // Constructor vacío la puta madre
         public Empleado() : this(default!, default!, default, default!, default!, default!, default) { }
     }
 }
