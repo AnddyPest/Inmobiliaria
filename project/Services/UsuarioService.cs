@@ -9,17 +9,15 @@ using project.Models;
 public class UsuarioService : IUsuarioService
 {
     private string _connectionString;
-    public UsuarioService(IConfiguration config)
-    {
+    public UsuarioService(IConfiguration config) {
         _connectionString = config.GetConnectionString("Connection")!;
     }
     public async Task<(string?, bool, int)> CreateUsuario(Usuario usuario)
     {
-        if (await this.GetUsuarioByEmail(usuario.email) is (null, Usuario)) return ("Ya hay un usuario registrado con ese email", false, 0);
+        if(await this.GetUsuarioByEmail(usuario.email) is (null, Usuario)) return ("Ya hay un usuario registrado con ese email", false,0);
         try
         {
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
-            {
+            using(MySqlConnection connection = new MySqlConnection(_connectionString)){
                 string query = @"   INSERT INTO usuario (email,contraseña,idRol,estado) 
                                     VALUES (@email,@contrasena,@idRol,@estado);
                                     SELECT LAST_INSERT_ID();";
@@ -39,7 +37,7 @@ public class UsuarioService : IUsuarioService
                     }
                     else
                     {
-                        return ("Error al crear usuario: Database Error", false, 0);
+                        return ("Error al crear usuario: Database Error", false,0);
                     }
                 }
             }
@@ -47,13 +45,13 @@ public class UsuarioService : IUsuarioService
         catch (Exception ex)
         {
             HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(CreateUsuario));
-            return ("Error al crear usuario: Internal Server Error", false, 0);
+            return ("Error al crear usuario: Internal Server Error", false,0);
         }
     }
     public async Task<(string?, bool)> UpdateUsuario(Usuario usuario)
     {
-        if (await this.GetUsuarioById(usuario.idUsuario) is (string error, null)) return (error, false);
-        if (await this.ValidarEmailDisponible(usuario) is (string errorValidacion, false)) return (errorValidacion, false);
+        if(await this.GetUsuarioById(usuario.idUsuario) is (string error, null)) return (error, false);
+        if(await this.ValidarEmailDisponible(usuario) is (string errorValidacion, false)) return (errorValidacion, false);
 
         try
         {
@@ -89,17 +87,7 @@ public class UsuarioService : IUsuarioService
         {
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
-                string query = @"SELECT 
-                                    user.*,
-                                    rol.*,
-                                    empleado.*,
-                                    persona.nombre AS persona_nombre,
-                                    persona.apellido AS persona_apellido
-                                FROM usuario AS user
-                                INNER JOIN empleado ON user.idUsuario = empleado.idUsuario
-                                INNER JOIN rol ON user.idRol = rol.idRol
-                                INNER JOIN persona ON empleado.idPersona = persona.idPersona
-                                WHERE user.idUsuario = @idUsuario;";
+                string query = @"SELECT * FROM usuario WHERE idUsuario = @idUsuario;";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -110,28 +98,16 @@ public class UsuarioService : IUsuarioService
                         if (await reader.ReadAsync())
                         {
                             Usuario usuario = new Usuario();
-                            Empleado empleado = new Empleado();
-                            Rol rol = new Rol();
                             usuario.idUsuario = reader.GetInt32("idUsuario");
-                            usuario.email = reader.GetString("email");
+                            usuario.email= reader.GetString("email");
                             usuario.contrasena = reader.GetString("contraseña");
                             usuario.IdRol = reader.GetInt32("idRol");
-                            usuario.AvatarUrl = reader.IsDBNull(reader.GetOrdinal("AvatarUrl")) ? null : reader.GetString("AvatarUrl");
                             usuario.estado = reader.GetBoolean("estado");
-
-                            empleado.nombre = reader.GetString("persona_nombre");
-                            empleado.apellido = reader.GetString("persona_apellido");
-                            usuario.Empleado = empleado;
-
-                            rol.IdRol = reader.GetInt32("idRol");
-                            rol.Nombre = reader.GetString("nombre");
-                            usuario.Rol = rol;
-
                             await connection.CloseAsync();
                             return (null, usuario);
                         }
                     }
-
+                    
                     await connection.CloseAsync();
                     return ("El usuario no se encuentra registrado", null);
                 }
@@ -147,40 +123,37 @@ public class UsuarioService : IUsuarioService
     {
         try
         {
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
-            {
+            using(MySqlConnection connection = new MySqlConnection(_connectionString)){
                 string query = @"SELECT 
                                 user.*,
                                 rol.*,
-                                persona.* 
+                                persona.nombre as Pnombre,
+                                persona.apellido as Papellido,
+                                persona.dni as Pdni
                                 FROM usuario as user 
                                 INNER JOIN rol ON user.idRol = rol.idRol
                                 inner join empleado on user.idUsuario = empleado.idUsuario
                                 INNER JOIN persona ON empleado.idPersona = persona.idPersona
                                 WHERE user.email = @email;";
-                using (MySqlCommand command = new MySqlCommand(query, connection))
-                {
+                using(MySqlCommand command = new MySqlCommand(query, connection)){
                     command.CommandType = CommandType.Text;
                     command.Parameters.AddWithValue("@email", email);
                     await connection.OpenAsync();
-                    using (DbDataReader reader = await command.ExecuteReaderAsync())
-                    {
-                        if (await reader.ReadAsync())
-                        {
+                    using(DbDataReader reader = await command.ExecuteReaderAsync()){
+                        if(await reader.ReadAsync()){
                             Usuario usuario = new Usuario();
                             Rol rol = new Rol();
                             Empleado empleado = new Empleado();
                             usuario.idUsuario = reader.GetInt32("idUsuario");
-                            usuario.email = reader.GetString("email");
+                            usuario.email= reader.GetString("email");
                             usuario.contrasena = reader.GetString("contraseña");
                             usuario.IdRol = reader.GetInt32("idRol");
                             usuario.estado = reader.GetBoolean("estado");
-                            usuario.AvatarUrl = reader.IsDBNull(reader.GetOrdinal("AvatarUrl")) ? null : reader.GetString("AvatarUrl");
 
-                            empleado.Nombre = reader.GetString("nombre");
-                            empleado.Apellido = reader.GetString("apellido");
-                            empleado.Dni = reader.GetInt32("dni");
-
+                            empleado.Nombre = reader.GetString("Pnombre");
+                            empleado.Apellido = reader.GetString("Papellido");
+                            empleado.Dni = reader.GetInt32("Pdni");
+                            
                             rol.IdRol = reader.GetInt32("idRol");
                             rol.Nombre = reader.GetString("nombre");
 
@@ -264,17 +237,15 @@ public class UsuarioService : IUsuarioService
         try
         {
             if (await this.GetUsuarioById(idUsuario) is (string error, null)) return (error, false);
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
-            {
+            using(MySqlConnection connection = new MySqlConnection(_connectionString)){
                 string query = @"UPDATE usuario SET estado = 1 WHERE idUsuario = @idUsuario;";
-                using (MySqlCommand command = new MySqlCommand(query, connection))
-                {
+                using(MySqlCommand command = new MySqlCommand(query, connection)){
                     command.CommandType = CommandType.Text;
                     command.Parameters.AddWithValue("@idUsuario", idUsuario);
                     await connection.OpenAsync();
                     int result = await command.ExecuteNonQueryAsync();
                     await connection.CloseAsync();
-                    if (result == 0) return ("Error al dar de alta usuario: Database Error", false);
+                    if(result == 0) return ("Error al dar de alta usuario: Database Error", false);
                 }
                 return ("Usuario dado de alta correctamente", true);
             }
@@ -290,18 +261,16 @@ public class UsuarioService : IUsuarioService
     {
         try
         {
-            if (await this.GetUsuarioById(idUsuario) is (string error, null)) return (error, false);
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
-            {
+            if(await this.GetUsuarioById(idUsuario) is (string error, null)) return (error, false);
+            using(MySqlConnection connection = new MySqlConnection(_connectionString)){
                 string query = @"UPDATE usuario SET estado = 0 WHERE idUsuario = @idUsuario;";
-                using (MySqlCommand command = new MySqlCommand(query, connection))
-                {
+                using(MySqlCommand command = new MySqlCommand(query, connection)){
                     command.CommandType = CommandType.Text;
                     command.Parameters.AddWithValue("@idUsuario", idUsuario);
                     await connection.OpenAsync();
                     int result = await command.ExecuteNonQueryAsync();
                     await connection.CloseAsync();
-                    if (result == 0) return ("Error al dar de baja usuario: Database Error", false);
+                    if(result == 0) return ("Error al dar de baja usuario: Database Error", false);
                 }
                 return ("Usuario dado de baja correctamente", true);
             }
@@ -312,65 +281,87 @@ public class UsuarioService : IUsuarioService
             return ("Error al dar de baja usuario: Internal Server Error", false);
         }
     }
-    public async Task<(string?, bool)> SetearAvatar(int idUsuario, string avatarUrl)
+
+    public async Task<(string?, bool)> BajaLogicaByIdEmpleado(int idEmpleado)
     {
         try
         {
-            if (await this.GetUsuarioById(idUsuario) is (string error, null)) return (error, false);
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
-                string query = @"UPDATE usuario SET AvatarUrl = @avatarUrl WHERE idUsuario = @idUsuario;";
+                string query = @"   Update usuario 
+                                    Inner join empleado on empleado.idUsuario = usuario.idUsuario
+                                    set usuario.estado = 0 
+                                    where empleado.idEmpleado = @idEmpleado;";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.CommandType = CommandType.Text;
-                    command.Parameters.AddWithValue("@idUsuario", idUsuario);
-                    command.Parameters.AddWithValue("@avatarUrl", avatarUrl);
+                    command.Parameters.AddWithValue("@idEmpleado", idEmpleado);
                     await connection.OpenAsync();
                     int result = await command.ExecuteNonQueryAsync();
                     await connection.CloseAsync();
-                    if (result == 0) return ("Error al setear avatar: Database Error", false);
-                }
-                return ("Avatar seteado correctamente", true);
-            }
-        }
-        catch (Exception ex)
-        {
-            HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(SetearAvatar));
-            return ("Error al setear avatar: Internal Server Error", false);
-        }
-    }
-    public async Task<(string?, string?)> GetAvatarUrl(int idUsuario)
-    {
-        try
-        {
-            if (await this.GetUsuarioById(idUsuario) is (string error, null)) return (error, null);
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
-            {
-                string query = @"SELECT AvatarUrl FROM usuario WHERE idUsuario = @idUsuario;";
-                using (MySqlCommand command = new MySqlCommand(query, connection))
-                {
-                    command.CommandType = CommandType.Text;
-                    command.Parameters.AddWithValue("@idUsuario", idUsuario);
-                    await connection.OpenAsync();
-                    var result = await command.ExecuteScalarAsync();
-                    await connection.CloseAsync();
-                    if (result != null)
-                    {
-                        return (null, result.ToString());
-                    }
-                    else
-                    {
-                        return ("El usuario no tiene un avatar seteado", null);
-                    }
+                    if (result == 0) return ("Error al dar de baja usuario: Database Error", false);
+                    return ("Usuario dado de baja correctamente", true);
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex )
         {
-            HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(GetAvatarUrl));
-            return ("Error al obtener el avatar: Internal Server Error", null);
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(BajaLogicaByIdEmpleado));
+            return("Error al dar de baja usuario: Internal Server Error", false);
         }
     }
 
-    
+    public async Task<(string?, bool)> AltaLogicaByIdEmpleado(int idEmpleado)
+    {
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                string query = @"   Update usuario 
+                                    Inner join empleado on empleado.idUsuario = usuario.idUsuario
+                                    set usuario.estado = 1 
+                                    where empleado.idEmpleado = @idEmpleado;";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@idEmpleado", idEmpleado);
+                    await connection.OpenAsync();
+                    int result = await command.ExecuteNonQueryAsync();
+                    await connection.CloseAsync();
+                    if (result == 0) return ("Error al dar de Alta usuario: Database Error", false);
+                    return ("Usuario dado de alta correctamente", true);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(AltaLogicaByIdEmpleado));
+            return("Error al dar de alta usuario: Internal Server Error", false);
+        }
+    }
+
+    public async Task<(string?, bool)> CambiarRol(int idUsuario, int idRol)
+    {
+        try
+        {
+            using(MySqlConnection connection = new MySqlConnection(_connectionString)){
+                string query = @"UPDATE usuario SET idRol = @idRol WHERE idUsuario = @idUsuario;";
+                using(MySqlCommand command = new MySqlCommand(query, connection)){
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@idUsuario", idUsuario);
+                    command.Parameters.AddWithValue("@idRol", idRol);
+                    await connection.OpenAsync();
+                    int result = await command.ExecuteNonQueryAsync();
+                    await connection.CloseAsync();
+                    if(result == 0) return ("Error al cambiar rol: Database Error", false);
+                }
+                return ("Rol cambiado correctamente", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(CambiarRol));
+            return ("Error al cambiar rol: Internal Server Error", false);
+        }
+    }
 }
