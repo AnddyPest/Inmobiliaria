@@ -32,19 +32,11 @@ public class EmpleadoService : IEmpleadoService
                                     persona.email, 
                                     persona.telefono, 
                                     persona.direccion, 
-                                    empleado.estado,
-                                    usuario.idUsuario,
-                                    usuario.email,
-                                    usuario.estado as estadoUsuario,
-                                    rol.idRol,
-                                    rol.nombre
+                                    empleado.estado
                                     FROM empleado as empleado
                                     INNER JOIN persona as persona
-                                    ON empleado.idPersona = persona.idPersona
-                                    INNER JOIN usuario as usuario ON empleado.idUsuario = usuario.idUsuario
-                                    INNER JOIN rol as rol ON usuario.idRol = rol.idRol ";
+                                    ON empleado.idPersona = persona.idPersona ";
                 List<String> parametros = new List<string>();
-                
                 if (dni != null) parametros.Add($" persona.dni like '%{dni}%' ");
                 if (estado != null) parametros.Add($" empleado.estado = {estado} ");
                 query += HelperFor.construirSqlWhereAnd(parametros);
@@ -60,8 +52,7 @@ public class EmpleadoService : IEmpleadoService
                         while (await reader.ReadAsync())
                         {
                             Empleado empleado = new Empleado();
-                            Usuario usuario = new Usuario();
-                            Rol rol = new Rol();
+
                             empleado.IdEmpleado = reader.GetInt32("idEmpleado");
                             empleado.IdPersona = reader.GetInt32("idPersona");
                             empleado.Dni = reader.GetInt32("dni");
@@ -71,16 +62,6 @@ public class EmpleadoService : IEmpleadoService
                             empleado.Telefono = reader.GetString("telefono");
                             empleado.Direccion = reader.GetString("direccion");
                             empleado.Estado = reader.GetBoolean("estado");
-                            empleado.IdUsuario = reader.GetInt32("idUsuario");
-
-                            usuario.idUsuario = empleado.IdUsuario;
-                            usuario.email = reader.GetString("email");
-                            usuario.estado = reader.GetBoolean("estadoUsuario");
-                            rol.IdRol = reader.GetInt32("idRol");
-                            rol.Nombre = reader.GetString("nombre");
-
-                            usuario.Rol = rol;
-                            empleado.Usuario = usuario;
                             empleados.Add(empleado);
                         }
                     }
