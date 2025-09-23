@@ -42,8 +42,9 @@ public class EmpleadoService : IEmpleadoService
                                     INNER JOIN persona as persona
                                     ON empleado.idPersona = persona.idPersona
                                     INNER JOIN usuario as usuario ON empleado.idUsuario = usuario.idUsuario
-                                    INNER JOIN rol as rol ON usuario.idRol = rol.idRol";
+                                    INNER JOIN rol as rol ON usuario.idRol = rol.idRol ";
                 List<String> parametros = new List<string>();
+                
                 if (dni != null) parametros.Add($" persona.dni like '%{dni}%' ");
                 if (estado != null) parametros.Add($" empleado.estado = {estado} ");
                 query += HelperFor.construirSqlWhereAnd(parametros);
