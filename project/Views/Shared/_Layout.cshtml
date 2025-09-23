@@ -61,12 +61,22 @@
                                 <li class="nav-item dropdown">
                                     
                                     <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <span class="user-avatar me-2  ">@User.Identity.Name.Substring(0, 1).ToUpper()</span>
-                                            @User.Identity.Name - @User.FindFirst(ClaimTypes.Role).Value
+                                        @{
+                                            var avatarUrl = User.FindFirst("AvatarUrl")?.Value;
+                                        }
+                                        @if (!string.IsNullOrEmpty(avatarUrl))
+                                        {
+                                            <img src="@avatarUrl" alt="Avatar" class="user-avatar me-2" />
+                                        }
+                                        else
+                                        {
+                                            <img src="~/images/avatares/Avatar_Empty.png" alt="Avatar por defecto" class="user-avatar me-2" />
+                                        }
+                                        @User.Identity.Name
                                     </a>
                                     
                                     <ul class="dropdown-menu dropdown-menu-end user-dropdown" aria-labelledby="navbarDropdown">
-                                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a></li>
+                                        <li><a class="dropdown-item" href="/Perfil/Usuario/@User.FindFirst("idUsuario")?.Value"><i class="bi bi-person me-2"></i>Mi Perfil</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <form action="auth/logout" method="get">

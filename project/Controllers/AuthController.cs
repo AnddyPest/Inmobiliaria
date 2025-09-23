@@ -1,9 +1,7 @@
 
 
-using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using project.Controllers;
 using project.Helpers;
 using project.Models;
 [AllowAnonymous]
@@ -21,6 +19,7 @@ public class AuthController : Controller
     [HttpGet()]
     public IActionResult Login()
     {
+        
         return View("~/Views/Auth/VistaIniciarSesion.cshtml");
     }
     [HttpGet("auth/registro")]
