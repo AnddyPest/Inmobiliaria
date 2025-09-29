@@ -39,10 +39,10 @@ public class EmpleadoService : IEmpleadoService
                                     rol.idRol,
                                     rol.nombre
                                     FROM empleado as empleado
-                                    INNER JOIN persona as persona
+                                    LEFT JOIN persona as persona
                                     ON empleado.idPersona = persona.idPersona
-                                    INNER JOIN usuario as usuario ON empleado.idUsuario = usuario.idUsuario
-                                    INNER JOIN rol as rol ON usuario.idRol = rol.idRol ";
+                                    LEFT JOIN usuario as usuario ON empleado.idUsuario = usuario.idUsuario
+                                    LEFT JOIN rol as rol ON usuario.idRol = rol.idRol ";
                 List<String> parametros = new List<string>();
                 
                 if (dni != null) parametros.Add($" persona.dni like '%{dni}%' ");
@@ -71,13 +71,17 @@ public class EmpleadoService : IEmpleadoService
                             empleado.Telefono = reader.GetString("telefono");
                             empleado.Direccion = reader.GetString("direccion");
                             empleado.Estado = reader.GetBoolean("estado");
-                            empleado.IdUsuario = reader.GetInt32("idUsuario");
-
-                            usuario.idUsuario = empleado.IdUsuario;
-                            usuario.email = reader.GetString("email");
-                            usuario.estado = reader.GetBoolean("estadoUsuario");
-                            rol.IdRol = reader.GetInt32("idRol");
-                            rol.Nombre = reader.GetString("nombre");
+                            if (!reader.IsDBNull("idUsuario"))
+                            {
+                                empleado.IdUsuario = reader.GetInt32("idUsuario");
+                                usuario.idUsuario = empleado.IdUsuario;
+                                usuario.email = reader.GetString("email");
+                                usuario.estado = reader.GetBoolean("estadoUsuario");
+                                rol.IdRol = reader.GetInt32("idRol");
+                                rol.Nombre = reader.GetString("nombre");
+                            }
+                            
+                            System.Console.WriteLine(empleado.IdUsuario);
 
                             usuario.Rol = rol;
                             empleado.Usuario = usuario;
