@@ -78,15 +78,16 @@
                         </td>
                         <td>
                             <button class="btn btn-sm btn-primary me-1" onclick="window.location.href='/Inquilino/Update?id=@inquilino.IdPersona'"><i class="fa-solid fa-pen-to-square"></i></button>
-                            @if (inquilino.EstadoInquilino)
-                            {
-                                <button class="btn btn-sm btn-danger me-1" onclick="bajaEstadoInquilino(@inquilino.IdInquilino)"><i class="fa-solid fa-trash"></i></button>
+                            @if(User.IsInRole("Administrador")){
+                                @if (inquilino.EstadoInquilino)
+                                {
+                                    <button class="btn btn-sm btn-danger me-1" onclick="bajaEstadoInquilino(@inquilino.IdInquilino)"><i class="fa-solid fa-trash"></i></button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-success me-1" onclick="altaEstadoInquilino(@inquilino.IdInquilino)"><i class="fa-solid fa-recycle"></i></button>
+                                }
                             }
-                            else
-                            {
-                                <button class="btn btn-sm btn-success me-1" onclick="altaEstadoInquilino(@inquilino.IdInquilino)"><i class="fa-solid fa-recycle"></i></button>
-                            }
-                            
                             <button class="btn btn-sm btn-warning" onclick="verContratosInquilino(@inquilino.IdInquilino)"><i class="fa-solid fa-key"></i></button>
 
                         </td>

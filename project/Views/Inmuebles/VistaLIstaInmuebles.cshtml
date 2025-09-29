@@ -206,31 +206,32 @@
                                     }
                                     else
                                     {
-                                        <button type="button" class="btn btn-danger p-1 m-1 w-25" onclick="finalizarContrato('@inmueble.IdInmueble')">
-                                            <i class="bi bi-door-open-fill"></i>
-                                            
-                                        </button>
-                                        
-                                        
-                                        
+                                        @if(User.IsInRole("Administrador")){
+                                            <button type="button" class="btn btn-danger p-1 m-1 w-25" onclick="finalizarContrato('@inmueble.IdInmueble')">
+                                                <i class="bi bi-door-open-fill"></i>
+                                            </button>
+                                        }
                                     }
                                 }
                                 <!-- Botón para dar de baja o alta lógica -->
-                                @if (inmueble.contrato == null  || inmueble.contrato.estado == false)
-                                {
-                                    @if (inmueble.Estado)
+                                @if(User.IsInRole("Administrador")){
+                                    @if ( inmueble.contrato == null  || inmueble.contrato.estado == false)
                                     {
-                                        <a class="btn btn-danger p-1 m-1 w-25" href="@Url.Action("DarBajaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <a class="btn btn-success p-1 m-1 w-25" href="@Url.Action("DarAltaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
-                                            <i class="bi bi-arrow-clockwise"></i>
-                                        </a>
+                                        @if (inmueble.Estado)
+                                        {
+                                            <a class="btn btn-danger p-1 m-1 w-25" href="@Url.Action("DarBajaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a class="btn btn-success p-1 m-1 w-25" href="@Url.Action("DarAltaLogica", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </a>
+                                        }
                                     }
                                 }
+                                
                                 @if (inmueble.contrato?.estado == true && inmueble.Estado && inmueble.contrato.FechaInicio <= DateTime.Now)
                                 {
                                     @* var contratoVigente = Model.Contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);

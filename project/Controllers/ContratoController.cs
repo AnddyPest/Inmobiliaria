@@ -92,6 +92,7 @@ namespace project.Controllers
                 return BadRequest("No se pudo actualizar el contrato.");
             return Ok(true);
         }
+        [Authorize(Roles = "Administrador")]
         [HttpGet("contrato/darDeBaja")]
         public async Task<IActionResult> DarDeBajaContrato(int idContrato, decimal valorMulta)
         {
@@ -177,6 +178,7 @@ namespace project.Controllers
 
             return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble","El contrato no será renovado","Inmueble disponible!!");
         }
+        [Authorize(Roles = "Administrador")]
         [HttpGet("contrato/calcularMulta/{idContrato}")]
         public async Task<IActionResult> CalcularMulta(int idContrato)
         {

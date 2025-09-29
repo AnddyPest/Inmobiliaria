@@ -80,7 +80,7 @@ namespace project.Controllers
 
             return this.RedirectToActionWithSuccess(nameof(ObtenerTodos),"Propietario Actualizado con exito");
         }
-
+        [Authorize(Roles = "Administrador")]
         [HttpPost("Propietario/Baja")]
         public async Task<IActionResult> BajaPropietario([FromBody] int idPropietario) //testear
         {
@@ -93,6 +93,7 @@ namespace project.Controllers
 
             return this.RedirectToActionWithSuccess(nameof(ObtenerTodos), "El propietario fue dado de baja correctamente");
         }
+        [Authorize(Roles = "Administrador")]
         [HttpPost("Propietario/Alta")]
         public async Task<IActionResult> AltaPropietario([FromBody] int idPropietario) //testear
         {

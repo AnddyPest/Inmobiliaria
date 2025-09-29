@@ -177,6 +177,7 @@ namespace project.Controllers
             return this.RedirectToActionWithSuccess(nameof(GetAllInmuebles), "Inmueble actualizado con exito", "Inmueble Actualizado!!");
         }
         //DAR DE BAJA LOGICA
+        [Authorize(Roles = "Administrador")]
         [HttpGet("Inmueble/DarBajaLogica/{idInmueble}")]
         public async Task<IActionResult> DarBajaLogica(int idInmueble)
         {
@@ -187,6 +188,7 @@ namespace project.Controllers
                 return BadRequest("No se pudo dar de baja el inmueble.");
             return Redirect("/inmueble/listar");
         }
+        [Authorize(Roles = "Administrador")]
         [HttpGet("Inmueble/DarAltaLogica/{idInmueble}")]
         public async Task<IActionResult> DarAltaLogica(int idInmueble)
         {
