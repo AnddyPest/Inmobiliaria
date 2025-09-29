@@ -200,12 +200,14 @@ namespace project.Services
                                      i.idInquilino as InquilinoId,
                                      inquilinoPersona.Nombre AS NombreInquilino, 
                                      inquilinoPersona.Apellido AS ApellidoInquilino,
+                                     inquilinoPersona.Dni AS DniInquilino,
 
                                      propietarioPersona.idPersona as idPersonaPropietario,
                                      p.idPropietario as PropietarioId,
                                      propietarioPersona.Nombre AS NombrePropietario, 
                                      propietarioPersona.Apellido AS ApellidoPropietario,
-                                     
+                                     propietarioPersona.Dni AS DniPropietario,
+
                                      Inmueble.idInmueble as idInmuebleFisico,
                                      Inmueble.id_tipo_inmueble as id_tipo_inmuebleFisico,
                                      Inmueble.idPropietario as idPropietarioFisico,
@@ -292,7 +294,7 @@ namespace project.Services
                                     inquilino.IdInquilino = reader.GetInt32("InquilinoId");
                                     inquilino.Nombre = reader.GetString("NombreInquilino");
                                     inquilino.Apellido = reader.GetString("ApellidoInquilino");
-
+                                    inquilino.Dni = reader.GetInt32("DniInquilino");
                                     contrato.Inquilino = inquilino;
 
                                     propietario = new Propietario();
@@ -300,6 +302,7 @@ namespace project.Services
                                     propietario.IdPropietario = reader.GetInt32("PropietarioId");
                                     propietario.Nombre = reader.GetString("NombrePropietario");
                                     propietario.Apellido = reader.GetString("ApellidoPropietario");
+                                    propietario.Dni = reader.GetInt32("DniPropietario");
 
                                     contrato.Propietario = propietario;
 

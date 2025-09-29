@@ -68,13 +68,19 @@
                                                 <i class="bi-cash-coin"></i>
                                             </a>
                                         } else {
-                                            <a class="btn btn-sm btn-warning me-1" title="Anular Pago" href="@Url.Action("AnularPago", "Pagos", new { idPago = pago.IdPago })">
-                                                <i class="bi-arrow-counterclockwise fs-"></i>
+                                            @if(User.IsInRole("Administrador")){
+                                                <a class="btn btn-sm btn-warning me-1" title="Anular Pago" href="@Url.Action("AnularPago", "Pagos", new { idPago = pago.IdPago })">
+                                                    <i class="bi-arrow-counterclockwise fs-"></i>
+                                                </a>
+                                            }
+                                            
+                                        }
+                                        @if(User.IsInRole("Administrador")){
+                                            <a class="btn btn-sm btn-danger" title="Eliminar Pago" href="@Url.Action("DarDeBaja", "Pagos", new { idPago = pago.IdPago , idContrato = Model.IdContrato})">
+                                                <i class="bi-trash"></i>
                                             </a>
                                         }
-                                        <a class="btn btn-sm btn-danger" title="Eliminar Pago" href="@Url.Action("DarDeBaja", "Pagos", new { idPago = pago.IdPago , idContrato = Model.IdContrato})">
-                                            <i class="bi-trash"></i>
-                                        </a>
+                                       
                                     }else{
                                         <a class="btn btn-sm btn-primary" title="Dar alta Pago" href="@Url.Action("DarDeAlta", "Pagos", new { idPago = pago.IdPago , idContrato = Model.IdContrato})">
                                             <i class="bi-check"></i>

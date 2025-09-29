@@ -300,8 +300,8 @@
                         
                         <tr>
                             <td class="text-center">@contrato.IdContrato</td>
-                            <td class="text-center">@contrato.Inquilino?.Nombre @contrato.Inquilino?.Apellido</td>
-                            <td class="text-center">@contrato.Propietario?.Nombre @contrato.Propietario?.Apellido</td>
+                            <td class="text-center">@contrato.Inquilino?.Nombre @contrato.Inquilino?.Apellido - @contrato.Inquilino.Dni</td>
+                            <td class="text-center">@contrato.Propietario?.Nombre @contrato.Propietario?.Apellido - @contrato.Propietario.Dni</td>
                             <td class="text-center">@contrato.inmueble?.Direccion</td>
                             <td class="text-center">@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">@contrato.FechaFin.ToString("dd/MM/yyyy")</td>
