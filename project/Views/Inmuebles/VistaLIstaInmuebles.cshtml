@@ -164,6 +164,15 @@
                                                 <span class="badge bg-warning ms-1">Fin: @inmueble.contrato?.FechaFin.ToString("dd/MM/yyyy")</span>
                                         }
                                     }
+                                    else if( inmueble.contrato?.FechaInicio > DateTime.Now && inmueble.contrato?.estado == true){
+                                        <i class="bi bi-house-check-fill text-warning fs-4" title="No disponible - Reservado"></i>
+                                        {
+                                            
+                                                <span class="badge bg-primary ms-1">Inicio: @inmueble.contrato?.FechaInicio.ToString("dd/MM/yyyy")</span>
+                                                <span class="badge bg-danger ms-1">Fin: @inmueble.contrato?.FechaFin.ToString("dd/MM/yyyy")</span>
+                                                <span class="badge bg-warning ms-1">Reservado</span>
+                                        }
+                                    }
                                     else if (inmueble.contrato == null || inmueble.contrato.estado == false || inmueble.contrato.FechaFin < DateTime.Now)
                                     {
                                         <i class="bi bi-house text-secondary fs-4" title="Disponible - No alquilado"></i>
@@ -527,7 +536,7 @@
                 let inquilinoExiste = false;
                 let idInquilinoActual = null;
                 inputInicio.min = new Date().toISOString().split('T')[0];
-                fechaInicioInput.max = new Date().toISOString().split('T')[0];
+                //fechaInicioInput.max = new Date().toISOString().split('T')[0];
                 if(inputInicio && inputFin){
                     inputInicio.addEventListener('change', function() {
                         
@@ -752,7 +761,6 @@
                     let minFinStr = minFin.toISOString().split('T')[0];
                     fechaFinInput.setAttribute('min', minFinStr);
                     fechaFinInput.value = minFinStr;
-                    this.max = new Date().toISOString().split('T')[0];
                 });
                 
             });
