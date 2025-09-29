@@ -424,6 +424,10 @@
     </div>
 
     <script>
+        const fechaInicioInput = document.getElementById('fechaInicio');
+        const fechaFinInput = document.getElementById('fechaFin');
+        
+        let tomorrow = new Date();
         function aplicarFiltrosv2() {
             const filtroDisponibilidad = document.getElementById('selectDisponible').value;
             const filtroDni = document.getElementById("inputDniFiltro").value;
@@ -517,11 +521,13 @@
                 const inputInicio = document.getElementById('inputInicioAlquiler');
                 const inputFin = document.getElementById('inputFinAlquiler');
                 
+                
                 const dniInput = document.getElementById("dniInquilino");
                 if (!dniInput) return;
                 let inquilinoExiste = false;
                 let idInquilinoActual = null;
                 inputInicio.min = new Date().toISOString().split('T')[0];
+                fechaInicioInput.max = new Date().toISOString().split('T')[0];
                 if(inputInicio && inputFin){
                     inputInicio.addEventListener('change', function() {
                         
@@ -737,10 +743,7 @@
                     });
                 });
                 // VALIDACIÓN DE FECHAS EN FORMULARIO DE CONTRATO
-                const fechaInicioInput = document.getElementById('fechaInicio');
-                const fechaFinInput = document.getElementById('fechaFin');
                 
-                let tomorrow = new Date();
                      
                 // CUANDO CAMBIAMOS LA FECHA DE INICIO, LA DE FIN SE AJUSTA Y SE AUTOSELECCIONA EN MAÑANA
                 fechaInicioInput.addEventListener('change', function() {
@@ -749,6 +752,7 @@
                     let minFinStr = minFin.toISOString().split('T')[0];
                     fechaFinInput.setAttribute('min', minFinStr);
                     fechaFinInput.value = minFinStr;
+                    this.max = new Date().toISOString().split('T')[0];
                 });
                 
             });

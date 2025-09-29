@@ -175,8 +175,13 @@ namespace project.Controllers
                 return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Contrato no renovado, pero no se pudo marcar el inmueble como disponible: " + resultado.Item1, "Error al no renovar el contrato");
             if (!resultado.Item2)
                 return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
-
-            return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble","El contrato no será renovado","Inmueble disponible!!");
+            (string?, Contrato?) contrato = await _contratoService.GetContratoById(idContrato);
+            if (contrato.Item1 != null || contrato.Item2 == null)
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
+            (string? errorServicio, bool validacion) = await _inmuebleService.MarcarLibre(contrato.Item2.IdInmueble);
+            if (errorServicio != null || !validacion)
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
+            return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble", "El contrato no será renovado", "Inmueble disponible!!");
         }
         [Authorize(Roles = "Administrador")]
         [HttpGet("contrato/calcularMulta/{idContrato}")]
