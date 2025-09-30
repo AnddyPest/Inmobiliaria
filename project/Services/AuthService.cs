@@ -115,6 +115,34 @@ public class AuthService : IAuthService
             return ("Error al actualizar el claim del avatar", false);
         }
     }
-
+    public async Task<(string?, bool)> ActualizarClaim(Empleado empleado)
+    {
+        try
+        {
+            var identidadActual = (ClaimsIdentity)_httpContextAccessor.HttpContext!.User.Identity!;
+            var claimsActuales = identidadActual.Claims.ToList();
+            var claimNombre = claimsActuales.FirstOrDefault(c => c.Type == ClaimTypes.Name);
+            var claimEmail = claimsActuales.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+            if (claimNombre != null)
+                claimsActuales.Remove(claimNombre);
+            if (claimEmail != null)
+                claimsActuales.Remove(claimEmail);
+            claimsActuales.Add(new Claim(ClaimTypes.Name, empleado.Nombre + " " + empleado.Apellido));
+            claimsActuales.Add(new Claim(ClaimTypes.Email, empleado.Email));
+            var claimsIdentity = new ClaimsIdentity(claimsActuales, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties { IsPersistent = true, ExpiresUtc = DateTime.UtcNow.AddHours(8) };
+            await _httpContextAccessor.HttpContext!.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties
+            );
+            return (null, true);
+        }
+        catch (System.Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(AuthService), nameof(ActualizarClaim));
+            return ("Error al actualizar las claims", false);
+        }
+    }
     
 }

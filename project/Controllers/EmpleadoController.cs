@@ -12,11 +12,18 @@ public class EmpleadoController : Controller
     private readonly IEmpleadoService empleadoService;
     private readonly IPersonaService personaService;
     private readonly IUsuarioService usuarioService;
-    public EmpleadoController(IPersonaService personaService, IEmpleadoService empleadoService, IUsuarioService usuarioService)
+    private readonly IAuthService authService;
+    public EmpleadoController(
+        IPersonaService personaService,
+        IEmpleadoService empleadoService,
+        IUsuarioService usuarioService,
+        IAuthService authService
+        )
     {
         this.empleadoService = empleadoService;
         this.personaService = personaService;
         this.usuarioService = usuarioService;
+        this.authService = authService;
     }
     [HttpGet("/Empleado")]
     public async Task<IActionResult> VistaEmpleados(int nroPagina = 1, int? estado = null, int? dni = null)
@@ -121,9 +128,14 @@ public class EmpleadoController : Controller
                 return this.RedirectToActionWithError("ObtenerPerfilUsuario","Usuario", error, new { id = empleado.IdUsuario });
             }
         }
-        System.Console.WriteLine("llego aca");
-        return this.RedirectToActionWithSuccess("ObtenerPerfilUsuario","Usuario", "El empleado se ha actualizado correctamente", new { id = empleado.IdUsuario }, "Empleado Actualizado!!!");
-
+        
+        (string? errorServicesClaim, bool confirmacionServicesClaim) = await authService.ActualizarClaim(new Empleado(empleadoFromService.Nombre, empleadoFromService.Apellido, empleadoFromService.Dni, empleadoFromService.Telefono,empleadoFromService.Direccion,empleadoFromService.Email,empleadoFromService.Estado));
+        if (errorServicesClaim != null && !confirmacionServicesClaim)
+        {
+            HelperFor.imprimirMensajeDeError(errorServicesClaim, nameof(EmpleadoController), nameof(ActualizarEmpleado));
+            return this.RedirectToActionWithError("ObtenerPerfilUsuario","Usuario", errorServicesClaim, new { id = empleado.IdUsuario });
+        }
+        return this.RedirectToActionWithSuccess("ObtenerPerfilUsuario", "Usuario", "El empleado se ha actualizado correctamente", new { id = empleado.IdUsuario }, "Empleado Actualizado!!!");
     }
     [HttpGet("Empleado/Baja")]
     public async Task<IActionResult> BajaEmpleado(int idEmpleado)
