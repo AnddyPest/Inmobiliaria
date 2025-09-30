@@ -4,7 +4,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Mi Perfil";
 }
-
 <style>
     .profile-container {
         background: #fff8f0;
@@ -168,7 +167,7 @@
     }
 </style>
 
-<div class="profile-container">
+<div class="profile-container mt-5">
     <div class="row text-end">
     <a href="/" style="text-decoration:none;"><h4 style="color:#7c5c3e;">X</h4></a>
     </div>
@@ -216,8 +215,246 @@
             <span class="field-value">@(Model.estado ? "Activo" : "Inactivo")</span>
         </div>
     </div>
+    <div class="text-end mt-3 d-flex justify-content-end gap-2">
+        <div>
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editarDatosModal" >
+                <i class="fas fa-user-edit me-2"></i>Editar Datos
+            </button>
+        </div>
+        <div>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cambiarContrasenaModal">
+                <i class="fas fa-key me-2"></i>Cambiar Contraseña
+            </button>
+        </div>
+    </div>
+    
 </div>
-
+<div class="modal fade" id="editarDatosModal" tabindex="-1" role="dialog" aria-labelledby="editarDatosModalLabel" aria-hidden="true"
+        data-nombre="@Html.Raw(Model.Empleado.Nombre)"
+        data-apellido="@Html.Raw(Model.Empleado.Apellido)" 
+        data-email="@Html.Raw(Model.email)">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <!-- Header mejorado -->
+            <div class="modal-header bg-gradient bg-primary text-white py-4">
+                <div class="d-flex align-items-center w-100">
+                    <div class="bg-white bg-opacity-20 rounded-circle p-3 me-3">
+                        <i class="fas fa-user-edit fa-lg text-white"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title mb-0 fw-bold fs-4">Actualizar Datos Personales</h5>
+                        <small class="opacity-75">Completa tu información personal</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Body mejorado -->
+            <div class="modal-body p-5">
+                <form action="/Usuario/editar/@Model.idUsuario" method="post">
+                    <input type="hidden" name="idUsuario" value="@Model.idUsuario" />
+                    
+                    <!-- Sección de información personal -->
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3 border-bottom pb-2">
+                            <i class="fas fa-id-card me-2"></i>Información Personal
+                        </h6>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label fw-semibold text-dark">
+                                    <i class="fas fa-signature text-primary me-1"></i>Nombre
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 ps-0" 
+                                           id="nombre" name="nombre" 
+                                           value="@Model.Empleado.Nombre" 
+                                           placeholder="Tu nombre" />
+                                </div>
+                                <div class="form-text text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>Tu nombre de pila
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="apellido" class="form-label fw-semibold text-dark">
+                                    <i class="fas fa-signature text-primary me-1"></i>Apellido
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-user-tag text-primary"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 ps-0" 
+                                           id="apellido" name="apellido" 
+                                           value="@Model.Empleado.Apellido" 
+                                           placeholder="Tu apellido" />
+                                </div>
+                                <div class="form-text text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>Tu apellido completo
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sección de contacto -->
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3 border-bottom pb-2">
+                            <i class="fas fa-envelope-open-text me-2"></i>Información de Contacto
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold text-dark">
+                                <i class="fas fa-at text-primary me-1"></i>Correo Electrónico
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-envelope text-primary"></i>
+                                </span>
+                                <input type="email" class="form-control border-start-0 ps-0" 
+                                       id="email" name="email" 
+                                       value="@Model.email" 
+                                       placeholder="ejemplo@correo.com" />
+                            </div>
+                            <div class="form-text text-muted small mt-1">
+                                <i class="fas fa-shield-alt me-1"></i>Usaremos este correo para notificaciones importantes
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de acción mejorados -->
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <button type="button" class="btn btn-outline-secondary px-4 py-2 rounded-pill" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </button>
+                        <button id="submitDatos" type="submit" class="btn btn-success px-4 py-2 rounded-pill fw-semibold">
+                            <i class="fas fa-save me-2"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="cambiarContrasenaModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" style="margin-top: 20px;">
+        <div class="modal-content border-0 shadow-lg">
+            <!-- Header elegante -->
+            <div class="modal-header bg-gradient bg-primary text-white py-4">
+                <div class="d-flex align-items-center w-100">
+                    <div class="bg-white bg-opacity-20 rounded-circle p-3 me-3">
+                        <i class="fas fa-lock fa-lg text-white"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title mb-0 fw-bold fs-4">Cambiar Contraseña</h5>
+                        <small class="opacity-75">Protege tu cuenta con una nueva contraseña</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Body mejorado -->
+            <div class="modal-body p-4">
+                <form id="formCambiarContrasena" action="/Usuario/cambiarContrasena/@Model.idUsuario" method="post">
+                    <input type="hidden" name="idUsuario" value="@Model.idUsuario" />
+                    
+                    <!-- Contraseña Actual -->
+                    <div class="mb-4">
+                        <label for="passwordActual" class="form-label fw-semibold text-dark mb-3">
+                            <i class="fas fa-key me-2 text-warning"></i>Contraseña Actual
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-lock text-warning"></i>
+                            </span>
+                            <input type="password" class="form-control border-start-0 ps-0" 
+                                   id="passwordActual" name="passwordActual" 
+                                   placeholder="Ingresa tu contraseña actual" required />
+                            <button class="btn btn-outline-warning" type="button" id="togglePasswordActual">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text text-muted small mt-1">
+                            <i class="fas fa-info-circle me-1"></i>Ingresa tu contraseña actual para verificar tu identidad
+                        </div>
+                    </div>
+                    
+                    <!-- Nueva Contraseña -->
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-semibold text-dark mb-3">
+                            <i class="fas fa-plus-circle me-2 text-success"></i>Nueva Contraseña
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-lock text-success"></i>
+                            </span>
+                            <input type="password" class="form-control border-start-0 ps-0" 
+                                   id="password" name="password"  minlength="8" 
+                                   placeholder="Crea una nueva contraseña segura" required />
+                            <button class="btn btn-outline-success" type="button" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text text-muted small mt-1">
+                            <i class="fas fa-shield-alt me-1"></i>Mínimo 8 caracteres, incluye mayúsculas y números
+                        </div>
+                    </div>
+                    
+                    <!-- Confirmar Contraseña -->
+                    <div class="mb-4">
+                        <label for="passwordConfirmacion" class="form-label fw-semibold text-dark mb-3">
+                            <i class="fas fa-redo me-2 text-info"></i>Confirmar Contraseña
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-lock text-info"></i>
+                            </span>
+                            <input type="password" class="form-control border-start-0 ps-0" 
+                                   id="passwordConfirmacion" name="passwordConfirmacion" 
+                                   minlength="8"
+                                   placeholder="Repite tu nueva contraseña" required />
+                            <button class="btn btn-outline-info" type="button" id="togglePasswordConfirmacion">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text text-muted small mt-1">
+                            <i class="fas fa-check-circle me-1"></i>Ambas contraseñas deben coincidir exactamente
+                        </div>
+                        <!-- Mensaje de error para contraseñas no coincidentes -->
+                        <div id="passwordError" class="text-danger small mt-2 d-none">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Las contraseñas no coinciden
+                        </div>
+                    </div>
+                    
+                    <!-- Indicador de seguridad -->
+                    <div class="alert alert-warning border-warning bg-warning bg-opacity-10 mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle text-warning me-2 fs-5"></i>
+                            <div>
+                                <strong class="text-dark">Recomendaciones de seguridad:</strong>
+                                <div class="small text-muted mt-1">
+                                    Usa una combinación de letras, números y símbolos para mayor protección
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary px-4 rounded-pill fw-semibold" id="submitBtn">
+                            <i class="fas fa-save me-2"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Aca cargamos todos los avatares disponibles, no se si el profe estara de acuerdo -->
 <div id="avatarSelector" class="avatar-selector">
     <div class="avatar-modal">
@@ -238,6 +475,108 @@
 </div>
 
 <script>
+   document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('formCambiarContrasena');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('passwordConfirmacion');
+        const passwordError = document.getElementById('passwordError');
+        const submitBtn = document.getElementById('submitBtn');
+        const inputNombre = document.getElementById('nombre');
+        const inputApellido = document.getElementById('apellido');
+        const inputEmail = document.getElementById('email');
+        const botonDatos = document.getElementById('submitDatos');
+        function togglePassword(inputId, buttonId) {
+            const input = document.getElementById(inputId);
+            const button = document.getElementById(buttonId);
+            
+            if (input && button) {
+                button.onclick = function() {
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        button.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                    } else {
+                        input.type = 'password';
+                        button.innerHTML = '<i class="fas fa-eye"></i>';
+                    }
+                };
+            }
+        }
+
+        function validatePasswords() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (password && confirmPassword && password !== confirmPassword) {
+                passwordError.classList.remove('d-none');
+                confirmPasswordInput.classList.add('is-invalid');
+                submitBtn.disabled = true;
+                return false;
+            } else {
+                passwordError.classList.add('d-none');
+                confirmPasswordInput.classList.remove('is-invalid');
+                submitBtn.disabled = false;
+                return true;
+            }
+        }
+
+        passwordInput.addEventListener('input', validatePasswords);
+        confirmPasswordInput.addEventListener('input', validatePasswords);
+
+        form.addEventListener('submit', function(e) {
+            if (!validatePasswords()) {
+                e.preventDefault();
+                confirmPasswordInput.focus();
+            }
+        });
+
+        togglePassword('passwordActual', 'togglePasswordActual');
+        togglePassword('password', 'togglePassword');
+        togglePassword('passwordConfirmacion', 'togglePasswordConfirmacion');
+
+        inputNombre.addEventListener('input', function() {
+            this.value = this.value.replace(/[0-9]/g, ''.trim());
+            if(this.value.length < 1) {
+                botonDatos.disabled = true;
+            }else{
+                botonDatos.disabled = false;
+            }
+        });
+        inputApellido.addEventListener('input', function() {
+            this.value = this.value.replace(/[0-9]/g, ''.trim());
+            if(this.value.length < 1) {
+                botonDatos.disabled = true;
+            }else{
+                botonDatos.disabled = false;
+            }
+        });
+        inputEmail.addEventListener('input', function() {
+            if(this.value.length < 8) {
+                botonDatos.disabled = true;
+            }else{
+                botonDatos.disabled = false;
+            }
+        })
+        document.getElementById('cambiarContrasenaModal').addEventListener('hidden.bs.modal', function() {
+            passwordError.classList.add('d-none');
+            confirmPasswordInput.classList.remove('is-invalid');
+            submitBtn.disabled = false;
+            form.reset();
+        });
+        const modalElement = document.getElementById('editarDatosModal');
+    
+        document.getElementById("editarDatosModal").addEventListener("hidden.bs.modal", function() {
+            document.getElementById('nombre').value = modalElement.dataset.nombre;
+            document.getElementById('apellido').value = modalElement.dataset.apellido;
+            document.getElementById('email').value = modalElement.dataset.email;
+        });
+
+        document.getElementById("editarDatosModal").addEventListener("show.bs.modal", function() {
+            document.getElementById('nombre').value = modalElement.dataset.nombre;
+            document.getElementById('apellido').value = modalElement.dataset.apellido;
+            document.getElementById('email').value = modalElement.dataset.email;
+        });
+
+    });
     function openAvatarSelector() {
         document.getElementById('avatarSelector').classList.add('show');
     }
@@ -295,7 +634,7 @@
         
         closeAvatarSelector();
     }
-
+    
     // pa cerrar el modal selector haciendo clock fuera de el
     document.getElementById('avatarSelector').addEventListener('click', function(e) {
         if (e.target === this) {

@@ -312,7 +312,7 @@
                             else
                             {
                                 <td class="text-center">
-                                    @if (contrato.FechaFin.Date < DateTime.Now.Date)
+                                    @if (contrato.FechaFin.Date <= DateTime.Now.Date)
                                     {
                                         <span class="text-danger fw-bold">Vencido</span>
                                     }
