@@ -69,7 +69,62 @@ public class EmpleadoController : Controller
         return this.RedirectToActionWithSuccess(nameof(VistaEmpleados), "El empleado se ha registrado correctamente", "Empleado Registrado!!!");
 
     }
-    
+    [HttpPost("Empleado/actualizar")]
+    public async Task<IActionResult> ActualizarEmpleado(Empleado empleado)
+    {
+        System.Console.WriteLine("Empleado: " + empleado.IdUsuario); 
+        bool changeEmailCredential = false;
+        if (!ModelState.IsValid)
+            return this.RedirectToActionWithError("ObtenerPerfilUsuario","Usuario", "Los datos ingresados no son validos.", new { id = empleado.IdUsuario });
+
+        (string? errorService, Persona? empleadoFromService)  = await personaService.GetPersonaById(empleado.IdPersona, true);
+        if (errorService != null && empleadoFromService == null)
+        {
+            HelperFor.imprimirMensajeDeError(errorService, nameof(EmpleadoController), nameof(ActualizarEmpleado));
+            return this.RedirectToActionWithError("ObtenerPerfilUsuario","Usuario", errorService, new { id = empleado.IdUsuario });
+        }
+        if (empleadoFromService!.Email != empleado.Email)
+        {
+            changeEmailCredential = true;
+            (string? error, bool emailValidoPersona) = await personaService.validarQueElGmailNoEsteDuplicado(empleado.Email, empleado.IdPersona);
+            if (error != null && !emailValidoPersona)
+            {
+                HelperFor.imprimirMensajeDeError(error, nameof(EmpleadoController), nameof(ActualizarEmpleado));
+                return this.RedirectToActionWithError("ObtenerPerfilUsuario","Usuario", error, new { id = empleado.IdUsuario });
+
+            }
+            (string? errorValidateEmail, bool emailValidoUser) = await usuarioService.ValidarEmailDisponible(new Usuario() { idUsuario = empleado.IdUsuario, email = empleado.Email });
+            if (errorValidateEmail != null && !emailValidoUser)
+            {
+                HelperFor.imprimirMensajeDeError(errorValidateEmail, nameof(EmpleadoController), nameof(ActualizarEmpleado));
+                return this.RedirectToActionWithError("ObtenerPerfilUsuario","Usuario", errorValidateEmail, new { id = empleado.IdUsuario });
+            }
+        }
+        empleadoFromService!.Nombre = empleado.Nombre;
+        empleadoFromService.Apellido = empleado.Apellido;
+        empleadoFromService.Dni = empleado.Dni;
+        empleadoFromService.Email = empleado.Email;
+        empleadoFromService.Telefono = empleado.Telefono;
+        empleadoFromService.Direccion = empleado.Direccion;
+        int result = await personaService.Editar(empleadoFromService);
+        if (result == -1)
+        {
+            HelperFor.imprimirMensajeDeError("No se pudo actualizar el empleado", nameof(EmpleadoController), nameof(ActualizarEmpleado));
+            return this.RedirectToActionWithError("ObtenerPerfilUsuario","Usuario", "No se pudo actualizar el empleado", new { id = empleado.IdUsuario });
+        }
+        if (changeEmailCredential)
+        {
+            (string? error, bool confirmacion) = await usuarioService.CambiarGmail(new Usuario() { idUsuario = empleado.IdUsuario, email = empleado.Email });
+            if (error != null && !confirmacion)
+            {
+                HelperFor.imprimirMensajeDeError(error, nameof(EmpleadoController), nameof(ActualizarEmpleado));
+                return this.RedirectToActionWithError("ObtenerPerfilUsuario","Usuario", error, new { id = empleado.IdUsuario });
+            }
+        }
+        System.Console.WriteLine("llego aca");
+        return this.RedirectToActionWithSuccess("ObtenerPerfilUsuario","Usuario", "El empleado se ha actualizado correctamente", new { id = empleado.IdUsuario }, "Empleado Actualizado!!!");
+
+    }
     [HttpGet("Empleado/Baja")]
     public async Task<IActionResult> BajaEmpleado(int idEmpleado)
     {

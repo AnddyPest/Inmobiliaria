@@ -203,8 +203,20 @@
             <span class="field-value">@Model.Empleado.Apellido</span>
         </div>
         <div class="profile-field">
+            <span class="field-label">DNI:</span>
+            <span class="field-value">@Model.Empleado.Dni</span>
+        </div>
+        <div class="profile-field">
             <span class="field-label">Email:</span>
             <span class="field-value">@Model.email</span>
+        </div>
+        <div class="profile-field">
+            <span class="field-label">Direccion:</span>
+            <span class="field-value">@Model.Empleado.Direccion</span>
+        </div>
+        <div class="profile-field">
+            <span class="field-label">Telefono:</span>
+            <span class="field-value">@Model.Empleado.Telefono</span>
         </div>
         <div class="profile-field">
             <span class="field-label">Rol:</span>
@@ -214,6 +226,7 @@
             <span class="field-label">Estado:</span>
             <span class="field-value">@(Model.estado ? "Activo" : "Inactivo")</span>
         </div>
+
     </div>
     <div class="text-end mt-3 d-flex justify-content-end gap-2">
         <div>
@@ -251,9 +264,10 @@
             
             <!-- Body mejorado -->
             <div class="modal-body p-5">
-                <form action="/Usuario/editar/@Model.idUsuario" method="post">
-                    <input type="hidden" name="idUsuario" value="@Model.idUsuario" />
-                    
+                <form action="/Empleado/actualizar" method="post">
+                    <input type="hidden" name="IdEmpleado" value="@Model.Empleado.IdEmpleado" />
+                    <input type="hidden" name="IdUsuario" value="@Model.idUsuario" />
+                    <input type="hidden" name="IdPersona" value="@Model.Empleado.IdPersona" />
                     <!-- Sección de información personal -->
                     <div class="mb-4">
                         <h6 class="text-primary mb-3 border-bottom pb-2">
@@ -261,7 +275,7 @@
                         </h6>
                         
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="nombre" class="form-label fw-semibold text-dark">
                                     <i class="fas fa-signature text-primary me-1"></i>Nombre
                                 </label>
@@ -279,7 +293,7 @@
                                 </div>
                             </div>
                             
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="apellido" class="form-label fw-semibold text-dark">
                                     <i class="fas fa-signature text-primary me-1"></i>Apellido
                                 </label>
@@ -294,6 +308,58 @@
                                 </div>
                                 <div class="form-text text-muted small mt-1">
                                     <i class="fas fa-info-circle me-1"></i>Tu apellido completo
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="dni" class="form-label fw-semibold text-dark">
+                                    <i class="fas fa-signature text-primary me-1"></i>Dni
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-user-tag text-primary"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 ps-0" 
+                                           id="dni" name="dni" 
+                                           value="@Model.Empleado.Dni" 
+                                           placeholder="Tu Dni" />
+                                </div>
+                                <div class="form-text text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>Tu Dni
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="direccion" class="form-label fw-semibold text-dark">
+                                    <i class="fas fa-signature text-primary me-1"></i>Direccion
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-user-tag text-primary"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 ps-0" 
+                                           id="direccion" name="direccion" 
+                                           value="@Model.Empleado.Direccion" 
+                                           placeholder="Tu Direccion" 
+                                           minlength="5" />
+                                </div>
+                                <div class="form-text text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>Tu Direccion
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="telefono" class="form-label fw-semibold text-dark">
+                                    <i class="fas fa-signature text-primary me-1"></i>Telefono
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-user-tag text-primary"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 ps-0" 
+                                           id="telefono" name="telefono" 
+                                           value="@Model.Empleado.Telefono" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                                           placeholder="Tu telefono" />
+                                </div>
+                                <div class="form-text text-muted small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>Tu Telefono
                                 </div>
                             </div>
                         </div>
@@ -575,8 +641,31 @@
             document.getElementById('apellido').value = modalElement.dataset.apellido;
             document.getElementById('email').value = modalElement.dataset.email;
         });
-
+        document.getElementById("dni").addEventListener("input", function() {
+            this.value = this.value.replace(/[a-zA-Z]/g, '');
+            if(this.value.length < 8) {
+                botonDatos.disabled = true;
+            }else{
+                botonDatos.disabled = false;
+            }
+        });
+        document.getElementById("telefono").addEventListener("input", function() {
+            this.value = this.value.replace(/[a-zA-Z]/g, '');
+            if(this.value.length < 8) {
+                botonDatos.disabled = true;
+            }else{
+                botonDatos.disabled = false;
+            }
+        })
+        document.getElementById("direccion").addEventListener("input", function() {
+            if(this.value.length < 5) {
+                botonDatos.disabled = true;
+            }else{
+                botonDatos.disabled = false;
+            }
+        })
     });
+
     function openAvatarSelector() {
         document.getElementById('avatarSelector').classList.add('show');
     }

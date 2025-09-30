@@ -44,13 +44,13 @@ public class UsuarioController : Controller
         if (error != null) return NotFound();
         return View("~/Views/Profiles/UserProfiles.cshtml", usuario);
     }
-    [HttpPost("Usuario/actualizar")]
-    public async Task<IActionResult> ActualizarUsuario(Usuario usuario)
-    {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-        (string?, bool) result = await _usuarioService.UpdateUsuario(usuario);
-        return Ok(result);
-    }
+    // [HttpPost("Usuario/actualizar")]
+    // public async Task<IActionResult> ActualizarUsuario(Usuario usuario)
+    // {
+    //     if (!ModelState.IsValid) return BadRequest(ModelState);
+    //     (string?, bool) result = await _usuarioService.UpdateUsuario(usuario);
+    //     return Ok(result);
+    // }
     [HttpGet("Usuario/cambiarRol")]
     public async Task<IActionResult> CambiarRol(int idUsuario, int idRolActual)
     {

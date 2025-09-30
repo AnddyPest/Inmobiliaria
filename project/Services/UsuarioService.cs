@@ -50,7 +50,7 @@ public class UsuarioService : IUsuarioService
             return ("Error al crear usuario: Internal Server Error", false, 0);
         }
     }
-    public async Task<(string?, bool)> UpdateUsuario(Usuario usuario)
+    public async Task<(string?, bool)> CambiarGmail(Usuario usuario)
     {
         if (await this.GetUsuarioById(usuario.idUsuario) is (string error, null)) return (error, false);
         if (await this.ValidarEmailDisponible(usuario) is (string errorValidacion, false)) return (errorValidacion, false);
@@ -59,14 +59,11 @@ public class UsuarioService : IUsuarioService
         {
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
-                string query = @"UPDATE usuario SET email = @email, contraseña = @contrasena, idRol = @idRol, estado = @estado WHERE idUsuario = @idUsuario;";
+                string query = @"UPDATE usuario SET email = @email WHERE idUsuario = @idUsuario;";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.CommandType = CommandType.Text;
                     command.Parameters.AddWithValue("@email", usuario.email);
-                    command.Parameters.AddWithValue("@contrasena", usuario.contrasena);
-                    command.Parameters.AddWithValue("@idRol", usuario.IdRol);
-                    command.Parameters.AddWithValue("@estado", usuario.estado);
                     command.Parameters.AddWithValue("@idUsuario", usuario.idUsuario);
                     await connection.OpenAsync();
                     int result = await command.ExecuteNonQueryAsync();
@@ -78,7 +75,7 @@ public class UsuarioService : IUsuarioService
         }
         catch (Exception ex)
         {
-            HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(UpdateUsuario));
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(CambiarGmail));
             return ("Error al actualizar usuario: Internal Server Error", false);
         }
     }
@@ -93,8 +90,12 @@ public class UsuarioService : IUsuarioService
                                     user.*,
                                     rol.*,
                                     empleado.*,
+                                    persona.idPersona,
                                     persona.nombre AS persona_nombre,
-                                    persona.apellido AS persona_apellido
+                                    persona.apellido AS persona_apellido,
+                                    persona.dni AS persona_dni,
+                                    persona.telefono AS persona_telefono,
+                                    persona.direccion AS persona_direccion
                                     FROM usuario AS user
                                     INNER JOIN empleado ON user.idUsuario = empleado.idUsuario
                                     INNER JOIN rol ON user.idRol = rol.idRol
@@ -118,8 +119,13 @@ public class UsuarioService : IUsuarioService
                             usuario.IdRol = reader.GetInt32("idRol");
                             usuario.AvatarUrl = reader.IsDBNull(reader.GetOrdinal("AvatarUrl")) ? null : reader.GetString("AvatarUrl");
                             usuario.estado = reader.GetBoolean("estado");
+                            empleado.IdPersona = reader.GetInt32("idPersona");
+                            empleado.IdEmpleado = reader.GetInt32("idEmpleado");
                             empleado.Nombre = reader.GetString("persona_nombre");
                             empleado.Apellido = reader.GetString("persona_apellido");
+                            empleado.Dni = reader.GetInt32("persona_dni");
+                            empleado.Telefono = reader.GetString("persona_telefono");
+                            empleado.Direccion = reader.GetString("persona_direccion");
                             usuario.Empleado = empleado;
 
                             rol.IdRol = reader.GetInt32("idRol");
