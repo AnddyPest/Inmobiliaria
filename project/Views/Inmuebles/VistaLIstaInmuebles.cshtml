@@ -213,14 +213,14 @@
                                         }
 
                                     }
-                                    else
+                                    @* else
                                     {
                                         @if(User.IsInRole("Administrador")){
                                             <button type="button" class="btn btn-danger p-1 m-1 w-25" onclick="finalizarContrato('@inmueble.IdInmueble')">
                                                 <i class="bi bi-door-open-fill"></i>
                                             </button>
                                         }
-                                    }
+                                    } *@
                                 }
                                 <!-- Botón para dar de baja o alta lógica -->
                                 @if(User.IsInRole("Administrador")){
@@ -783,7 +783,7 @@
                 // Return false para prevenir el comportamiento por defecto
                 return false;
             }
-            async function finalizarContrato(idInmueble) {
+            /* async function finalizarContrato(idInmueble) {
                 var idContrato = null;
                 // BUSCAMOS EL CONTRATO VIGENTE POR EL ID INMUEBLE
                 await fetch(`/contrato/getContratoByIdInmueble/${idInmueble}`)
@@ -856,7 +856,7 @@
 
                 
                 return false;
-            }
+            } */
             async function noRenovarContrato(idContrato) {
                 Swal.fire({
                     title: '¿Estás seguro?',
