@@ -3,6 +3,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using project.Helpers;
 using project.Models;
 [Authorize]
 public class UsuarioController : Controller
@@ -18,16 +19,16 @@ public class UsuarioController : Controller
     public async Task<IActionResult> SetearAvatar(int idUsuario, string avatarUrl)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-        
+
         // Actualizar en la base de datos
         (string? error, bool success) = await _usuarioService.SetearAvatar(idUsuario, avatarUrl);
-        
+
         if (success)
         {
             // Actualizar el claim del avatar en la sesión actual
             await _authService.UpdateAvatarClaim(avatarUrl);
         }
-        
+
         return Ok(new { success = success, message = error });
     }
     [HttpGet("Usuario/obtenerAvatar/{idUsuario}")]
@@ -64,13 +65,19 @@ public class UsuarioController : Controller
     [HttpGet("Usuario/resetearContrasena")]
     public async Task<IActionResult> ResetearContrasena(int idUsuario) // , int idRolActual Agregar esto si es necesario
     {
-        System.Console.WriteLine("Linea33");
         if (!ModelState.IsValid) return BadRequest("No se pudo resetear la contraseña");
-        System.Console.WriteLine("Linea38");
-        //if(User.FindFirst("idUsuario")!.Value != idUsuario.ToString() && idRolActual == 1) return BadRequest("No puedes resetear la contraseña de otro administrador"); Pensar si es necesario
         (string?, bool) result = await _usuarioService.resetearContraseña(idUsuario);
         if (result.Item1 != null && !result.Item2) return BadRequest(result.Item1);
-        System.Console.WriteLine("Linea43");
         return Ok(result);
+    }
+    [HttpPost("Usuario/cambiar/contrasena")]
+    public async Task<IActionResult> cambiarContraseña(string passwordActual, string password, string email, int idUsuario)
+    {
+        if (!ModelState.IsValid) return this.RedirectToActionWithError(nameof(ObtenerPerfilUsuario), "Usuario", "Los datos ingresados no son validos.", new { id = idUsuario });
+        (string? errorServiceForValidateCredential, bool success) = await _usuarioService.validarCredenciales(email, passwordActual);
+        if (errorServiceForValidateCredential != null && !success) return this.RedirectToActionWithError(nameof(ObtenerPerfilUsuario), "Usuario", errorServiceForValidateCredential, new { id = idUsuario });
+        (string? errorServiceForChangePassword, bool valid) = await _usuarioService.cambiarContraseña(idUsuario, password);
+        if (errorServiceForChangePassword != null && !valid) return this.RedirectToActionWithError(nameof(ObtenerPerfilUsuario), "Usuario", errorServiceForChangePassword, new { id = idUsuario });
+        return this.RedirectToActionWithSuccess(nameof(ObtenerPerfilUsuario), "Usuario", "Sus credenciales han cambiado exitosamente, por favor no olvide iniciar sesión con las nuevas credenciales." ,new { id = idUsuario }, "Contraseña cambiada exitosamente.");
     }
 }

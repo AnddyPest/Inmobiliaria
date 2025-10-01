@@ -94,6 +94,7 @@ public class UsuarioService : IUsuarioService
                                     persona.nombre AS persona_nombre,
                                     persona.apellido AS persona_apellido,
                                     persona.dni AS persona_dni,
+                                    persona.email AS persona_email,
                                     persona.telefono AS persona_telefono,
                                     persona.direccion AS persona_direccion
                                     FROM usuario AS user
@@ -126,6 +127,7 @@ public class UsuarioService : IUsuarioService
                             empleado.Dni = reader.GetInt32("persona_dni");
                             empleado.Telefono = reader.GetString("persona_telefono");
                             empleado.Direccion = reader.GetString("persona_direccion");
+                            empleado.Email = reader.GetString("persona_email");
                             usuario.Empleado = empleado;
 
                             rol.IdRol = reader.GetInt32("idRol");
@@ -263,6 +265,33 @@ public class UsuarioService : IUsuarioService
         {
             HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(validarCredenciales));
             return ("Error al validar credenciales: Internal Server Error", false);
+        }
+    }
+    public async Task<(string?, bool)> cambiarContraseña(int idUsuario, string password)
+    {
+        try
+        {
+            string hashContrasena = AuthHelper.HashContraseña(password);
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                string query = @"UPDATE usuario SET contraseña = @contrasena WHERE idUsuario = @idUsuario;";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@idUsuario", idUsuario);
+                    command.Parameters.AddWithValue("@contrasena", hashContrasena);
+                    await connection.OpenAsync();
+                    int result = await command.ExecuteNonQueryAsync();
+                    await connection.CloseAsync();
+                    if (result == 0) return ("Error al cambiar la contraseña: Database Error", false);
+                }
+                return ("Contraseña cambiada correctamente", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            HelperFor.imprimirMensajeDeError(ex.Message, nameof(UsuarioService), nameof(cambiarContraseña));
+            return ("Error al cambiar la contraseña: Internal Server Error", false);
         }
     }
     public async Task<(string?, bool)> AltaLogica(int idUsuario)

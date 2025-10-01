@@ -24,7 +24,7 @@ public class AuthService : IAuthService
             HelperFor.imprimirMensajeDeError(errorService, nameof(AuthService), nameof(Login));
             return (errorService, false);
         }
-        System.Console.WriteLine(usuario.estado);
+        
         if (usuario!.estado == false)
         {
             HelperFor.imprimirMensajeDeError("El usuario esta deshabilitado", nameof(AuthService), nameof(Login));

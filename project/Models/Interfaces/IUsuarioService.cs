@@ -9,6 +9,7 @@ public interface IUsuarioService
     Task<(string?, bool)> ValidarEmailDisponible(Usuario usuario);
     Task<(string?, bool, int)> CreateUsuario(Usuario usuario);
     Task<(string?, bool)> CambiarGmail(Usuario usuario);
+    Task<(string?, bool)> cambiarContraseña(int idUsuario, string password);
     Task<(string?, bool)> resetearContraseña(int idUsuario);
     Task<(string?, bool)> BajaLogica(int idUsuario);
     Task<(string?, bool)> BajaLogicaByIdEmpleado(int idEmpleado);
