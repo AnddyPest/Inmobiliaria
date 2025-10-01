@@ -207,6 +207,12 @@ namespace project.Controllers
             (string? errorServicio, bool validacion) = await _inmuebleService.MarcarLibre(contrato.Item2.IdInmueble);
             if (errorServicio != null || !validacion)
                 return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idContrato: idContrato,
+                idPago: null,
+                MotivoAuditoria: "No renovación de contrato"
+            ));
             return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble", "El contrato no será renovado", "Inmueble disponible!!");
         }
         [Authorize(Roles = "Administrador")]

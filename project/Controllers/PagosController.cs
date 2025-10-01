@@ -16,14 +16,17 @@ namespace project.Controllers
         private IPropietarioService _propietarioService;
         private IPagosService _pagosService;
 
+        private IAuditoriaService _auditoriaService;
+
         // Elimina el constructor duplicado y deja solo el que recibe ambos servicios
-        public PagosController(IContratoService contratoService, IInmuebleService inmuebleService, IInquilinoService inquilinoService, IPropietarioService propietarioService, IPagosService pagosService)
+        public PagosController(IContratoService contratoService, IInmuebleService inmuebleService, IInquilinoService inquilinoService, IPropietarioService propietarioService, IPagosService pagosService, IAuditoriaService auditoriaService)
         {
             _contratoService = contratoService;
             _inmuebleService = inmuebleService;
             _inquilinoService = inquilinoService;
             _propietarioService = propietarioService;
             _pagosService = pagosService;
+            _auditoriaService = auditoriaService;
         }
 
         [HttpPost("pago/create")]
@@ -51,7 +54,13 @@ namespace project.Controllers
             {
                 return this.RedirectToActionWithError("listar", "Contrato", "Ya hay un pago generado para este mes", "Error al crear pago");
             }
-
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idContrato: nuevoPago.IdContrato,
+                idPago: nuevoPago.IdPago,
+                MotivoAuditoria: "Creación de pago"
+            ));
+    
             return this.RedirectToActionWithSuccess("listar", "Contrato", "Pago registrado exitosamente", "Pago creado!!");
         }
         [HttpGet("pago/listar/{idContrato}")]
@@ -90,15 +99,13 @@ namespace project.Controllers
             // Obtener el idContrato del pago asentado
             var pagoResult = await _pagosService.GetPagoById(idPago);
             int idContrato = pagoResult.Item2?.IdContrato ?? 0;
-
-            return this.RedirectToActionWithSuccess(
-
-
-                "GetPagosByIdContrato",
-                "Pagos",
-                "Pago asentado exitosamente",
-                new { idContrato = idContrato },
-                "Pago Asentado!!");
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idContrato: null,
+                idPago: idPago,
+                MotivoAuditoria: "Asiento de pago"
+            ));
+            return this.RedirectToActionWithSuccess("GetPagosByIdContrato", "Pagos", "Pago asentado exitosamente", new { idContrato = idContrato }, "Pago Asentado!!");
 
         }
         [HttpGet("AnularPago/{idPago}")]
@@ -113,7 +120,12 @@ namespace project.Controllers
             // Obtener el idContrato del pago anulado
             var pagoResult = await _pagosService.GetPagoById(idPago);
             int idContrato = pagoResult.Item2?.IdContrato ?? 0;
-
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idContrato: null,
+                idPago: idPago,
+                MotivoAuditoria: "Anulación de pago"
+            ));
             return this.RedirectToActionWithSuccess(
                 "GetPagosByIdContrato",
                 "Pagos",
@@ -129,7 +141,12 @@ namespace project.Controllers
             {
                 return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", idContrato, error);
             }
-
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idContrato: null,
+                idPago: idPago,
+                MotivoAuditoria: "Baja lógica de pago"
+            ));
             return this.RedirectToActionWithSuccess("GetPagosByIdContrato", "Pagos", "Pago dado de baja exitosamente", new { idContrato = idContrato }, "Pago dado de baja!!");
         }
         [HttpGet("DarDeAlta/{idPago}/{idContrato}")]
@@ -140,7 +157,12 @@ namespace project.Controllers
             {
                 return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", error, new { idContrato = idContrato });
             }
-
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idContrato: null,
+                idPago: idPago,
+                MotivoAuditoria: "Alta lógica de pago"
+            ));
             return this.RedirectToActionWithSuccess("GetPagosByIdContrato", "Pagos", "Pago dado de alta exitosamente", new { idContrato = idContrato }, "Pago dado de alta!!");
         }
         [HttpPost("ActualizarDetalle")]
@@ -151,7 +173,12 @@ namespace project.Controllers
             {
                 return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", error, new { idContrato = idContrato });
             }
-
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idContrato: null,
+                idPago: idPago,
+                MotivoAuditoria: "Actualización de detalle de pago"
+            ));
             return this.RedirectToActionWithSuccess("GetPagosByIdContrato", "Pagos", "Pago actualizado exitosamente", new { idContrato = idContrato }, "Pago actualizado!!");
         }
     }
