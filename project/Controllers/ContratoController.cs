@@ -82,7 +82,7 @@ namespace project.Controllers
             if (alquiladoResult.Item1 != null || !alquiladoResult.Item2)
                 Console.WriteLine($"[CONTRATO] Error al marcar inmueble como alquilado: {alquiladoResult.Item1}");
             await _auditoriaService.CreateAuditoria(new Auditoria(
-                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: model.IdContrato,
                 idPago: null,
                 MotivoAuditoria: "Creación de contrato"
@@ -100,7 +100,7 @@ namespace project.Controllers
             if (!contratoUpdated.Item2)
                 return BadRequest("No se pudo actualizar el contrato.");
             await _auditoriaService.CreateAuditoria(new Auditoria(
-                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: model.IdContrato,
                 idPago: null,
                 MotivoAuditoria: "Actualizacion de contrato"
@@ -137,7 +137,7 @@ namespace project.Controllers
                 return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Contrato dado de baja, pero no se pudo marcar el inmueble como disponible: " + (disponibleResult.Item1 ?? "Error"));
             
             await _auditoriaService.CreateAuditoria(new Auditoria(
-                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: idContrato,
                 idPago: null,
                 MotivoAuditoria: "Baja de contrato"
@@ -185,7 +185,7 @@ namespace project.Controllers
             if (!resultado.Item2)
                 return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error al renovar el contrato", "No se pudo renovar el contrato.");
             await _auditoriaService.CreateAuditoria(new Auditoria(
-                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: request.IdContrato,
                 idPago: null,
                 MotivoAuditoria: "Renovación de contrato"
@@ -208,7 +208,7 @@ namespace project.Controllers
             if (errorServicio != null || !validacion)
                 return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
             await _auditoriaService.CreateAuditoria(new Auditoria(
-                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: idContrato,
                 idPago: null,
                 MotivoAuditoria: "No renovación de contrato"

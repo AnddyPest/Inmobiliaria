@@ -27,7 +27,7 @@ namespace project.Models.Interfaces
                         command.Parameters.AddWithValue("@IdContrato", (object?)auditoria.IdContrato ?? System.DBNull.Value);
                         command.Parameters.AddWithValue("@IdPago", (object?)auditoria.IdPago ?? System.DBNull.Value);
                         command.Parameters.AddWithValue("@Fecha", DateTime.Now);
-                        command.Parameters.AddWithValue("@IdMotivoAuditoria", auditoria.MotivoAuditoria);
+                        command.Parameters.AddWithValue("@MotivoAuditoria", auditoria.MotivoAuditoria);
 
                         await connection.OpenAsync();
                         int result = await command.ExecuteNonQueryAsync();

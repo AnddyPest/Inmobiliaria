@@ -55,7 +55,7 @@ namespace project.Controllers
                 return this.RedirectToActionWithError("listar", "Contrato", "Ya hay un pago generado para este mes", "Error al crear pago");
             }
             await _auditoriaService.CreateAuditoria(new Auditoria(
-                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: nuevoPago.IdContrato,
                 idPago: nuevoPago.IdPago,
                 MotivoAuditoria: "Creación de pago"
@@ -100,7 +100,7 @@ namespace project.Controllers
             var pagoResult = await _pagosService.GetPagoById(idPago);
             int idContrato = pagoResult.Item2?.IdContrato ?? 0;
             await _auditoriaService.CreateAuditoria(new Auditoria(
-                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: null,
                 idPago: idPago,
                 MotivoAuditoria: "Asiento de pago"
@@ -121,7 +121,7 @@ namespace project.Controllers
             var pagoResult = await _pagosService.GetPagoById(idPago);
             int idContrato = pagoResult.Item2?.IdContrato ?? 0;
             await _auditoriaService.CreateAuditoria(new Auditoria(
-                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: null,
                 idPago: idPago,
                 MotivoAuditoria: "Anulación de pago"
@@ -142,7 +142,7 @@ namespace project.Controllers
                 return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", idContrato, error);
             }
             await _auditoriaService.CreateAuditoria(new Auditoria(
-                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: null,
                 idPago: idPago,
                 MotivoAuditoria: "Baja lógica de pago"
@@ -158,7 +158,7 @@ namespace project.Controllers
                 return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", error, new { idContrato = idContrato });
             }
             await _auditoriaService.CreateAuditoria(new Auditoria(
-                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: null,
                 idPago: idPago,
                 MotivoAuditoria: "Alta lógica de pago"
@@ -174,7 +174,7 @@ namespace project.Controllers
                 return this.RedirectToActionWithError("GetPagosByIdContrato", "Pagos", error, new { idContrato = idContrato });
             }
             await _auditoriaService.CreateAuditoria(new Auditoria(
-                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: null,
                 idPago: idPago,
                 MotivoAuditoria: "Actualización de detalle de pago"
