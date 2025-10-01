@@ -6,7 +6,6 @@ using project.Helpers;
 using project.Models;
 using project.Models.Interfaces;
 using project.Models.ViewModels;
-[Authorize(Roles = "Administrador")]
 public class EmpleadoController : Controller
 {
     private readonly IEmpleadoService empleadoService;
@@ -25,6 +24,7 @@ public class EmpleadoController : Controller
         this.usuarioService = usuarioService;
         this.authService = authService;
     }
+    [Authorize(Roles = "Administrador")]
     [HttpGet("/Empleado")]
     public async Task<IActionResult> VistaEmpleados(int nroPagina = 1, int? estado = null, int? dni = null)
     {
@@ -36,12 +36,13 @@ public class EmpleadoController : Controller
         ViewBag.cantidadTotalDePaginas = empleados.Item3 % cantidadRegistrosPorPagina == 0 ? empleados.Item3 / cantidadRegistrosPorPagina : empleados.Item3 / cantidadRegistrosPorPagina + 1;
         return View("~/Views/Empleados/GestionEmpleados.cshtml", empleadoViewModel);
     }
-
+    [Authorize(Roles = "Administrador")]
     [HttpGet("Empleado/new")]
     public IActionResult VistaNewEmpleado()
     {
         return View("~/Views/Empleados/NewEmpleado.cshtml");
     }
+    [Authorize(Roles = "Administrador")]
     [HttpPost("Empleado/registrar")]
     public async Task<IActionResult> RegistrarEmpleado(Persona persona)
     {
@@ -76,6 +77,7 @@ public class EmpleadoController : Controller
         return this.RedirectToActionWithSuccess(nameof(VistaEmpleados), "El empleado se ha registrado correctamente", "Empleado Registrado!!!");
 
     }
+    [Authorize(Roles = "Administrador,Empleado")]
     [HttpPost("Empleado/actualizar")]
     public async Task<IActionResult> ActualizarEmpleado(Empleado empleado)
     {
@@ -137,6 +139,7 @@ public class EmpleadoController : Controller
         }
         return this.RedirectToActionWithSuccess("ObtenerPerfilUsuario", "Usuario", "El empleado se ha actualizado correctamente", new { id = empleado.IdUsuario }, "Empleado Actualizado!!!");
     }
+    [Authorize(Roles = "Administrador")]
     [HttpGet("Empleado/Baja")]
     public async Task<IActionResult> BajaEmpleado(int idEmpleado)
     {
@@ -154,6 +157,7 @@ public class EmpleadoController : Controller
         }
         return Ok();
     }
+    [Authorize(Roles = "Administrador")]
     [HttpGet("Empleado/Alta")]
     public async Task<IActionResult> AltaEmpleado(int idEmpleado)
     {
