@@ -73,8 +73,10 @@ namespace project.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             (string?, bool) contratoCreated = await _contratoService.CreateContrato(model);
+            (string?, List<Contrato>?) contratosResult = await _contratoService.GetContratoByIdInmueble(model.IdInmueble);
+            Contrato? contratonuevo = contratosResult.Item2 != null && contratosResult.Item2.Count > 0 ? contratosResult.Item2.FirstOrDefault() : null;
             if (contratoCreated.Item1 != null)
-                return this.RedirectToActionWithError("GetAllInmuebles","Inmueble",contratoCreated.Item1,"Error al crear contrato");
+                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", contratoCreated.Item1, "Error al crear contrato");
             if (!contratoCreated.Item2)
                 return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "No se pudo registrar el contrato", "Error al crear contrato");
             // Marcar inmueble como alquilado en el backend
@@ -83,7 +85,7 @@ namespace project.Controllers
                 Console.WriteLine($"[CONTRATO] Error al marcar inmueble como alquilado: {alquiladoResult.Item1}");
             await _auditoriaService.CreateAuditoria(new Auditoria(
                 idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
-                idContrato: model.IdContrato,
+                idContrato: contratonuevo != null ? contratonuevo.IdContrato : 0,
                 idPago: null,
                 MotivoAuditoria: "Creación de contrato"
             ));
