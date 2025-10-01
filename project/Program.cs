@@ -29,6 +29,7 @@ builder.Services.AddSingleton<ITipo_InmuebleService, Tipo_InmuebleService>();
 builder.Services.AddSingleton<IEmpleadoService, EmpleadoService>();
 builder.Services.AddSingleton<IUsuarioService, UsuarioService>();
 builder.Services.AddSingleton<IAuthService, AuthService>();
+builder.Services.AddSingleton<IAuditoriaService, AuditoriaService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddCookie(options =>
 {

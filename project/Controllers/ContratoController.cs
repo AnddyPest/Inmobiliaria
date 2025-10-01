@@ -142,7 +142,7 @@ namespace project.Controllers
                 idPago: null,
                 MotivoAuditoria: "Baja de contrato"
             ));
-            return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble", "Contrato anulado exitosamente", "Contrato anulado!!");
+            return this.RedirectToActionWithSuccess(nameof(GetAllContratos), "Contrato anulado exitosamente", "Contrato anulado!!");
         }
         [HttpGet("contrato/activar/{idContrato}")]
         public async Task<IActionResult> ActivarContrato(int idContrato)
