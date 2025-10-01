@@ -15,14 +15,17 @@ namespace project.Controllers
         private IInquilinoService _inquilinoService;
         private IPropietarioService _propietarioService;
         private IPagosService _pagosService;
+
+        private IAuditoriaService _auditoriaService;
         // Elimina el constructor duplicado y deja solo el que recibe ambos servicios
-        public ContratoController(IContratoService contratoService, IInmuebleService inmuebleService, IInquilinoService inquilinoService, IPropietarioService propietarioService, IPagosService pagosService)
+        public ContratoController(IContratoService contratoService, IInmuebleService inmuebleService, IInquilinoService inquilinoService, IPropietarioService propietarioService, IPagosService pagosService, IAuditoriaService auditoriaService)
         {
             _contratoService = contratoService;
             _inmuebleService = inmuebleService;
             _inquilinoService = inquilinoService;
             _propietarioService = propietarioService;
             _pagosService = pagosService;
+            _auditoriaService = auditoriaService;
         }
 
         [HttpGet("contrato/listar")]
@@ -78,7 +81,13 @@ namespace project.Controllers
             (string?, bool) alquiladoResult = await _inmuebleService.MarcarAlquilado(model.IdInmueble);
             if (alquiladoResult.Item1 != null || !alquiladoResult.Item2)
                 Console.WriteLine($"[CONTRATO] Error al marcar inmueble como alquilado: {alquiladoResult.Item1}");
-            return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble","Contrato registrado exitosamente","Contrato creado!!");
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idContrato: model.IdContrato,
+                idPago: null,
+                MotivoAuditoria: "Creación de contrato"
+            ));
+            return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble", "Contrato registrado exitosamente", "Contrato creado!!");
         }
         [HttpPost("contrato/actualizar")]
         public async Task<IActionResult> UpdateContrato(Contrato model)
@@ -90,6 +99,12 @@ namespace project.Controllers
                 return BadRequest(contratoUpdated.Item1);
             if (!contratoUpdated.Item2)
                 return BadRequest("No se pudo actualizar el contrato.");
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idContrato: model.IdContrato,
+                idPago: null,
+                MotivoAuditoria: "Actualizacion de contrato"
+            ));
             return Ok(true);
         }
         [Authorize(Roles = "Administrador")]
@@ -121,7 +136,13 @@ namespace project.Controllers
             if (disponibleResult.Item1 != null || !disponibleResult.Item2)
                 return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Contrato dado de baja, pero no se pudo marcar el inmueble como disponible: " + (disponibleResult.Item1 ?? "Error"));
             
-            return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble","Contrato anulado exitosamente","Contrato anulado!!");
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idContrato: idContrato,
+                idPago: null,
+                MotivoAuditoria: "Baja de contrato"
+            ));
+            return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble", "Contrato anulado exitosamente", "Contrato anulado!!");
         }
         [HttpGet("contrato/activar/{idContrato}")]
         public async Task<IActionResult> ActivarContrato(int idContrato)
@@ -163,7 +184,12 @@ namespace project.Controllers
                 return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error en el servicio de contratos", "No se pudo renovar el contrato.");
             if (!resultado.Item2)
                 return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error al renovar el contrato", "No se pudo renovar el contrato.");
-
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "IdUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")!.Value) : 0,
+                idContrato: request.IdContrato,
+                idPago: null,
+                MotivoAuditoria: "Renovación de contrato"
+            ));
             return this.RedirectToActionWithSuccess("GetAllContratos", "Contrato", "Contrato Renovado exitosamente", $"Contrato renovado. Periodo: {request.FechaInicio.ToString("dd/MM/yyyy")} - {request.FechaFin.ToString("dd/MM/yyyy") } - Monto: ${request.Monto}");
 
         }

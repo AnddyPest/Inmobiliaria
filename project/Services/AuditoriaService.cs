@@ -19,15 +19,15 @@ namespace project.Models.Interfaces
             {
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    string query = @"INSERT INTO auditoria (IdUsuario, IdContrato, IdPago, Fecha, IdMotivoAuditoria)
-                                     VALUES (@IdUsuario, @IdContrato, @IdPago, @Fecha, @IdMotivoAuditoria);";
+                    string query = @"INSERT INTO auditoria (IdUsuario, IdContrato, IdPago, Fecha, MotivoAuditoria)
+                                     VALUES (@IdUsuario, @IdContrato, @IdPago, @Fecha, @MotivoAuditoria);";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@IdUsuario", auditoria.IdUsuario);
                         command.Parameters.AddWithValue("@IdContrato", (object?)auditoria.IdContrato ?? System.DBNull.Value);
                         command.Parameters.AddWithValue("@IdPago", (object?)auditoria.IdPago ?? System.DBNull.Value);
                         command.Parameters.AddWithValue("@Fecha", DateTime.Now);
-                        command.Parameters.AddWithValue("@IdMotivoAuditoria", auditoria.IdMotivoAuditoria);
+                        command.Parameters.AddWithValue("@IdMotivoAuditoria", auditoria.MotivoAuditoria);
 
                         await connection.OpenAsync();
                         int result = await command.ExecuteNonQueryAsync();
@@ -65,7 +65,6 @@ namespace project.Models.Interfaces
                                     LEFT JOIN empleado e ON usu.IdUsuario = e.IdUsuario
                                     LEFT JOIN Rol r ON usu.idRol = r.nombre
                                     LEFT JOIN persona per ON e.IdPersona = per.IdPersona
-                                    LEFT JOIN motivosauditoria m ON aud.IdMotivoAuditoria = m.IdMotivoAuditoria
                                     ORDER BY aud.Fecha DESC";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -80,7 +79,7 @@ namespace project.Models.Interfaces
                                 auditoria.IdContrato = reader.IsDBNull(reader.GetOrdinal("IdContrato")) ? null : reader.GetInt32(reader.GetOrdinal("IdContrato"));
                                 auditoria.IdPago = reader.IsDBNull(reader.GetOrdinal("IdPago")) ? null : reader.GetInt32(reader.GetOrdinal("IdPago"));
                                 auditoria.Fecha = reader.GetDateTime(reader.GetOrdinal("Fecha"));
-                                auditoria.IdMotivoAuditoria = reader.GetInt32(reader.GetOrdinal("IdMotivoAuditoria"));
+                                auditoria.MotivoAuditoria = reader.GetString(reader.GetOrdinal("MotivoAuditoria"));
 
                                 Contrato? contrato = null;
                                 if (!reader.IsDBNull(reader.GetOrdinal("c.IdContrato")))
@@ -162,7 +161,6 @@ namespace project.Models.Interfaces
                                     LEFT JOIN empleado e ON usu.IdUsuario = e.IdUsuario
                                     LEFT JOIN Rol r ON usu.idRol = r.nombre
                                     LEFT JOIN persona per ON e.IdPersona = per.IdPersona
-                                    LEFT JOIN motivosauditoria m ON aud.IdMotivoAuditoria = m.IdMotivoAuditoria
                                     WHERE aud.IdAuditoria = @IdAuditoria";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -178,7 +176,7 @@ namespace project.Models.Interfaces
                                 auditoria.IdContrato = reader.IsDBNull(reader.GetOrdinal("IdContrato")) ? null : reader.GetInt32(reader.GetOrdinal("IdContrato"));
                                 auditoria.IdPago = reader.IsDBNull(reader.GetOrdinal("IdPago")) ? null : reader.GetInt32(reader.GetOrdinal("IdPago"));
                                 auditoria.Fecha = reader.GetDateTime(reader.GetOrdinal("Fecha"));
-                                auditoria.IdMotivoAuditoria = reader.GetInt32(reader.GetOrdinal("IdMotivoAuditoria"));
+                                auditoria.MotivoAuditoria = reader.GetString(reader.GetOrdinal("MotivoAuditoria"));
 
                                 Contrato? contrato = null;
                                 if (!reader.IsDBNull(reader.GetOrdinal("c.IdContrato")))
@@ -263,7 +261,6 @@ namespace project.Models.Interfaces
                                     LEFT JOIN empleado e ON usu.IdUsuario = e.IdUsuario
                                     LEFT JOIN Rol r ON usu.idRol = r.nombre
                                     LEFT JOIN persona per ON e.IdPersona = per.IdPersona
-                                    LEFT JOIN motivosauditoria m ON aud.IdMotivoAuditoria = m.IdMotivoAuditoria
                                     WHERE aud.IdContrato = @IdContrato
                                     ORDER BY aud.Fecha DESC";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
@@ -281,7 +278,7 @@ namespace project.Models.Interfaces
                                 auditoria.IdContrato = reader.IsDBNull(reader.GetOrdinal("IdContrato")) ? null : reader.GetInt32(reader.GetOrdinal("IdContrato"));
                                 auditoria.IdPago = reader.IsDBNull(reader.GetOrdinal("IdPago")) ? null : reader.GetInt32(reader.GetOrdinal("IdPago"));
                                 auditoria.Fecha = reader.GetDateTime(reader.GetOrdinal("Fecha"));
-                                auditoria.IdMotivoAuditoria = reader.GetInt32(reader.GetOrdinal("IdMotivoAuditoria"));
+                                auditoria.MotivoAuditoria = reader.GetString(reader.GetOrdinal("MotivoAuditoria"));
 
                                 Contrato? contrato = null;
                                 if (!reader.IsDBNull(reader.GetOrdinal("c.IdContrato")))
@@ -362,7 +359,6 @@ namespace project.Models.Interfaces
                                     LEFT JOIN empleado e ON usu.IdUsuario = e.IdUsuario
                                     LEFT JOIN Rol r ON usu.idRol = r.nombre
                                     LEFT JOIN persona per ON e.IdPersona = per.IdPersona
-                                    LEFT JOIN motivosauditoria m ON aud.IdMotivoAuditoria = m.IdMotivoAuditoria
                                     WHERE aud.IdUsuario = @IdUsuario
                                     ORDER BY aud.Fecha DESC";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
@@ -380,7 +376,7 @@ namespace project.Models.Interfaces
                                 auditoria.IdContrato = reader.IsDBNull(reader.GetOrdinal("IdContrato")) ? null : reader.GetInt32(reader.GetOrdinal("IdContrato"));
                                 auditoria.IdPago = reader.IsDBNull(reader.GetOrdinal("IdPago")) ? null : reader.GetInt32(reader.GetOrdinal("IdPago"));
                                 auditoria.Fecha = reader.GetDateTime(reader.GetOrdinal("Fecha"));
-                                auditoria.IdMotivoAuditoria = reader.GetInt32(reader.GetOrdinal("IdMotivoAuditoria"));
+                                auditoria.MotivoAuditoria = reader.GetString(reader.GetOrdinal("MotivoAuditoria"));
 
                                 Contrato? contrato = null;
                                 if (!reader.IsDBNull(reader.GetOrdinal("c.IdContrato")))
@@ -461,7 +457,6 @@ namespace project.Models.Interfaces
                                     LEFT JOIN empleado e ON usu.IdUsuario = e.IdUsuario
                                     LEFT JOIN Rol r ON usu.idRol = r.nombre
                                     LEFT JOIN persona per ON e.IdPersona = per.IdPersona
-                                    LEFT JOIN motivosauditoria m ON aud.IdMotivoAuditoria = m.IdMotivoAuditoria
                                     WHERE aud.IdPago = @IdPago
                                     ORDER BY aud.Fecha DESC";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
@@ -479,7 +474,7 @@ namespace project.Models.Interfaces
                                 auditoria.IdContrato = reader.IsDBNull(reader.GetOrdinal("IdContrato")) ? null : reader.GetInt32(reader.GetOrdinal("IdContrato"));
                                 auditoria.IdPago = reader.IsDBNull(reader.GetOrdinal("IdPago")) ? null : reader.GetInt32(reader.GetOrdinal("IdPago"));
                                 auditoria.Fecha = reader.GetDateTime(reader.GetOrdinal("Fecha"));
-                                auditoria.IdMotivoAuditoria = reader.GetInt32(reader.GetOrdinal("IdMotivoAuditoria"));
+                                auditoria.MotivoAuditoria = reader.GetString(reader.GetOrdinal("MotivoAuditoria"));
 
                                 Contrato? contrato = null;
                                 if (!reader.IsDBNull(reader.GetOrdinal("c.IdContrato")))

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace project.Models
 {
-    public class Auditoria(int idUsuario, int? idContrato, int? idPago, int idMotivoAuditoria)
+    public class Auditoria(int idUsuario, int? idContrato, int? idPago, string MotivoAuditoria)
     {
 
         [Key]
@@ -15,9 +15,9 @@ namespace project.Models
         public int? IdContrato { get; set; } = idContrato;
         public int? IdPago { get; set; } = idPago;
         public DateTime Fecha { get; set; } = DateTime.Now;
-    public int IdMotivoAuditoria { get; set; } = idMotivoAuditoria;
+        public string MotivoAuditoria { get; set; } = MotivoAuditoria;
 
     // Constructor vacío
-    public Auditoria() : this(default, null, null, default) { }
+    public Auditoria() : this(default, null, null, default!) { }
     }
 }
