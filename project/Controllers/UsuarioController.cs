@@ -75,7 +75,7 @@ public class UsuarioController : Controller
     {
         if (!ModelState.IsValid) return this.RedirectToActionWithError(nameof(ObtenerPerfilUsuario), "Usuario", "Los datos ingresados no son validos.", new { id = idUsuario });
         (string? errorServiceForValidateCredential, bool success) = await _usuarioService.validarCredenciales(email, passwordActual);
-        if (errorServiceForValidateCredential != null && !success) return this.RedirectToActionWithError(nameof(ObtenerPerfilUsuario), "Usuario", errorServiceForValidateCredential, new { id = idUsuario });
+        if (errorServiceForValidateCredential != null && !success) return this.RedirectToActionWithError(nameof(ObtenerPerfilUsuario), "Usuario", "No pudimos validar sus credenciales: " + errorServiceForValidateCredential, new { id = idUsuario }, "No se pudo cambiar la contraseña.");
         (string? errorServiceForChangePassword, bool valid) = await _usuarioService.cambiarContraseña(idUsuario, password);
         if (errorServiceForChangePassword != null && !valid) return this.RedirectToActionWithError(nameof(ObtenerPerfilUsuario), "Usuario", errorServiceForChangePassword, new { id = idUsuario });
         return this.RedirectToActionWithSuccess(nameof(ObtenerPerfilUsuario), "Usuario", "Sus credenciales han cambiado exitosamente, por favor no olvide iniciar sesión con las nuevas credenciales." ,new { id = idUsuario }, "Contraseña cambiada exitosamente.");
