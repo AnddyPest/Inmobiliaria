@@ -157,19 +157,21 @@
                                     } *@
                                    
                                     @if(inmueble.contratos?.Count > 0){
+                                        int contador = 0; 
                                         @foreach(Contrato contrato in inmueble.contratos){
-                                            int contador = 0; 
-                                            @if(contrato.FechaInicio <= DateTime.Now && contrato.FechaFin >= DateTime.Now && contrato.estado == true){
+                                            bool rangoValido = contrato.FechaInicio.Date <= DateTime.Now.Date && contrato.FechaFin.Date >= DateTime.Now.Date;
+                                            @if( rangoValido && contrato.estado == true && contador == 0){
                                                 <i class="bi bi-house-check-fill text-success fs-4" title="No disponible - Alquilado"></i>
                                                 {
                                                     <span class="badge bg-primary ms-1">Inicio: @contrato.FechaInicio.ToString("dd/MM/yyyy")</span>
                                                     <span class="badge bg-danger ms-1">Fin: @contrato.FechaFin.ToString("dd/MM/yyyy")</span>
-                                                    contador += 1;
                                                 }
+                                                contador += 1;
                                             }
-                                            @if(contador == 0){
-                                                <i class="bi bi-house text-secondary fs-4" title="Disponible - No alquilado"></i>   
-                                            }
+                                            
+                                        }
+                                        @if(contador == 0){
+                                            <i class="bi bi-house text-secondary fs-4" title="Disponible - No alquilado"></i>   
                                         }
                                     }else{
                                         <i class="bi bi-house text-secondary fs-4" title="Disponible - No alquilado"></i>

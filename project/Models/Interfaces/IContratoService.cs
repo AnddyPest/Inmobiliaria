@@ -12,6 +12,7 @@
         Task<(string?, bool)> ComprobarContratoActivoPorIdInmueble(int idInmueble);
         Task<(string?, List<Contrato>?)> GetContratosByIdInquilino(int idCliente);
         Task<(string?, List<Contrato>?)> GetContratoByIdInmueble(int idInmueble);
+        Task<(string?, bool)> ValidarNoSuperposicionFechas(int idInmueble, DateTime fechaInicio, DateTime fechaFin);
         Task<(string?, List<Contrato>?)> GetContratosByIdPropietario(int idPropietario);
         Task<(string?, List<Contrato>?)> GetContratosVigentes();
         Task<(string?, List<Contrato>?)> GetContratosAPI();
