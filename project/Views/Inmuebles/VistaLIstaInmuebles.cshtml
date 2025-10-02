@@ -113,6 +113,17 @@
                     
                 });
             }
+            document.getElementById("btnRegistrarContrato").disabled = true;
+
+            document.getElementById("rangoFechas").addEventListener("change", function() {
+                
+                if(this.value == "" || !this.value.includes(" a ")){ 
+                    this.value = null;
+                    document.getElementById("btnRegistrarContrato").disabled = true;
+                }else{
+                    document.getElementById("btnRegistrarContrato").disabled = false;
+                }
+            })
             setTimeout(initFlatpickr, 200);
             modal.show();
             
@@ -179,7 +190,10 @@
             dniInput.addEventListener("input", function() {
                 const original = this.value;
                 const filtrado = original.replace(/[^0-9]/g, '');
-                if (original !== filtrado) {
+                if(this.value.length > 8){
+                    this.value = this.value.slice(0, 8);
+                }
+                if (original !== filtrado ) {
                     const prevPlaceholder = this.placeholder;
                     this.value = filtrado;
                     this.placeholder = "SOLO NÚMEROS";
@@ -213,7 +227,7 @@
                             document.getElementById('direccionInquilino').value = data.direccion || '';
                             document.getElementById('emailInquilino').value = data.email || '';
                             ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
-                                document.getElementById(id).removeAttribute('disabled');
+                                document.getElementById(id).disabled = true;
                             });
                             // SI ENCONTRAMOS EL INQUILINO POR DNI ASIGNAMOS SU ID AL CAMPO OCULTO Y RELLENAMOS LOS CAMPOS|
                             if (data.esInquilino) {
@@ -351,6 +365,22 @@
             
             
         });
+        function desactivarCampos(){
+            
+            document.getElementById('nombreInquilino').disabled = true;
+            document.getElementById('apellidoInquilino').disabled = true;
+            document.getElementById('telefonoInquilino').disabled = true;
+            document.getElementById('direccionInquilino').disabled = true;
+            document.getElementById('emailInquilino').disabled = true;
+        }
+        function habilitarCampos(){
+            
+            document.getElementById('nombreInquilino').disabled = false;
+            document.getElementById('apellidoInquilino').disabled = false;
+            document.getElementById('telefonoInquilino').disabled = false;
+            document.getElementById('direccionInquilino').disabled = false;
+            document.getElementById('emailInquilino').disabled = false;
+        }
         function confirmarEliminacion(url, nombre) {
             Swal.fire({
                 title: '¿Estás seguro?',
@@ -391,7 +421,7 @@
             
             return false;
         }
-    
+
 </script>
 
 <div class="container d-flex flex-column align-items-center ">
@@ -798,7 +828,7 @@
                             <div class="col w-25"></div>
                             <div class="col w-25"></div>
                             <div class="col w-25">
-                                <button type="submit" class="btn btn-primary shadow ms-1 me-1 w-100">Registrar Contrato</button>
+                                <button id="btnRegistrarContrato" type="submit" class="btn btn-primary shadow ms-1 me-1 w-100">Registrar Contrato</button>
                             </div>
                         </div>
                     </form>
