@@ -54,50 +54,52 @@
         }
     </style>
 </head>
-<body>
-    <div class="d-flex flex-column p-2 border border-success-subtle rounded container-relative" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
-        <h3 class="text-primary mb-3" style="z-index:1; position:relative;">Index Propietarios</h3>
+<body >
+    <div class="container-fluid d-flex align-items-center justify-content-center w-100">
+        <div class="d-flex flex-column p-2 border border-success-subtle rounded w-100  " style="background-color: #e3daccc8;    ">
+            <h3 class="text-primary mb-3" style="z-index:1; position:relative;">Index Propietarios</h3>
 
-        
-        <div class="keys-bg">
-            <span class="key-anim k1">🔑</span>
-            <span class="key-anim k2">🗝️</span>
-            <span class="key-anim k3">🔑</span>
-            <span class="key-anim k4">🗝️</span>
-            <span class="key-anim k5">🔑</span>
-            <span class="key-anim k6">🗝️</span>
-            <span class="key-anim k7">🔑</span>
-            <span class="key-anim k8">🗝️</span>
-            <span class="key-anim k9">🔑</span>
-            <span class="key-anim k10">🗝️</span>
-        </div>
-        
-        
-        <div class="d-flex flex-row align-items-start mb-3 p-2" style="height:75vh; width:100%;">
             
-            <div class="me-3" style="height:100%; width:50%; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                <img src="@Url.Content("~/images/key.png")" alt="Inmobiliaria" class="img-fluid img-shadow"
-                     style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
+            <div class="keys-bg">
+                <span class="key-anim k1">🔑</span>
+                <span class="key-anim k2">🗝️</span>
+                <span class="key-anim k3">🔑</span>
+                <span class="key-anim k4">🗝️</span>
+                <span class="key-anim k5">🔑</span>
+                <span class="key-anim k6">🗝️</span>
+                <span class="key-anim k7">🔑</span>
+                <span class="key-anim k8">🗝️</span>
+                <span class="key-anim k9">🔑</span>
+                <span class="key-anim k10">🗝️</span>
             </div>
             
-            <div style="height:100%; width:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                <img src="@Url.Content("~/images/NuevoPropietario.png")"
-                     alt="Nuevo Propietario"
-                     class="img-fluid img-shadow mb-4"
-                     style="max-height:50%; max-width:80%; object-fit:contain; display:block; border: solid rgb(197, 192, 192); cursor:pointer;"
-                     onclick="window.location.href='/Propietario/New'" />
+            
+            <div class="d-flex flex-row align-items-start mb-3 p-2" style="height:75vh; width:100%;">
+                
+                <div class="me-3" style="height:100%; width:50%; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                    <img src="@Url.Content("~/images/key.png")" alt="Inmobiliaria" class="img-fluid img-shadow"
+                        style="max-height:100%; max-width:100%; object-fit:contain; display:block; border: solid rgb(197, 192, 192)" />
+                </div>
+                
+                <div style="height:100%; width:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                    <img src="@Url.Content("~/images/NuevoPropietario.png")"
+                        alt="Nuevo Propietario"
+                        class="img-fluid img-shadow mb-4"
+                        style="max-height:50%; max-width:80%; object-fit:contain; display:block; border: solid rgb(197, 192, 192); cursor:pointer;"
+                        onclick="window.location.href='/Propietario/New'" />
 
-                <img src="@Url.Content("~/images/ListarPropietarios.png")"
-                     alt="Listar Propietarios"
-                     class="img-fluid img-shadow"
-                     style="max-height:50%; max-width:80%; object-fit:contain; display:block; border: solid rgb(197, 192, 192); cursor:pointer;"
-                     onclick="window.location.href='/Propietario/Listar'" />
+                    <img src="@Url.Content("~/images/ListarPropietarios.png")"
+                        alt="Listar Propietarios"
+                        class="img-fluid img-shadow"
+                        style="max-height:50%; max-width:80%; object-fit:contain; display:block; border: solid rgb(197, 192, 192); cursor:pointer;"
+                        onclick="window.location.href='/Propietario/Listar'" />
+                </div>
             </div>
-        </div>
-        
-        
-        <div class="d-flex justify-content-end w-100">
-            <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/'">Cancelar</button>
+            
+            
+            <div class="d-flex justify-content-end w-100">
+                <button type="button" class="btn btn-danger shadow ms-1 me-1 w-25" onclick="window.location.href='/'">Cancelar</button>
+            </div>
         </div>
     </div>
 </body>
