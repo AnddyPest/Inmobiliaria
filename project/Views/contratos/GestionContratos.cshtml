@@ -419,6 +419,13 @@
                                 <button class="btn btn-info p-1 m-1 w-25" onclick="location.href='/Pago/Listar/@contrato.IdContrato'">
                                     <i class="bi bi-currency-dollar"></i> <!-- IR A PAGOS -->
                                 </button>
+                                <!-- BOTÓN AUDITORIA -->
+                                @if(User.IsInRole("Administrador")){
+                                    <button class="btn btn-success w-25" aria-modal="true" data-bs-toggle="modal" data-bs-target="#modalAuditoria">
+                                        <i class="bi bi-search"></i> <!-- AUDITORIA -->
+                                    </button>
+                                }
+                                
                                 <!-- MODAL GENERAR PAGO -->
                                 <div class="modal fade" id="modalPago_@contrato.IdContrato" tabindex="-1" aria-labelledby="modalPagoLabel_@contrato.IdContrato" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
@@ -514,6 +521,40 @@
             <button class="btn btn-danger h-100" onclick="window.location.href='/'">Volver</button>
         </div>
 
-
+<div class="modal fade" id="modalAuditoria" tabindex="-1" aria-labelledby="modalAuditoriaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAuditoriaLabel">Auditoria</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body w-100">
+                <div id="contenedorAuditoria" class="w-100 d-flex flex-column justify-content-center">
+                    <div class="mb-3">
+                        <span>Id Contrato: </span>
+                    </div>
+                    <div class="mb-3">
+                        <span>Nombre: </span>
+                    </div>
+                    <div class="mb-3">
+                        <span>Nombre: </span>
+                    </div>
+                    <div class="mb-3">
+                        <span>DNI: </span>
+                    </div>
+                    <div class="mb-3">
+                        <span>Motivo: </span>
+                    </div>
+                    <div class="mb-3">
+                        <span>Fecha: </span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 

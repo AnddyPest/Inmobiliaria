@@ -397,6 +397,7 @@ namespace project.Services
                                     LEFT JOIN contrato as contract ON contract.idInmueble = i.idInmueble AND contract.Estado = 1  
                                     LEFT JOIN inquilino as inquil ON inquil.idInquilino = contract.idInquilino
                                     left join persona as pe on inquil.idPersona = pe.idPersona
+                                    GROUP BY i.idInmueble 
                                     
                                     ";
                     List<string> querys = new();
