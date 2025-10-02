@@ -33,7 +33,7 @@
                     if(disponibilidad.Item1 == Disponibilidad){
                         <option value="@disponibilidad.Item1" selected>@disponibilidad.Item2</option>
                     }else{
-                        <option value="@disponibilidad.Item1">@disponibilidad.Item2</option>}
+                        <option value="@disponibilidad.Item1">@disponibilidad.Item2</option>
                     }
                 }
                
@@ -162,7 +162,6 @@
                                             @if(contrato.FechaInicio <= DateTime.Now && contrato.FechaFin >= DateTime.Now && contrato.estado == true){
                                                 <i class="bi bi-house-check-fill text-success fs-4" title="No disponible - Alquilado"></i>
                                                 {
-                                                    
                                                     <span class="badge bg-primary ms-1">Inicio: @contrato.FechaInicio.ToString("dd/MM/yyyy")</span>
                                                     <span class="badge bg-danger ms-1">Fin: @contrato.FechaFin.ToString("dd/MM/yyyy")</span>
                                                     contador += 1;
@@ -218,14 +217,29 @@
                                 </a>
                                 @if (inmueble.Estado)
                                 {
-                                    @if (inmueble.contrato == null || inmueble.contrato.estado == false || inmueble.contrato.FechaFin < DateTime.Now)
+                                    <button type="button" class="btn btn-info p-1 m-1 w-25" onclick="abrirNuevoContratoModal('@inmueble.IdInmueble', '@inmueble.Direccion')">
+                                        <i class="bi bi-door-closed-fill"></i>
+                                    </button>
+                                    if(inmueble.contratos?.Count > 0){
+                                        foreach(Contrato contrato in inmueble.contratos){
+                                            if(contrato.FechaFin < DateTime.Now && contrato.estado == true){
+                                                <button type="button" class="btn btn-outline-warning p-1 m-1 w-25" onclick="noRenovarContrato('@contrato.IdContrato')" title="El inmueble tiene un contrato vencido. Finalice el contrato para crear uno nuevo.">
+                                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                                </button> 
+                                                break;
+                                            }
+                                        }    
+                                    }
+                                    @* @if (inmueble.contrato == null || inmueble.contrato.estado == false || inmueble.contrato.FechaFin < DateTime.Now)
                                     {
+                                        
                                         @if (inmueble.contrato == null || !inmueble.contrato.estado)
                                         {
                                             <button type="button" class="btn btn-info p-1 m-1 w-25" onclick="abrirNuevoContratoModal('@inmueble.IdInmueble', '@inmueble.Direccion')">
                                                 <i class="bi bi-door-closed-fill"></i>
                                             </button>
                                         }
+
                                         else
                                         {
                                            <button type="button" class="btn btn-outline-warning p-1 m-1 w-25" onclick="noRenovarContrato('@inmueble.contrato.IdContrato')" title="El inmueble tiene un contrato vencido. Finalice el contrato para crear uno nuevo.">
@@ -233,7 +247,7 @@
                                         </button> 
                                         }
 
-                                    }
+                                    } *@
                                     @* else
                                     {
                                         @if(User.IsInRole("Administrador")){

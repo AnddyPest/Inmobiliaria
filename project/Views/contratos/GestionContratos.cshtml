@@ -359,7 +359,7 @@
                                     <i class="bi bi-pencil-square"></i> <!-- EDITAR CONTRATO -->
                                 </a>
                                 @*@if(contrato.estado || contrato.FechaFin > DateTime.Now) Ver la condicion*@
-                                @if(contrato.estado )
+                                @if(contrato.estado && contrato.FechaFin > DateTime.Now)
                                 {
                                     @if(User.IsInRole("Administrador")){
                                         <button type="button" class="btn btn-danger p-1 m-1 w-25" onclick="finalizarContrato('@contrato.IdInmueble')">
