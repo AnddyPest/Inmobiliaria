@@ -360,5 +360,21 @@ namespace project.Controllers
                 return this.RedirectToActionWithError(nameof(VerImagenes), "Inmueble", "Error al eliminar la imagen: " + ex.Message, new { idInmueble });
             }
         }
+        [HttpGet("Inmueble/FechasOcupadas/{idInmueble}")]
+        public async Task<IActionResult> FechasOcupadas(int idInmueble)
+        {
+            try
+            {
+                var (error, fechasOcupadas) = await _inmuebleService.ObtenerFechasOcupadas(idInmueble);
+                if (error != null || fechasOcupadas == null)
+                    return BadRequest("Error al obtener las fechas ocupadas: " + error);
+                return Json(fechasOcupadas);
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(InmuebleController), nameof(FechasOcupadas));
+                return BadRequest("Error al obtener las fechas ocupadas: " + ex.Message);
+            }
+        }
     }
 }

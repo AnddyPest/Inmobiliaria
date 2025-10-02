@@ -396,7 +396,8 @@ namespace project.Services
                                     INNER JOIN tipo_inmueble as tipoI ON i.id_tipo_inmueble = tipoI.id_tipo_inmueble
                                     LEFT JOIN contrato as contract ON contract.idInmueble = i.idInmueble AND contract.Estado = 1  
                                     LEFT JOIN inquilino as inquil ON inquil.idInquilino = contract.idInquilino
-                                    left join persona as pe on inquil.idPersona = pe.idPersona
+                                    LEFT JOIN persona as pe on inquil.idPersona = pe.idPersona
+                                    GROUP BY i.idInmueble
                                     
                                     ";
                     List<string> querys = new();
@@ -1045,5 +1046,44 @@ namespace project.Services
                 return (ex.Message, false);
             }
         }
+
+    public async Task<(string?, List<string>?)> ObtenerFechasOcupadas(int idInmueble)
+        {
+            try
+            {
+                List<string> fechasOcupadas = new List<string>();
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+                    string query = @"SELECT FechaInicio, FechaFin
+                                    FROM contrato
+                                    WHERE idInmueble = @idInmueble AND estado = 1";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@idInmueble", idInmueble);
+                        using (DbDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                DateTime inicio = reader.GetDateTime("FechaInicio");
+                                DateTime fin = reader.GetDateTime("FechaFin");
+                                for (var date = inicio.Date; date <= fin.Date; date = date.AddDays(1))
+                                {
+                                    fechasOcupadas.Add(date.ToString("yyyy-MM-dd"));
+                                }
+                            }
+                        }
+                    }
+                    await connection.CloseAsync();
+                }
+                return (null, fechasOcupadas);
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, _ClassName, nameof(ObtenerFechasOcupadas));
+                return (ex.Message, null);
+            }
+        }
+
     }
 }

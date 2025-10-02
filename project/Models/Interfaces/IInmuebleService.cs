@@ -24,5 +24,7 @@
         public Task<(string?, List<string>?)> ObtenerImagenesInmueble(int idInmueble);
         public Task<(string?, string?)> ObtenerImagenPortada(int idInmueble);
         public Task<(string?, bool)> EliminarImagen(int idInmueble, string nombreImagen);
+
+        public Task<(string?, List<string>?)> ObtenerFechasOcupadas(int idInmueble);
     }
 }
