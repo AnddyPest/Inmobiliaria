@@ -574,7 +574,7 @@ namespace project.Services
                     return ($"No se encontró un inmueble con Id {idInmueble}.", false);
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    string query = "SELECT COUNT(*) FROM Contrato WHERE IdInmueble = @IdInmueble AND (FechaInicio <= @FechaFin AND FechaFin >= @FechaInicio) AND Activo = 1";
+                    string query = "SELECT COUNT(*) FROM Contrato WHERE IdInmueble = @IdInmueble AND (FechaInicio <= @FechaFin AND FechaFin >= @FechaInicio) AND estado = 1";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@IdInmueble", idInmueble);

@@ -165,9 +165,10 @@
                                                 {
                                                     <span class="badge bg-primary ms-1">Inicio: @contrato.FechaInicio.ToString("dd/MM/yyyy")</span>
                                                     <span class="badge bg-danger ms-1">Fin: @contrato.FechaFin.ToString("dd/MM/yyyy")</span>
-                                                    contador += 1;
                                                 }
+                                                contador += 1;
                                             }
+                                            
                                         }
                                         @if(contador == 0){
                                             <i class="bi bi-house text-secondary fs-4" title="Disponible - No alquilado"></i>   
