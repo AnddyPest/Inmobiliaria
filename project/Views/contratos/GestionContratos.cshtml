@@ -289,6 +289,27 @@
         return html.getElementById(id);
     }
     document.getElementById('inputFiltroInmueble').addEventListener('keydown', actualizarContenido);
+    
+    async function noRenovarContrato(idContrato) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Estas a punto de NO renovar un contrato.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, no renovar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    window.location.href = `/contrato/noRenovar/${idContrato}`;
+                }
+            });
+
+            
+            return false;
+        }
 </script>
     
     <div class="table-container" id="contenedorTabla" style="min-height: 400px;">
@@ -365,6 +386,13 @@
                                         <button type="button" class="btn btn-danger p-1 m-1 w-25" onclick="finalizarContrato('@contrato.IdInmueble')">
                                                 <i class="bi bi-door-open-fill"></i>
                                         </button>
+                                    }
+                                }
+                                @if(contrato.estado && contrato.FechaFin < DateTime.Now){
+                                    if(User.IsInRole("Administrador")){
+                                        <button type="button" class="btn btn-outline-warning p-1 m-1 w-25" onclick="noRenovarContrato('@contrato.IdContrato')" title="El inmueble tiene un contrato vencido. Finalice el contrato para crear uno nuevo.">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                        </button> 
                                     }
                                 }
                                 <!-- BOTÓN DE GENERAR PAGOS -->

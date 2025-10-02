@@ -220,7 +220,7 @@
                                     <button type="button" class="btn btn-info p-1 m-1 w-25" onclick="abrirNuevoContratoModal('@inmueble.IdInmueble', '@inmueble.Direccion')">
                                         <i class="bi bi-door-closed-fill"></i>
                                     </button>
-                                    if(inmueble.contratos?.Count > 0){
+                                    @* if(inmueble.contratos?.Count > 0){
                                         foreach(Contrato contrato in inmueble.contratos){
                                             if(contrato.FechaFin < DateTime.Now && contrato.estado == true){
                                                 <button type="button" class="btn btn-outline-warning p-1 m-1 w-25" onclick="noRenovarContrato('@contrato.IdContrato')" title="El inmueble tiene un contrato vencido. Finalice el contrato para crear uno nuevo.">
@@ -229,7 +229,7 @@
                                                 break;
                                             }
                                         }    
-                                    }
+                                    } *@
                                     @* @if (inmueble.contrato == null || inmueble.contrato.estado == false || inmueble.contrato.FechaFin < DateTime.Now)
                                     {
                                         
