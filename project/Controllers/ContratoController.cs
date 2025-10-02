@@ -103,7 +103,7 @@ namespace project.Controllers
                 return BadRequest("No se pudo actualizar el contrato.");
             await _auditoriaService.CreateAuditoria(new Auditoria(
                 idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
-                idContrato: model.IdContrato,
+                idContrato: contratoUpdated.Item2 ? model.IdContrato : 0,
                 idPago: null,
                 MotivoAuditoria: "Actualizacion de contrato"
             ));
@@ -143,6 +143,13 @@ namespace project.Controllers
                 idContrato: idContrato,
                 idPago: null,
                 MotivoAuditoria: "Baja de contrato"
+            
+            ));
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
+                idContrato: idContrato,
+                idPago: pagoMultaCreated.Item2 ? pagoMulta.IdPago : 0,
+                MotivoAuditoria: "Creación de pago de multa por baja de contrato"
             ));
             return this.RedirectToActionWithSuccess(nameof(GetAllContratos), "Contrato anulado exitosamente", "Contrato anulado!!");
         }
