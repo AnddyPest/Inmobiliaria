@@ -8,11 +8,12 @@ using System.Data;
 
 namespace project.Services
 {
-    public class ContratoService(IConfiguration configuration, IPropietarioService propietarioService, IInquilinoService inquilinoService) : IContratoService
+    public class ContratoService(IConfiguration configuration,IInmuebleService inmuebleService , IPropietarioService propietarioService, IInquilinoService inquilinoService) : IContratoService
     {
         private readonly string _connectionString = configuration.GetConnectionString("Connection")!;
         private IPropietarioService _propietarioService = propietarioService;
         private IInquilinoService _inquilinoService = inquilinoService;
+        private IInmuebleService _inmuebleService = inmuebleService;
         public async Task<(string?, bool)> CreateContrato(Contrato contrato) //testear
         {
             try
@@ -28,6 +29,8 @@ namespace project.Services
                     return ($"No se encontró un propietario con Id {contrato.IdPropietario}.", false);
                 if (inquilinoFinded.Item2!.IdPersona == propietarioFinded.Item2!.IdPersona)
                     return ($"Un propietario no puede alquilar su propia propiedad", false);
+                if (await ValidarNoSuperposicionFechas(contrato.IdInmueble, contrato.FechaInicio, contrato.FechaFin) is (string error, bool result) && error != null && !result)
+                    return (error, false);
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     string query = @"INSERT INTO Contrato (IdInquilino, IdInmueble, IdPropietario, Monto, FechaInicio, FechaFin, estado) 
@@ -81,7 +84,8 @@ namespace project.Services
                 return ($"No se encontró un propietario con Id {contrato.IdPropietario}.", false);
             if (inquilinoFinded.Item2!.IdPersona == propietarioFinded.Item2!.IdPersona)
                 return ($"Un propietario no puede alquilar su propia propiedad", false);
-
+            if (await ValidarNoSuperposicionFechas(contrato.IdInmueble, contrato.FechaInicio, contrato.FechaFin) is (string error, bool result) && error != null && !result)
+                return (error, false);
             try
             {
                 if ((await GetContratoById(contrato.IdContrato)).Item2 == null)
@@ -562,13 +566,41 @@ namespace project.Services
                 return (ex.Message, null);
             }
         }
+        public async Task<(string?, bool)> ValidarNoSuperposicionFechas(int idInmueble, DateTime fechaInicio, DateTime fechaFin)
+        {
+            try
+            {
+                if ((await _inmuebleService.ObtenerInmueblePorId(idInmueble)).Item2 == null)
+                    return ($"No se encontró un inmueble con Id {idInmueble}.", false);
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = "SELECT COUNT(*) FROM Contrato WHERE IdInmueble = @IdInmueble AND (FechaInicio <= @FechaFin AND FechaFin >= @FechaInicio) AND Activo = 1";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@IdInmueble", idInmueble);
+                        command.Parameters.AddWithValue("@FechaInicio", fechaInicio);
+                        command.Parameters.AddWithValue("@FechaFin", fechaFin);
+                        await connection.OpenAsync();
+                        int count = Convert.ToInt32(await command.ExecuteScalarAsync());
+                        await connection.CloseAsync();
+                        if (count > 0) return ("Las fechas ingresadas se superponen con otras fechas de contratos vigentes.", false);
+                        return (null, true);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(ContratoService), nameof(ValidarNoSuperposicionFechas));
+                return ("Error al validar las fechas: Internal Server Error", false);
+            }
+        }
 
         public async Task<(string?, bool)> ComprobarContratoActivoPorIdInmueble(int idInmueble) //testear
         {
             if (idInmueble <= 0) return ("El id del inmueble debe ser un número positivo.", false);
             try
             {
-                if ((await _propietarioService.getPropietarioById(idInmueble)).Item2 == null)
+                if ((await _inmuebleService.ObtenerInmueblePorId(idInmueble)).Item2 == null)
                     return ($"No se encontró un inmueble con Id {idInmueble}.", false);
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
