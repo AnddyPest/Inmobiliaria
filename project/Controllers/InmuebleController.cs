@@ -88,14 +88,18 @@ namespace project.Controllers
                 HelperFor.imprimirMensajeDeError(inmuebles.Item1, nameof(InmuebleController), nameof(GetAllInmuebles));
                 return this.RedirectToActionWithError(nameof(Index), inmuebles.Item1);
             }
-            foreach (Inmueble inmueble in inmuebles.Item2!)
+            if (inmuebles.Item2 != null)
             {
-                (string?, List<Contrato>?) contratosByInmueble = await _contratoService.GetContratoByIdInmueble(inmueble.IdInmueble);
-                if (contratosByInmueble.Item2 != null)
+                foreach (Inmueble? inmueble in inmuebles.Item2)
                 {
-                    inmueble.contratos = contratosByInmueble.Item2;
+                    (string?, List<Contrato>?) contratosByInmueble = await _contratoService.GetContratoByIdInmueble(inmueble.IdInmueble);
+                    if (contratosByInmueble.Item2 != null)
+                    {
+                        inmueble.contratos = contratosByInmueble.Item2;
+                    }
                 }
             }
+            
             (string?, List<Tipo_Inmueble>?) tiposDeInmuebleFromService = await _tipoInmuebleService.getAllTipoInmueble();
             if (tiposDeInmuebleFromService.Item1 != null)
                 return this.RedirectToActionWithError(nameof(Index), "Error del servicio que obtiene los tipos de Inmueble", "Internal Server Error");

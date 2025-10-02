@@ -397,13 +397,12 @@ namespace project.Services
                                     LEFT JOIN contrato as contract ON contract.idInmueble = i.idInmueble AND contract.Estado = 1  
                                     LEFT JOIN inquilino as inquil ON inquil.idInquilino = contract.idInquilino
                                     left join persona as pe on inquil.idPersona = pe.idPersona
-                                    GROUP BY i.idInmueble 
                                     
                                     ";
                     List<string> querys = new();
                     if (disponibilidad != null) //Hay que encontrar una manera de simplificar esto y mejorar porq con muchos filtros va a ser un caos
                     {
-                        querys.Add(@$" i.Disponible = {((disponibilidad == true) ? "1" : "0")} ");
+                        querys.Add(@$" i.estado = {((disponibilidad == true) ? "1" : "0")} ");
                     }
                     if (dniPropietario != null)
                     {
@@ -427,13 +426,20 @@ namespace project.Services
                     }
                     if (fechaDesde != null && fechaHasta != null)
                     {
-
-                        querys.Add(@$"  (contract.idContrato IS NULL OR 
-                                        (contract.FechaFin < '{fechaDesde!.Value:yyyy-MM-dd}' OR 
-                                        contract.FechaInicio > '{fechaHasta.Value:yyyy-MM-dd}')) ");
+                        querys.Add(@$" i.idInmueble NOT IN (
+                            SELECT DISTINCT c.idInmueble 
+                            FROM contrato c 
+                            WHERE c.Estado = 1 
+                            AND c.FechaInicio <= '{fechaHasta.Value:yyyy-MM-dd}' 
+                            AND c.FechaFin >= '{fechaDesde.Value:yyyy-MM-dd}'
+                        ) ");
                     }
                     query += HelperFor.construirSqlWhereAnd(querys);
-                    query += @$" ORDER BY i.idInmueble
+                    query += @$" 
+                                GROUP BY i.idInmueble 
+                                
+                                ORDER BY i.idInmueble
+
                                 LIMIT {tamPagina} OFFSET {(paginaNro - 1) * tamPagina}; ";
                     Console.WriteLine(query);
                     List<Inmueble> inmuebles = new();
