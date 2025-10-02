@@ -200,22 +200,22 @@ namespace project.Controllers
         {
             (string?, bool) resultado = await _contratoService.TerminarContrato(idContrato);
             if (resultado.Item1 != null)
-                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Contrato no renovado, pero no se pudo marcar el inmueble como disponible: " + resultado.Item1, "Error al no renovar el contrato");
+                return this.RedirectToActionWithError(nameof(GetAllContratos), "Contrato no renovado, pero no se pudo marcar el inmueble como disponible: " + resultado.Item1, "Error al no renovar el contrato");
             if (!resultado.Item2)
-                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
+                return this.RedirectToActionWithError(nameof(GetAllContratos), "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
             (string?, Contrato?) contrato = await _contratoService.GetContratoById(idContrato);
             if (contrato.Item1 != null || contrato.Item2 == null)
-                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
+                return this.RedirectToActionWithError(nameof(GetAllContratos), "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
             (string? errorServicio, bool validacion) = await _inmuebleService.MarcarLibre(contrato.Item2.IdInmueble);
             if (errorServicio != null || !validacion)
-                return this.RedirectToActionWithError("GetAllInmuebles", "Inmueble", "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
+                return this.RedirectToActionWithError(nameof(GetAllContratos), "Error no se pudo marcar el contrato como terminado", "Error al no renovar el contrato");
             await _auditoriaService.CreateAuditoria(new Auditoria(
                 idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
                 idContrato: idContrato,
                 idPago: null,
                 MotivoAuditoria: "No renovación de contrato"
             ));
-            return this.RedirectToActionWithSuccess("GetAllInmuebles", "Inmueble", "El contrato no será renovado", "Inmueble disponible!!");
+            return this.RedirectToActionWithSuccess(nameof(GetAllContratos), "El contrato no será renovado", "Inmueble disponible!!");
         }
         [Authorize(Roles = "Administrador")]
         [HttpGet("contrato/calcularMulta/{idContrato}")]
