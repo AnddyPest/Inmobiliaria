@@ -98,6 +98,7 @@
                 const fechasOcupadas = await resp.json();
                 flatpickr("#rangoFechas", {
                     mode: "range",
+                    showMonths: 4,
                     dateFormat: "Y-m-d",
                     disable: fechasOcupadas,
                     locale: { rangeSeparator: " a " },
