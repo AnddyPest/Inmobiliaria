@@ -16,8 +16,11 @@ namespace project.Models
         public int? IdPago { get; set; } = idPago;
         public DateTime Fecha { get; set; } = DateTime.Now;
         public string MotivoAuditoria { get; set; } = MotivoAuditoria;
+        public Usuario? Usuario { get; set; }
+        public Contrato? Contrato { get; set; }
+        public Pago? Pago { get; set; }
 
     // Constructor vacío
-    public Auditoria() : this(default, null, null, default!) { }
+        public Auditoria() : this(default, null, null, default!) { }
     }
 }

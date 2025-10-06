@@ -253,7 +253,7 @@ namespace project.Models.Interfaces
             {
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    string query = @"SELECT aud.*, c.*, p.*, m.*, usu.idUsuario, e.*, per.*
+                    string query = @"SELECT aud.*, c.*, p.*, usu.idUsuario, e.*, per.*
                                     FROM auditoria aud
                                     LEFT JOIN contrato c ON aud.IdContrato = c.IdContrato
                                     LEFT JOIN pagos p ON aud.IdPago = p.IdPago
@@ -322,15 +322,7 @@ namespace project.Models.Interfaces
                                         Estado = reader.GetBoolean(reader.GetOrdinal("per.Estado"))
                                     };
                                 }
-                                MotivosAuditoria? motivo = null;
-                                if (!reader.IsDBNull(reader.GetOrdinal("m.IdMotivoAuditoria")))
-                                {
-                                    motivo = new MotivosAuditoria
-                                    {
-
-                                        Motivo = reader.GetString(reader.GetOrdinal("m.motivo"))
-                                    };
-                                }
+                                
 
                                 auditorias.Add(auditoria);
                             }
@@ -351,7 +343,7 @@ namespace project.Models.Interfaces
             {
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    string query = @"SELECT aud.*, c.*, p.*, m.*, usu.idUsuario, e.*, per.*
+                    string query = @"SELECT aud.*, c.*, p.*, usu.idUsuario, e.*, per.*
                                     FROM auditoria aud
                                     LEFT JOIN contrato c ON aud.IdContrato = c.IdContrato
                                     LEFT JOIN pagos p ON aud.IdPago = p.IdPago
@@ -449,19 +441,28 @@ namespace project.Models.Interfaces
             {
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    string query = @"SELECT aud.*, c.*, p.*, m.*, usu.idUsuario, e.*, per.*
+                    string query = @"SELECT aud.*, c.idContrato AS ContratoidContrato, 
+                                    p.idPago AS PagoidPago, 
+                                    usu.idRol,
+                                    r.nombre AS RolNombre,
+                                    e.*, 
+                                    per.idPersona AS PersonaidPersona,
+                                    per.nombre AS PersonaNombre,
+                                    per.apellido AS PersonaApellido,
+                                    per.dni AS PersonaDni
+
                                     FROM auditoria aud
-                                    LEFT JOIN contrato c ON aud.IdContrato = c.IdContrato
-                                    LEFT JOIN pagos p ON aud.IdPago = p.IdPago
-                                    LEFT JOIN usuario usu ON aud.IdUsuario = usu.IdUsuario
-                                    LEFT JOIN empleado e ON usu.IdUsuario = e.IdUsuario
-                                    LEFT JOIN Rol r ON usu.idRol = r.nombre
-                                    LEFT JOIN persona per ON e.IdPersona = per.IdPersona
-                                    WHERE aud.IdPago = @IdPago
+                                    LEFT JOIN contrato c ON aud.idContrato = c.idContrato
+                                    LEFT JOIN pagos p ON aud.idPago = p.idPago
+                                    LEFT JOIN usuario usu ON aud.idUsuario = usu.idUsuario
+                                    LEFT JOIN empleado e ON usu.idUsuario = e.idUsuario
+                                    LEFT JOIN Rol r ON usu.idRol = r.idRol
+                                    LEFT JOIN persona per ON e.idPersona = per.idPersona
+                                    WHERE aud.idPago = @idPago
                                     ORDER BY aud.Fecha DESC";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@IdPago", idPago);
+                        command.Parameters.AddWithValue("@idPago", idPago);
                         var auditorias = new List<Auditoria>();
                         await connection.OpenAsync();
                         using (DbDataReader reader = await command.ExecuteReaderAsync())
@@ -469,66 +470,68 @@ namespace project.Models.Interfaces
                             while (await reader.ReadAsync())
                             {
                                 var auditoria = new Auditoria();
-                                auditoria.IdAuditoria = reader.GetInt32(reader.GetOrdinal("IdAuditoria"));
-                                auditoria.IdUsuario = reader.GetInt32(reader.GetOrdinal("IdUsuario"));
-                                auditoria.IdContrato = reader.IsDBNull(reader.GetOrdinal("IdContrato")) ? null : reader.GetInt32(reader.GetOrdinal("IdContrato"));
-                                auditoria.IdPago = reader.IsDBNull(reader.GetOrdinal("IdPago")) ? null : reader.GetInt32(reader.GetOrdinal("IdPago"));
-                                auditoria.Fecha = reader.GetDateTime(reader.GetOrdinal("Fecha"));
+                                auditoria.IdAuditoria = reader.GetInt32(reader.GetOrdinal("idAuditoria"));
+                                auditoria.IdUsuario = reader.GetInt32(reader.GetOrdinal("idUsuario"));
+                                auditoria.IdContrato = reader.IsDBNull(reader.GetOrdinal("idContrato")) ? null : reader.GetInt32(reader.GetOrdinal("idContrato"));
+                                auditoria.IdPago = reader.IsDBNull(reader.GetOrdinal("idPago")) ? null : reader.GetInt32(reader.GetOrdinal("idPago"));
+                                auditoria.Fecha = reader.GetDateTime(reader.GetOrdinal("fecha"));
                                 auditoria.MotivoAuditoria = reader.GetString(reader.GetOrdinal("MotivoAuditoria"));
 
                                 Contrato? contrato = null;
-                                if (!reader.IsDBNull(reader.GetOrdinal("c.IdContrato")))
+                                if (!reader.IsDBNull(reader.GetOrdinal("ContratoidContrato")))
                                 {
                                     contrato = new Contrato
                                     {
-                                        IdContrato = reader.GetInt32(reader.GetOrdinal("c.IdContrato")),
+                                        IdContrato = reader.GetInt32(reader.GetOrdinal("ContratoidContrato")),
                                         // MAXI, que parametros te parece sacar aca?
                                     };
                                 }
 
                                 Pago? pago = null;
-                                if (!reader.IsDBNull(reader.GetOrdinal("p.IdPago")))
+                                if (!reader.IsDBNull(reader.GetOrdinal("PagoidPago")))
                                 {
                                     pago = new Pago
                                     {
-                                        IdPago = reader.GetInt32(reader.GetOrdinal("p.IdPago")),
+                                        IdPago = reader.GetInt32(reader.GetOrdinal("PagoidPago")),
                                         // Y aca?
                                     };
                                 }
+                                Usuario usuAuditoria = new Usuario();
                                 Rol? rol = null;
-                                if (!reader.IsDBNull(reader.GetOrdinal("r.idRol")))
+                                if (!reader.IsDBNull(reader.GetOrdinal("RolNombre")))
                                 {
                                     rol = new Rol
                                     {
-                                        Nombre = reader.GetString(reader.GetOrdinal("r.nombre"))
+                                        Nombre = reader.GetString(reader.GetOrdinal("RolNombre"))
+
                                     };
+
+                                    usuAuditoria.idUsuario = auditoria.IdUsuario;
+                                    usuAuditoria.Rol = rol;
+
                                 }
                                 Persona? persona = null;
-                                if (!reader.IsDBNull(reader.GetOrdinal("per.IdPersona")))
+                                if (!reader.IsDBNull(reader.GetOrdinal("PersonaidPersona")))
                                 {
                                     persona = new Persona
                                     {
-                                        IdPersona = reader.GetInt32(reader.GetOrdinal("per.IdPersona")),
-                                        Nombre = reader.GetString(reader.GetOrdinal("per.Nombre")),
-                                        Apellido = reader.GetString(reader.GetOrdinal("per.Apellido")),
-                                        Dni = reader.GetInt32(reader.GetOrdinal("per.Dni")),
-                                        Telefono = reader.GetString(reader.GetOrdinal("per.Telefono")),
-                                        Direccion = reader.GetString(reader.GetOrdinal("per.Direccion")),
-                                        Email = reader.GetString(reader.GetOrdinal("per.Email")),
-                                        Estado = reader.GetBoolean(reader.GetOrdinal("per.Estado"))
-                                    };
-                                }
-                                MotivosAuditoria? motivo = null;
-                                if (!reader.IsDBNull(reader.GetOrdinal("m.IdMotivoAuditoria")))
-                                {
-                                    motivo = new MotivosAuditoria
-                                    {
+                                        
+                                        Nombre = reader.GetString(reader.GetOrdinal("PersonaNombre")),
+                                        Apellido = reader.GetString(reader.GetOrdinal("PersonaApellido")),
+                                        Dni = reader.GetInt32(reader.GetOrdinal("PersonaDni")),
 
-                                        Motivo = reader.GetString(reader.GetOrdinal("m.motivo"))
                                     };
+                                    usuAuditoria.Empleado = new Empleado();
+                                    usuAuditoria.Empleado.Nombre = persona.Nombre;
+                                    usuAuditoria.Empleado.Apellido = persona.Apellido;
+                                    usuAuditoria.Empleado.Dni = persona.Dni;
+
                                 }
+
 
                                 auditorias.Add(auditoria);
+                                auditoria.Usuario = usuAuditoria;
+                                
                             }
                         }
                         await connection.CloseAsync();
@@ -538,6 +541,7 @@ namespace project.Models.Interfaces
             }
             catch (Exception ex)
             {
+                HelperFor.imprimirMensajeDeError(ex.Message, nameof(AuditoriaService), nameof(GetAuditoriasByPago));
                 return ($"Error al obtener auditorías por pago: {ex.Message}", null);
             }
         }
