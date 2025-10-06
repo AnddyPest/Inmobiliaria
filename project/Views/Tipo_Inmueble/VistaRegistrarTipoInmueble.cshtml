@@ -43,8 +43,10 @@
 
         function validarForm(){
             if(inputNombre.value.trim().length >= 5 && form.checkValidity()){
+                console.log("valido");
                 return true;
             }
+            console.log("invalido");
             return false;
         }
         function actualizarBoton(){
@@ -52,8 +54,10 @@
         }
         form.addEventListener("input", actualizarBoton);
         actualizarBoton();
+        document.getElementById("inputNombre").addEventListener("input", function(){
+            this.value = this.value.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚ\s]/g, '');
+            actualizarBoton();
+        });
     })
-    document.getElementById("inputNombre").addEventListener("input", function(){
-        this.value = this.value.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚ\s]/g, '');
-    });
+    
 </script>
