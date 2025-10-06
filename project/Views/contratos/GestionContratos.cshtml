@@ -248,55 +248,55 @@ async function buscarAuditoriaContrato(idContrato){
     }
 }
 
-        function actualizarContenidoAuditoria(data){
-            let tbody = document.getElementById('tablaAuditoria');
-            tbody.innerHTML = ''; // Limpiar tabla
-            console.log("linea: 612 - data: ", data.auditorias);
-            if (data && data.auditorias.length > 0) {
-                console.log("linea: 614 - data: ", data.auditorias);
-                data.auditorias.forEach((auditoria) => {
-                    let tr = document.createElement('tr');
-                    console.log("linea: 358 - auditoria: ", auditoria);
-                    tr.innerHTML = `
-                        <td>${auditoria.idContrato || ''}</td>
-                        <td>${auditoria.usuario.empleado.nombre || ''}</td>
-                        <td>${auditoria.usuario.empleado.apellido || ''}</td>
-                        <td>${auditoria.usuario.empleado.dni || ''}</td>
-                        <td>${auditoria.motivoAuditoria || ''}</td>
-                        <td>${auditoria.fecha ? new Date(auditoria.fecha).toLocaleString() : ''}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } else {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay registros de auditoría</td></tr>';
-            }
+    function actualizarContenidoAuditoria(data){
+        let tbody = document.getElementById('tablaAuditoria');
+        tbody.innerHTML = ''; // Limpiar tabla
+        console.log("linea: 612 - data: ", data.auditorias);
+        if (data && data.auditorias.length > 0) {
+            console.log("linea: 614 - data: ", data.auditorias);
+            data.auditorias.forEach((auditoria) => {
+                let tr = document.createElement('tr');
+                console.log("linea: 358 - auditoria: ", auditoria);
+                tr.innerHTML = `
+                    <td>${auditoria.idContrato || ''}</td>
+                    <td>${auditoria.usuario.empleado.nombre || ''}</td>
+                    <td>${auditoria.usuario.empleado.apellido || ''}</td>
+                    <td>${auditoria.usuario.empleado.dni || ''}</td>
+                    <td>${auditoria.motivoAuditoria || ''}</td>
+                    <td>${auditoria.fecha ? new Date(auditoria.fecha).toLocaleString() : ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay registros de auditoría</td></tr>';
         }
-        async function buscarAuditoriaContrato(idContrato){
-            try{
-                const response = await fetch(`/auditoria/contrato/${idContrato}`);
-                if(!response.ok){
-                    throw new Error('Error al buscar auditoria');
-                }
-                const data = await response.json();
-                actualizarContenidoAuditoria(data);
-            }catch(error){
-                console.log(error);
-                // Mostrar mensaje de error
-                document.getElementById('tablaAuditoria').innerHTML = 
-                    '<tr><td colspan="6" class="text-center text-danger">Error al cargar los datos de auditoría</td></tr>';
+    }
+    async function buscarAuditoriaContrato(idContrato){
+        try{
+            const response = await fetch(`/auditoria/contrato/${idContrato}`);
+            if(!response.ok){
+                throw new Error('Error al buscar auditoria');
             }
+            const data = await response.json();
+            actualizarContenidoAuditoria(data);
+        }catch(error){
+            console.log(error);
+            // Mostrar mensaje de error
+            document.getElementById('tablaAuditoria').innerHTML = 
+                '<tr><td colspan="6" class="text-center text-danger">Error al cargar los datos de auditoría</td></tr>';
         }
-        document.getElementById('modalAuditoria').addEventListener('show.bs.modal', function (event) {
-            document.getElementById('tablaAuditoria').innerHTML = '';
-            
-            const button = event.relatedTarget;
-            
-            const idContrato = button.getAttribute('data-id-contrato');
-            
-            if (idContrato) {
-                buscarAuditoriaContrato(idContrato);
-            }
-        });
+    }
+    document.getElementById('modalAuditoria').addEventListener('show.bs.modal', function (event) {
+        document.getElementById('tablaAuditoria').innerHTML = '';
+        
+        const button = event.relatedTarget;
+        
+        const idContrato = button.getAttribute('data-id-contrato');
+        
+        if (idContrato) {
+            buscarAuditoriaContrato(idContrato);
+        }
+    });
 </script>
 
 <div class="modal fade" id="modalRenovarFechaFin" tabindex="-1" aria-labelledby="modalRenovarLabel" aria-hidden="true">

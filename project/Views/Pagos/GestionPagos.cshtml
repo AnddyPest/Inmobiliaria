@@ -6,6 +6,26 @@
     var Pagina = ViewBag.nroPagina ?? 1;
 ;}
 
+<style>
+    .modal-lg {
+        max-width: 90%;
+    }
+    * .table-container2 {
+        max-height: 400px;
+        overflow-y: auto;
+    }   
+    .table th {
+        background-color: #0d6efd;
+        color: white;
+        position: sticky;
+        top: 0;
+    }
+    .modal-header {
+        background-color: #0d6efd;
+        color: white;
+    }
+</style>
+
 <div class="container">
     <div class="d-flex flex-column p-2 border border-success-subtle rounded" style="background-color: #e3daccc8; min-height: 80vh; min-width: 80vw; margin: 0 auto;">
         <div class="row w-100">
@@ -86,9 +106,17 @@
                                             <i class="bi-check"></i>
                                         </a>
                                     }
+<<<<<<< HEAD
                                         <button class="btn btn-sm btn-secondary ms-1" title=" Ver Auditoria" onclick="auditoriaPago(@pago.IdPago)">
                                             <i class="bi-file-earmark-text"></i>
                                         </button>
+=======
+                                    @if(User.IsInRole("Administrador")){
+                                        <button class="btn btn-success w-25" aria-modal="true" data-bs-toggle="modal" data-bs-target="#modalAuditoria" data-id-pago="@pago.IdPago">
+                                            <i class="bi bi-search"></i> <!-- AUDITORIA -->
+                                        </button>
+                                    }
+>>>>>>> c78dd8b364e1a66ff639133b9c9cee37a565c667
                                 </td>
                             </tr>
 
@@ -184,6 +212,10 @@
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
+<<<<<<< HEAD
+=======
+                                    <th>Id Contrato</th>
+>>>>>>> c78dd8b364e1a66ff639133b9c9cee37a565c667
                                     <th>Id Pago</th>
                                     <th>Nombre</th>
                                     <th>Apellido</th>
@@ -193,7 +225,10 @@
                                 </tr>
                             </thead>
                             <tbody id="tablaAuditoria">
+<<<<<<< HEAD
                                
+=======
+>>>>>>> c78dd8b364e1a66ff639133b9c9cee37a565c667
                             </tbody>
                         </table>
                     </div>
@@ -204,7 +239,10 @@
             </div>
         </div>
     </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> c78dd8b364e1a66ff639133b9c9cee37a565c667
 <script>
     function modalActualizarDetalle(idPago, detalle, idContrato){
         document.getElementById('idPago').value = idPago;
@@ -213,6 +251,7 @@
         const modal = new bootstrap.Modal(document.getElementById('modalActualizarDetalle'));
         modal.show();
     }
+<<<<<<< HEAD
     async function auditoriaPago(idPago) {
         const response = await fetch(`/auditoria/pagos/${idPago}`);
         if (response.ok) {
@@ -239,4 +278,56 @@
             alert('Error al cargar los registros de auditoría.');
         }
     }
+=======
+    function actualizarContenidoAuditoria(data){
+        let tbody = document.getElementById('tablaAuditoria');
+        tbody.innerHTML = ''; // Limpiar tabla
+        console.log("linea: 612 - data: ", data.auditorias);
+        if (data && data.auditorias.length > 0) {
+            console.log("linea: 614 - data: ", data.auditorias);
+            data.auditorias.forEach((auditoria) => {
+                let tr = document.createElement('tr');
+                console.log("linea: 358 - auditoria: ", auditoria);
+                tr.innerHTML = `
+                    <td>${auditoria.idContrato || ''}</td>
+                    <td>${auditoria.idPago || ''}</td>
+                    <td>${auditoria.usuario.empleado.nombre || ''}</td>
+                    <td>${auditoria.usuario.empleado.apellido || ''}</td>
+                    <td>${auditoria.usuario.empleado.dni || ''}</td>
+                    <td>${auditoria.motivoAuditoria || ''}</td>
+                    <td>${auditoria.fecha ? new Date(auditoria.fecha).toLocaleString() : ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay registros de auditoría</td></tr>';
+        }
+    }
+    async function buscarAuditoriaPago(idPago){
+        try{
+            const response = await fetch(`/auditoria/pagos/${idPago}`);
+            if(!response.ok){
+                throw new Error('Error al buscar auditoria');
+            }
+            const data = await response.json();
+            actualizarContenidoAuditoria(data);
+        }catch(error){
+            console.log(error);
+            // Mostrar mensaje de error
+            document.getElementById('tablaAuditoria').innerHTML = 
+                '<tr><td colspan="6" class="text-center text-danger">Error al cargar los datos de auditoría</td></tr>';
+        }
+    }
+    document.getElementById('modalAuditoria').addEventListener('show.bs.modal', function (event) {
+        document.getElementById('tablaAuditoria').innerHTML = '';
+        
+        const button = event.relatedTarget;
+        
+        const idPago = button.getAttribute('data-id-pago');
+        
+        if (idPago) {
+            buscarAuditoriaPago(idPago);
+        }
+    });
+>>>>>>> c78dd8b364e1a66ff639133b9c9cee37a565c667
 </script>
