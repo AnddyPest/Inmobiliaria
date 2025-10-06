@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using project.Models;
 namespace project.Controllers
 {
-    [Authorize]
+    [Authorize (Roles = "Administrador")]
     public class AuditoriaController : Controller
     {
         private IAuditoriaService _auditoriaService;
