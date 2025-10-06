@@ -55,7 +55,7 @@
                                         <i class="badge bi-x-circle-fill fs-5 text-danger" />
                                     }
                                 </td>
-                                <td>
+                                <td class="d-flex justify-content-center p-3">
 
                                     
                                     @if(pago.Estado){
@@ -86,7 +86,9 @@
                                             <i class="bi-check"></i>
                                         </a>
                                     }
-                                    
+                                        <button class="btn btn-sm btn-secondary ms-1" title=" Ver Auditoria" onclick="auditoriaPago(@pago.IdPago)">
+                                            <i class="bi-file-earmark-text"></i>
+                                        </button>
                                 </td>
                             </tr>
 
@@ -170,6 +172,39 @@
             </nav>
             <button class="btn btn-danger h-100" onclick="window.location.href='/contrato/listar'">Volver</button>
         </div>
+    <div class="modal fade" id="modalAuditoria" tabindex="-1" aria-labelledby="modalAuditoriaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAuditoriaLabel">Registros de Auditoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-container table-container2">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Id Pago</th>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>DNI</th>
+                                    <th>Motivo</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaAuditoria">
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script>
     function modalActualizarDetalle(idPago, detalle, idContrato){
         document.getElementById('idPago').value = idPago;
@@ -177,5 +212,31 @@
         document.getElementById('idContrato').value = idContrato;
         const modal = new bootstrap.Modal(document.getElementById('modalActualizarDetalle'));
         modal.show();
+    }
+    async function auditoriaPago(idPago) {
+        const response = await fetch(`/auditoria/pagos/${idPago}`);
+        if (response.ok) {
+            const data = await response.json();
+            const tablaAuditoria = document.getElementById('tablaAuditoria');
+            tablaAuditoria.innerHTML = ''; 
+
+            data.auditorias.forEach(registro => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${registro.idPago}</td>
+                    <td>${registro.usuario.empleado.nombre}</td>
+                    <td>${registro.usuario.empleado.apellido}</td>
+                    <td>${registro.usuario.empleado.dni}</td>
+                    <td>${registro.motivoAuditoria}</td>
+                    <td>${new Date(registro.fecha).toLocaleString()}</td>
+                `;
+                tablaAuditoria.appendChild(fila);
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('modalAuditoria'));
+            modal.show();
+        } else {
+            alert('Error al cargar los registros de auditoría.');
+        }
     }
 </script>

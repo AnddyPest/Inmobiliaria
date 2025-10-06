@@ -23,364 +23,6 @@
             color: white;
         }
     </style>
-<!-- MODAL RENOVAR CONTRATO (Bootstrap) -->
-@*<div class="modal fade" id="modalRenovarFechaFin" tabindex="-1" aria-labelledby="modalRenovarLabel" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
-    <form onsubmit="event.preventDefault(); confirmarRenovacionContrato();">
-    <div class="modal-header">
-          <h5 class="modal-title" id="modalRenovarLabel">Renovar Contrato</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-    </div>
-    <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="nuevaFechaInicio" class="form-label">Nueva Fecha de Inicio</label>
-                        <input type="date" id="nuevaFechaInicio" class="form-control" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="nuevaFechaFin" class="form-label">Nueva Fecha de Fin</label>
-                        <input type="date" id="nuevaFechaFin" class="form-control" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="nuevoMonto" class="form-label">Monto</label>
-                        <input type="number" id="nuevoMonto" class="form-control" min="1" required />
-                    </div>
-    </div>
-    <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Confirmar Renovación</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-    </div>
-    </form>
-    </div>
-    </div>
-</div>*@
-
-<div class="modal fade" id="modalRenovarFechaFin" tabindex="-1" aria-labelledby="modalRenovarLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            
-            <form method="post" action="/contrato/renovarContrato" id="formRenovarContrato">
-                @Html.AntiForgeryToken()
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalRenovarLabel">Renovar Contrato</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="nuevaFechaInicio" class="form-label">Nueva Fecha de Inicio</label>
-                        <input type="date" id="nuevaFechaInicio" name="FechaInicio" class="form-control" readonly />
-                    </div>
-                    <div class="mb-3">
-                        <label for="nuevaFechaFin" class="form-label">Nueva Fecha de Fin</label>
-                        <input type="date" id="nuevaFechaFin" name="FechaFin" class="form-control" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="nuevoMonto" class="form-label">Monto</label>
-                        <input type="number" id="nuevoMonto" name="Monto" class="form-control" min="1" required />
-                    </div>
-                    
-                    <input type="hidden" id="hiddenIdContrato" name="IdContrato" />
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Confirmar Renovación</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
-
-
-<div>
-    <h2 class="text-center mt-4 text-white fs-2">Lista de Contratos Registrados</h2>
-</div>
-@{
-    var disponibilidad = Context.Request.Query["disponibilidad"].FirstOrDefault() ?? "";
-    var fechaCompare = Context.Request.Query["fechaCompare"].FirstOrDefault() ?? "";
-}
-<!-- FILTRO POR DISPONIBILIDAD -->
-<div class="d-flex justify-content-start mt-4 mb-3 w-100 align-items-center">
-    <div class="w-25 ms-2">
-        <form method="get" asp-action="GetAllContratos" class="" id="filtroForm">
-            <div class="btn-group" role="group" aria-label="Filtrar por disponibilidad">
-                <input type="radio" class="btn-check" name="disponibilidad" id="todos" onchange="pagina = 1; actualizarContenido()" value=""   @(disponibilidad == "" ? "checked" : "" )>
-                <label class="btn btn-outline-primary" for="todos">Todos</label>
-                <input type="radio" class="btn-check" name="disponibilidad" id="vigente" onchange="pagina = 1; actualizarContenido()" value="vigente" @(disponibilidad == "vigente" ? "checked" : "")>
-                <label class="btn btn-outline-success" for="vigente">Vigentes</label>
-                <input type="radio" class="btn-check" name="disponibilidad" id="no vigente" onchange="pagina = 1; actualizarContenido()" value="no vigente" @(disponibilidad == "no vigente" ? "checked" : "")>
-                <label class="btn btn-outline-danger" for="no vigente">No vigentes</label>
-            </div>
-            <input type="hidden" name="fechaCompare" value="@fechaCompare" />
-        </form>
-    </div>
-    @* <div class="w-25"></div> *@
-    @* <div class="w-25"></div> *@
-    <div class="w-50 text-center ">
-        <input type="text"  id="inputFiltroInmueble" class="form-control" placeholder="Buscar por inmueble (Direccion del inmueble)" aria-label="Buscar por inmueble">
-    </div>
-    <!-- FILTRO POR FECHA DE VENCIMIENTO -->
-    <div class="w-25 ms-5">
-        <form method="get" asp-action="GetAllContratos" class="me-3" id="fechaCompareForm">
-        
-            <div class="btn-group" role="group" aria-label="Filtrar por fecha">
-                <input type="radio" class="btn-check" onchange="pagina = 1; actualizarContenido()" name="fechaCompare" id="dias30" value="30" @(fechaCompare == "30" ? "checked" : "")>
-                <label class="btn btn-outline-danger" for="dias30">30 Días</label>
-                <input type="radio" class="btn-check" onchange="pagina = 1; actualizarContenido()" name="fechaCompare" id="dias60" value="60" @(fechaCompare == "60" ? "checked" : "")>
-                <label class="btn btn-outline-warning" onchange="pagina = 1; actualizarContenido()" for="dias60">60 Días</label>
-                <input type="radio" class="btn-check" onchange="pagina = 1; actualizarContenido()" name="fechaCompare" id="dias90" value="90" @(fechaCompare == "90" ? "checked" : "")>
-                <label class="btn btn-outline-success" for="dias90">90 Días</label>
-            </div>
-            <input type="hidden" name="disponibilidad" value="@disponibilidad" />
-        </form>
-    </div>
-   
-</div>
-
-    
-    <div class="table-container" id="contenedorTabla" style="min-height: 400px;">
-        <table class="table table-striped table-bordered mt-2 table-dark mb-3" id="contratosTable">
-            <thead class="table-dark text-center">
-                <tr>
-                    <th style="width: 5%;">ID</th>
-                    <th style="width: 10%;">Inquilino</th>
-                    <th style="width: 10%;">Propietario</th>
-                    <th style="width: 10%;">Inmueble</th>
-                    <th style="width: 10%;">Fecha Inicio</th>
-                    <th style="width: 10%;">Fecha Fin</th>
-                    <th style="width: 10%;">Rescisión</th>
-                    <th style="width: 10%;">Monto</th>
-                    <th style="width: 10%;">Estado</th>
-                    <th style="width: 15%;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model != null && Model.contratos != null)
-                {
-                    foreach (Contrato contrato in Model.contratos)
-                    {
-                        
-                        <tr>
-                            <td class="text-center">@contrato.IdContrato</td>
-                            <td class="text-center">@contrato.Inquilino?.Nombre @contrato.Inquilino?.Apellido - @contrato.Inquilino.Dni</td>
-                            <td class="text-center">@contrato.Propietario?.Nombre @contrato.Propietario?.Apellido - @contrato.Propietario.Dni</td>
-                            <td class="text-center">@contrato.inmueble?.Direccion</td>
-                            <td class="text-center">@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
-                            <td class="text-center">@contrato.FechaFin.ToString("dd/MM/yyyy")</td>
-                            @if (contrato.FechaRescision != null)
-                            {
-                                <td class="text-center text-danger fw-bold">@contrato.FechaRescision?.ToString("dd/MM/yyyy")</td>
-                            }
-                            else
-                            {
-                                <td class="text-center">
-                                    @if (contrato.FechaFin.Date <= DateTime.Now.Date)
-                                    {
-                                        <span class="text-danger fw-bold">Vencido</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-success fw-bold">Activo</span>
-                                    }
-                                </td>
-                            }
-                            <td class="text-center">$@contrato.Monto</td>
-                            <td class="text-center">
-                                @if (contrato.estado)
-                                {
-                                    <span class="text-success">
-                                        <i class="bi bi-check-circle-fill" style="font-size: 1.3em;"></i>
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="text-danger">
-                                        <i class="bi bi-x-circle-fill" style="font-size: 1.3em;"></i>
-                                    </span>
-                                }
-                            </td>
-                            <td class="text-center">
-                                <!-- BOTÓN EDITAR CONTRATO -->
-                                
-                                <a class="btn btn-warning p-1 m-1 w-25" href="#">
-                                    <i class="bi bi-pencil-square"></i> <!-- EDITAR CONTRATO -->
-                                </a>
-                                @*@if(contrato.estado || contrato.FechaFin > DateTime.Now) Ver la condicion*@
-                                @if(contrato.estado && contrato.FechaFin > DateTime.Now)
-                                {
-                                    @if(User.IsInRole("Administrador")){
-                                        <button type="button" class="btn btn-danger p-1 m-1 w-25" onclick="finalizarContrato('@contrato.IdInmueble')">
-                                                <i class="bi bi-door-open-fill"></i>
-                                        </button>
-                                    }
-                                }
-                                @if(contrato.estado && contrato.FechaFin.Date <= DateTime.Now.Date){
-                                    if(User.IsInRole("Administrador")){
-                                        <button type="button" class="btn btn-outline-warning p-1 m-1 w-25" onclick="noRenovarContrato('@contrato.IdContrato')" title="El inmueble tiene un contrato vencido. Finalice el contrato para crear uno nuevo.">
-                                            <i class="bi bi-exclamation-circle-fill"></i>
-                                        </button> 
-                                    }
-                                }
-                                <!-- BOTÓN DE GENERAR PAGOS -->
-                                @if (contrato.FechaRescision != null || !contrato.estado)
-                                {
-                                    <button class="btn btn-secondary p-1 m-1 w-25" disabled>
-                                        <i class="bi bi-cash-stack"></i> <!-- GENERAR PAGOS -->
-                                    </button>
-                                }
-                                else if (contrato.estado && (contrato.FechaRescision == null && contrato.FechaFin.Date <= DateTime.Now.Date))
-                                {
-                                    <a type="button" class="btn btn-primary p-1 m-1 w-25" onclick="abrirModalRenovar(@contrato.IdContrato, @contrato.IdInquilino, @contrato.IdPropietario, @contrato.IdInmueble, @contrato.Monto, '@contrato.FechaFin.ToString(format: "yyyy-MM-dd")')">
-                                        <i class="bi bi-file-check"></i> <!-- Renovar Contrato -->
-                                    </a>
-                                }
-                                else if (contrato.estado)
-                                {
-                                <button type="button" class="btn btn-success p-1 m-1 w-25" data-bs-toggle="modal" data-bs-target="#modalPago_@contrato.IdContrato">
-                                    <i class="bi bi-cash-stack"></i> <!-- GENERAR PAGOS -->
-                                </button>
-
-                                }
-                                <!-- BOTÓN DE IR A PAGOS -->
-                                <button class="btn btn-info p-1 m-1 w-25" onclick="location.href='/Pago/Listar/@contrato.IdContrato'">
-                                    <i class="bi bi-currency-dollar"></i> <!-- IR A PAGOS -->
-                                </button>
-                                <!-- BOTÓN AUDITORIA -->
-                                @if(User.IsInRole("Administrador")){
-                                    <button class="btn btn-success w-25" aria-modal="true" data-bs-toggle="modal" data-bs-target="#modalAuditoria" data-id-contrato="@contrato.IdContrato">
-                                        <i class="bi bi-search"></i> <!-- AUDITORIA -->
-                                    </button>
-                                }
-                                
-                                <!-- MODAL GENERAR PAGO -->
-                                <div class="modal fade" id="modalPago_@contrato.IdContrato" tabindex="-1" aria-labelledby="modalPagoLabel_@contrato.IdContrato" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg">
-                                        <div class="modal-content border-success shadow-lg">
-                                            <div class="modal-header bg-success text-white">
-                                                <h5 class="modal-title" id="modalPagoLabel_@contrato.IdContrato">
-                                                    <i class="bi bi-cash-stack me-2"></i>Generar Pago para Contrato #@contrato.IdContrato
-                                                </h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                            </div>
-                                            <div class="modal-body bg-light">
-                                                <form id="formPago_@contrato.IdContrato" action="/Pago/Create" method="post" autocomplete="off">
-                                                    <div class="mb-3">
-                                                        <label for="importe_@contrato.IdContrato" class="form-label text-dark ">Importe</label>
-                                                        <input type="number" class="form-control" id="importe_@contrato.IdContrato" name="Importe" required value="@(contrato.Monto)">
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="fechaConfeccion_@contrato.IdContrato" class="form-label text-dark">Fecha de Confeccion</label>
-                                                        <input type="date" class="form-control" id="fechaConfeccion_@contrato.IdContrato" name="fechaConfeccion" required value="@(DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd"))">
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="detallePago_@contrato.IdContrato" class="form-label text-dark">Detalle</label>
-                                                        <textarea class="form-control" id="detallePago_@contrato.IdContrato" name="Detalle" rows="2"></textarea>
-                                                    </div>
-                                                    <input type="hidden" name="IdContrato" value="@contrato.IdContrato" />
-                                                    <div class="d-flex justify-content-end">
-                                                        <button type="submit" class="btn btn-success">Crear Pago</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
-    </div>
-        <div class="col d-flex w-100 justify-content-between" id="contenedorPaginacion">
-            <nav aria-label="Page navigation">
-                <ul class="pagination">
-                    @if (Pagina > 1)
-                    {
-                        @* <li class="page-item">
-                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = Pagina - 1, disponibilidad = disponibilidad, fechaCompare = fechaCompare })" aria-label="Anterior">
-                                <i class="bi bi-chevron-double-left"></i>
-                            </a>
-                        </li> *@
-                        <li class="page-item">
-                            <a class="page-link" onclick="cambiarPagina(@(Pagina - 1))"  aria-label="Anterior">
-                                <i class="bi bi-chevron-double-left"></i>
-                            </a>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
-                        </li>
-                    }
-                    @for (int i = 1; i <= Model!.cantidadTotalDePaginas; i++)
-                    {
-                        @* <li class="page-item @(i == Pagina ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = i, disponibilidad = disponibilidad, fechaCompare = fechaCompare  })">@i</a>
-                        </li> *@
-                        <li class="page-item @(i == Pagina ? "active" : "")">
-                            <a class="page-link" onclick="cambiarPagina(@i)">@i</a>
-                        </li>
-                    }
-                    @if (Pagina < Model.cantidadTotalDePaginas)
-                    {
-                        <li class="page-item">
-                            <a class="page-link" onclick="cambiarPagina(@(Pagina + 1))" aria-label="Siguiente">
-                                <i class="bi bi-chevron-double-right"></i>
-                            </a>
-                        </li>
-                        @* <li class="page-item">
-                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = Pagina + 1, disponibilidad = disponibilidad, fechaCompare = fechaCompare  })" aria-label="Siguiente">
-                                <i class="bi bi-chevron-double-right"></i>
-                            </a>
-                        </li> *@
-                    }
-                    else
-                    {
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="bi bi-chevron-double-right"></i></span>
-                        </li>
-                    }
-                </ul>
-            </nav>
-            <button class="btn btn-danger h-100" onclick="window.location.href='/'">Volver</button>
-        </div>
-
- <div class="modal fade" id="modalAuditoria" tabindex="-1" aria-labelledby="modalAuditoriaLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalAuditoriaLabel">Registros de Auditoría</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="table-container table-container2">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Id Contrato</th>
-                                    <th>Nombre</th>
-                                    <th>Apellido</th>
-                                    <th>DNI</th>
-                                    <th>Motivo</th>
-                                    <th>Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaAuditoria">
-                               
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 <script>
     let pagina = @Pagina;
     let ultimaDisponibilidadSeleccionada = document.querySelector('input[name="disponibilidad"]:checked')?.value || '';
@@ -589,7 +231,7 @@
             }
         });
 
-// Modificar tu función buscarAuditoriaContrato
+
 async function buscarAuditoriaContrato(idContrato){
     try{
         const response = await fetch(`/contrato/buscarAuditoria/${idContrato}`);
@@ -656,3 +298,311 @@ async function buscarAuditoriaContrato(idContrato){
             }
         });
 </script>
+
+<div class="modal fade" id="modalRenovarFechaFin" tabindex="-1" aria-labelledby="modalRenovarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            
+            <form method="post" action="/contrato/renovarContrato" id="formRenovarContrato">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRenovarLabel">Renovar Contrato</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nuevaFechaInicio" class="form-label">Nueva Fecha de Inicio</label>
+                        <input type="date" id="nuevaFechaInicio" name="FechaInicio" class="form-control" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label for="nuevaFechaFin" class="form-label">Nueva Fecha de Fin</label>
+                        <input type="date" id="nuevaFechaFin" name="FechaFin" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="nuevoMonto" class="form-label">Monto</label>
+                        <input type="number" id="nuevoMonto" name="Monto" class="form-control" min="1" required />
+                    </div>
+                    
+                    <input type="hidden" id="hiddenIdContrato" name="IdContrato" />
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Confirmar Renovación</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div>
+    <h2 class="text-center mt-4 text-white fs-2">Lista de Contratos Registrados</h2>
+</div>
+@{
+    var disponibilidad = Context.Request.Query["disponibilidad"].FirstOrDefault() ?? "";
+    var fechaCompare = Context.Request.Query["fechaCompare"].FirstOrDefault() ?? "";
+}
+<!-- FILTRO POR DISPONIBILIDAD -->
+<div class="d-flex justify-content-start mt-4 mb-3 w-100 align-items-center">
+    <div class="w-25 ms-2">
+        <form method="get" asp-action="GetAllContratos" class="" id="filtroForm">
+            <div class="btn-group" role="group" aria-label="Filtrar por disponibilidad">
+                <input type="radio" class="btn-check" name="disponibilidad" id="todos" onchange="pagina = 1; actualizarContenido()" value=""   @(disponibilidad == "" ? "checked" : "" )>
+                <label class="btn btn-outline-primary" for="todos">Todos</label>
+                <input type="radio" class="btn-check" name="disponibilidad" id="vigente" onchange="pagina = 1; actualizarContenido()" value="vigente" @(disponibilidad == "vigente" ? "checked" : "")>
+                <label class="btn btn-outline-success" for="vigente">Vigentes</label>
+                <input type="radio" class="btn-check" name="disponibilidad" id="no vigente" onchange="pagina = 1; actualizarContenido()" value="no vigente" @(disponibilidad == "no vigente" ? "checked" : "")>
+                <label class="btn btn-outline-danger" for="no vigente">No vigentes</label>
+            </div>
+            <input type="hidden" name="fechaCompare" value="@fechaCompare" />
+        </form>
+    </div>
+    @* <div class="w-25"></div> *@
+    @* <div class="w-25"></div> *@
+    <div class="w-50 text-center ">
+        <input type="text"  id="inputFiltroInmueble" class="form-control" placeholder="Buscar por inmueble (Direccion del inmueble)" aria-label="Buscar por inmueble">
+    </div>
+    <!-- FILTRO POR FECHA DE VENCIMIENTO -->
+    <div class="w-25 ms-5">
+        <form method="get" asp-action="GetAllContratos" class="me-3" id="fechaCompareForm">
+        
+            <div class="btn-group" role="group" aria-label="Filtrar por fecha">
+                <input type="radio" class="btn-check" onchange="pagina = 1; actualizarContenido()" name="fechaCompare" id="dias30" value="30" @(fechaCompare == "30" ? "checked" : "")>
+                <label class="btn btn-outline-danger" for="dias30">30 Días</label>
+                <input type="radio" class="btn-check" onchange="pagina = 1; actualizarContenido()" name="fechaCompare" id="dias60" value="60" @(fechaCompare == "60" ? "checked" : "")>
+                <label class="btn btn-outline-warning" onchange="pagina = 1; actualizarContenido()" for="dias60">60 Días</label>
+                <input type="radio" class="btn-check" onchange="pagina = 1; actualizarContenido()" name="fechaCompare" id="dias90" value="90" @(fechaCompare == "90" ? "checked" : "")>
+                <label class="btn btn-outline-success" for="dias90">90 Días</label>
+            </div>
+            <input type="hidden" name="disponibilidad" value="@disponibilidad" />
+        </form>
+    </div>
+   
+</div>
+
+    
+    <div class="table-container" id="contenedorTabla" style="min-height: 400px;">
+        <table class="table table-striped table-bordered mt-2 table-dark mb-3" id="contratosTable">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th style="width: 5%;">ID</th>
+                    <th style="width: 10%;">Inquilino</th>
+                    <th style="width: 10%;">Propietario</th>
+                    <th style="width: 10%;">Inmueble</th>
+                    <th style="width: 10%;">Fecha Inicio</th>
+                    <th style="width: 10%;">Fecha Fin</th>
+                    <th style="width: 10%;">Rescisión</th>
+                    <th style="width: 10%;">Monto</th>
+                    <th style="width: 10%;">Estado</th>
+                    <th style="width: 15%;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.contratos != null)
+                {
+                    foreach (Contrato contrato in Model.contratos)
+                    {
+                        
+                        <tr>
+                            <td class="text-center">@contrato.IdContrato</td>
+                            <td class="text-center">@contrato.Inquilino?.Nombre @contrato.Inquilino?.Apellido - @contrato.Inquilino.Dni</td>
+                            <td class="text-center">@contrato.Propietario?.Nombre @contrato.Propietario?.Apellido - @contrato.Propietario.Dni</td>
+                            <td class="text-center">@contrato.inmueble?.Direccion</td>
+                            <td class="text-center">@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">@contrato.FechaFin.ToString("dd/MM/yyyy")</td>
+                            @if (contrato.FechaRescision != null)
+                            {
+                                <td class="text-center text-danger fw-bold">@contrato.FechaRescision?.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                                <td class="text-center">
+                                    @if (contrato.FechaFin.Date <= DateTime.Now.Date)
+                                    {
+                                        <span class="text-danger fw-bold">Vencido</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-success fw-bold">Activo</span>
+                                    }
+                                </td>
+                            }
+                            <td class="text-center">$@contrato.Monto</td>
+                            <td class="text-center">
+                                @if (contrato.estado)
+                                {
+                                    <span class="text-success">
+                                        <i class="bi bi-check-circle-fill" style="font-size: 1.3em;"></i>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">
+                                        <i class="bi bi-x-circle-fill" style="font-size: 1.3em;"></i>
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                
+                                <!-- BOTÓN DE GENERAR PAGOS -->
+                                @if (contrato.FechaRescision != null || !contrato.estado)
+                                {
+                                    <button class="btn btn-secondary p-1 m-1 w-25" disabled>
+                                        <i class="bi bi-cash-stack"></i> <!-- GENERAR PAGOS -->
+                                    </button>
+                                }
+                                else if (contrato.estado && (contrato.FechaRescision == null && contrato.FechaFin.Date <= DateTime.Now.Date))
+                                {
+                                    <a type="button" class="btn btn-primary p-1 m-1 w-25" onclick="abrirModalRenovar(@contrato.IdContrato, @contrato.IdInquilino, @contrato.IdPropietario, @contrato.IdInmueble, @contrato.Monto, '@contrato.FechaFin.ToString(format: "yyyy-MM-dd")')">
+                                        <i class="bi bi-file-check"></i> <!-- Renovar Contrato -->
+                                    </a>
+                                }
+                                else if (contrato.estado)
+                                {
+                                <button type="button" class="btn btn-success p-1 m-1 w-25" data-bs-toggle="modal" data-bs-target="#modalPago_@contrato.IdContrato">
+                                    <i class="bi bi-cash-stack"></i> <!-- GENERAR PAGOS -->
+                                </button>
+
+                                }
+                                <!-- BOTÓN DE IR A PAGOS -->
+                                <button class="btn btn-info p-1 m-1 w-25" onclick="location.href='/Pago/Listar/@contrato.IdContrato'">
+                                    <i class="bi bi-currency-dollar"></i> <!-- IR A PAGOS -->
+                                </button>
+                                <!-- BOTÓN AUDITORIA -->
+                                @if(User.IsInRole("Administrador")){
+                                    <button class="btn btn-success w-25" aria-modal="true" data-bs-toggle="modal" data-bs-target="#modalAuditoria" data-id-contrato="@contrato.IdContrato">
+                                        <i class="bi bi-search"></i> <!-- AUDITORIA -->
+                                    </button>
+                                }
+                                
+                                <!-- MODAL GENERAR PAGO -->
+                                <div class="modal fade" id="modalPago_@contrato.IdContrato" tabindex="-1" aria-labelledby="modalPagoLabel_@contrato.IdContrato" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content border-success shadow-lg">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title" id="modalPagoLabel_@contrato.IdContrato">
+                                                    <i class="bi bi-cash-stack me-2"></i>Generar Pago para Contrato #@contrato.IdContrato
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                            </div>
+                                            <div class="modal-body bg-light">
+                                                <form id="formPago_@contrato.IdContrato" action="/Pago/Create" method="post" autocomplete="off">
+                                                    <div class="mb-3">
+                                                        <label for="importe_@contrato.IdContrato" class="form-label text-dark ">Importe</label>
+                                                        <input type="number" class="form-control" id="importe_@contrato.IdContrato" name="Importe" required value="@(contrato.Monto)">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="fechaConfeccion_@contrato.IdContrato" class="form-label text-dark">Fecha de Confeccion</label>
+                                                        <input type="date" class="form-control" id="fechaConfeccion_@contrato.IdContrato" name="fechaConfeccion" required value="@(DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd"))">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="detallePago_@contrato.IdContrato" class="form-label text-dark">Detalle</label>
+                                                        <textarea class="form-control" id="detallePago_@contrato.IdContrato" name="Detalle" rows="2"></textarea>
+                                                    </div>
+                                                    <input type="hidden" name="IdContrato" value="@contrato.IdContrato" />
+                                                    <div class="d-flex justify-content-end">
+                                                        <button type="submit" class="btn btn-success">Crear Pago</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+        <div class="col d-flex w-100 justify-content-between" id="contenedorPaginacion">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    @if (Pagina > 1)
+                    {
+                        @* <li class="page-item">
+                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = Pagina - 1, disponibilidad = disponibilidad, fechaCompare = fechaCompare })" aria-label="Anterior">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li> *@
+                        <li class="page-item">
+                            <a class="page-link" onclick="cambiarPagina(@(Pagina - 1))"  aria-label="Anterior">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
+                        </li>
+                    }
+                    @for (int i = 1; i <= Model!.cantidadTotalDePaginas; i++)
+                    {
+                        @* <li class="page-item @(i == Pagina ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = i, disponibilidad = disponibilidad, fechaCompare = fechaCompare  })">@i</a>
+                        </li> *@
+                        <li class="page-item @(i == Pagina ? "active" : "")">
+                            <a class="page-link" onclick="cambiarPagina(@i)">@i</a>
+                        </li>
+                    }
+                    @if (Pagina < Model.cantidadTotalDePaginas)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" onclick="cambiarPagina(@(Pagina + 1))" aria-label="Siguiente">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                        @* <li class="page-item">
+                            <a class="page-link" href="@Url.Action("GetAllContratos", "Contrato", new { nroPagina = Pagina + 1, disponibilidad = disponibilidad, fechaCompare = fechaCompare  })" aria-label="Siguiente">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li> *@
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="bi bi-chevron-double-right"></i></span>
+                        </li>
+                    }
+                </ul>
+            </nav>
+            <button class="btn btn-danger h-100" onclick="window.location.href='/'">Volver</button>
+        </div>
+
+ <div class="modal fade" id="modalAuditoria" tabindex="-1" aria-labelledby="modalAuditoriaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAuditoriaLabel">Registros de Auditoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-container table-container2">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Id Contrato</th>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>DNI</th>
+                                    <th>Motivo</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaAuditoria">
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
