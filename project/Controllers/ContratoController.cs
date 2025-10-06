@@ -193,13 +193,29 @@ namespace project.Controllers
                 return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error en el servicio de contratos", resultado.Item1);
             if (!resultado.Item2)
                 return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error al renovar el contrato", "No se pudo renovar el contrato.");
+            (string?, Contrato?) contratoOld = await _contratoService.GetContratoById(request.IdContrato);
+            if (contratoOld.Item1 != null || contratoOld.Item2 == null)
+                return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error en el servicio de contratos", "No se pudo renovar el contratoOld.");
+            (string?, List<Contrato>?) contratosResult = await _contratoService.GetContratoByIdInmueble(contratoOld.Item2.IdInmueble);
+            if (contratosResult.Item1 != null)
+            {
+                return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error en el servicio de contratos", contratosResult.Item1);
+            }
+            Contrato? contrato = contratosResult.Item2 != null && contratosResult.Item2.Count > 0 ? contratosResult.Item2.FirstOrDefault() : null;
+            await _auditoriaService.CreateAuditoria(new Auditoria(
+                    idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
+                    idContrato: request.IdContrato,
+                    idPago: null,
+                    MotivoAuditoria: "Renovación de contrato"
+                ));
             await _auditoriaService.CreateAuditoria(new Auditoria(
                 idUsuario: User.Claims.FirstOrDefault(c => c.Type == "idUsuario") != null ? int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) : 0,
-                idContrato: request.IdContrato,
+                idContrato: contrato?.IdContrato ?? 0,
                 idPago: null,
-                MotivoAuditoria: "Renovación de contrato"
+                MotivoAuditoria: "Renovación - Creación de contrato"
             ));
-            return this.RedirectToActionWithSuccess("GetAllContratos", "Contrato", "Contrato Renovado exitosamente", $"Contrato renovado. Periodo: {request.FechaInicio.ToString("dd/MM/yyyy")} - {request.FechaFin.ToString("dd/MM/yyyy") } - Monto: ${request.Monto}");
+            
+            return this.RedirectToActionWithSuccess("GetAllContratos", "Contrato", "Contrato Renovado exitosamente", $"Contrato renovado. Periodo: {request.FechaInicio.ToString("dd/MM/yyyy")} - {request.FechaFin.ToString("dd/MM/yyyy")} - Monto: ${request.Monto}");
 
         }
         [HttpGet("contrato/noRenovar/{idContrato}")]
