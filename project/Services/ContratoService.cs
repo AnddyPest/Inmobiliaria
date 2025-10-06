@@ -14,27 +14,29 @@ namespace project.Services
         private IPropietarioService _propietarioService = propietarioService;
         private IInquilinoService _inquilinoService = inquilinoService;
         private IInmuebleService _inmuebleService = inmuebleService;
-        public async Task<(string?, bool)> CreateContrato(Contrato contrato) //testear
+        public async Task<(string?, bool, int?)> CreateContrato(Contrato contrato) //testear
         {
             try
             {
-                if (contrato == null) return ("El contrato no puede ser nulo.", false);
-                if (this.ComprobarContratoActivoPorIdInmueble(contrato.IdInmueble).Result.Item2)
-                    return ($"El inmueble con Id {contrato.IdInmueble} ya tiene un contrato activo.", false);
+                if (contrato == null) return ("El contrato no puede ser nulo.", false, null);
+                // if (this.ComprobarContratoActivoPorIdInmueble(contrato.IdInmueble).Result.Item2)
+                //     return ($"El inmueble con Id {contrato.IdInmueble} ya tiene un contrato activo.", false);
                 (string?, Inquilino?) inquilinoFinded = await _inquilinoService.GetInquilinoById(contrato.IdInquilino);
                 if (inquilinoFinded.Item1 != null)
-                    return ($"No se encontró un inquilino con Id {contrato.IdInquilino}.", false);
+                    return ($"No se encontró un inquilino con Id {contrato.IdInquilino}.", false, null);
                 (string?, Propietario?) propietarioFinded = await _propietarioService.getPropietarioById(contrato.IdPropietario);
                 if (propietarioFinded.Item1 != null)
-                    return ($"No se encontró un propietario con Id {contrato.IdPropietario}.", false);
+                    return ($"No se encontró un propietario con Id {contrato.IdPropietario}.", false, null);
                 if (inquilinoFinded.Item2!.IdPersona == propietarioFinded.Item2!.IdPersona)
-                    return ($"Un propietario no puede alquilar su propia propiedad", false);
+                    return ($"Un propietario no puede alquilar su propia propiedad", false, null);
                 if (await ValidarNoSuperposicionFechas(contrato.IdInmueble, contrato.FechaInicio, contrato.FechaFin) is (string error, bool result) && error != null && !result)
-                    return (error, false);
+                    return (error, false, null);
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     string query = @"INSERT INTO Contrato (IdInquilino, IdInmueble, IdPropietario, Monto, FechaInicio, FechaFin, estado) 
-                                     VALUES (@IdInquilino, @IdInmueble, @IdPropietario, @Monto, @FechaInicio, @FechaFin, 1)";
+                             VALUES (@IdInquilino, @IdInmueble, @IdPropietario, @Monto, @FechaInicio, @FechaFin, 1);
+                             SELECT LAST_INSERT_ID();";
+
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@IdInquilino", contrato.IdInquilino);
@@ -45,14 +47,16 @@ namespace project.Services
                         command.Parameters.AddWithValue("@FechaFin", contrato.FechaFin);
 
                         await connection.OpenAsync();
-                        int rowsAffected = await command.ExecuteNonQueryAsync();
-                        if (rowsAffected == 0)
+                        int idContratoCreado = Convert.ToInt32(await command.ExecuteScalarAsync());
+
+                        if (idContratoCreado > 0)
                         {
-                            await connection.CloseAsync();
-                            return ("No se pudo crear el contrato.", false);
+                            return (null, true ,idContratoCreado);
                         }
-                        await connection.CloseAsync();
-                        return (null, true);
+                        else
+                        {
+                            return ("No se pudo crear el contrato.", false, null);
+                        }
                     }
                 }
             }
@@ -60,7 +64,7 @@ namespace project.Services
             {
 
                 HelperFor.imprimirMensajeDeError(ex.Message, nameof(ContratoService), nameof(CreateContrato));
-                return (ex.Message, false);
+                return (ex.Message, false, null);
             }
         }
         public async Task<(string?, bool)> UpdateContrato(Contrato contrato) //testear
@@ -71,11 +75,11 @@ namespace project.Services
             if (contratoExistente.Item1 != null) return (contratoExistente.Item1, false);
             if (contratoExistente.Item2 == null) return ($"No se encontró un contrato con Id {contrato.IdContrato}.", false);
             if (contratoExistente.Item2.estado == false) return ("No se puede actualizar un contrato que está dado de baja.", false);
-            if (contratoExistente.Item2.IdInmueble != contrato.IdInmueble)
-            {
-                if (this.ComprobarContratoActivoPorIdInmueble(contrato.IdInmueble).Result.Item2)
-                    return ($"El inmueble con Id {contrato.IdInmueble} ya tiene un contrato activo.", false);
-            }
+            // if (contratoExistente.Item2.IdInmueble != contrato.IdInmueble)
+            // {
+            //     if (this.ComprobarContratoActivoPorIdInmueble(contrato.IdInmueble).Result.Item2)
+            //         return ($"El inmueble con Id {contrato.IdInmueble} ya tiene un contrato activo.", false);
+            // }
             (string?, Inquilino?) inquilinoFinded = await _inquilinoService.GetInquilinoById(contrato.IdInquilino);
             if (inquilinoFinded.Item1 != null)
                 return ($"No se encontró un inquilino con Id {contrato.IdInquilino}.", false);
@@ -604,7 +608,12 @@ namespace project.Services
                     return ($"No se encontró un inmueble con Id {idInmueble}.", false);
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    string query = "SELECT COUNT(*) FROM Contrato WHERE IdInmueble = @IdInmueble AND FechaFin >= CURDATE() AND estado = 1";
+                    string query = @"SELECT COUNT(*) FROM Contrato 
+                            WHERE IdInmueble = @IdInmueble 
+                            AND FechaInicio <= CURDATE() 
+                            AND FechaFin >= CURDATE() 
+                            AND (FechaRescision IS NULL OR FechaRescision > CURDATE())
+                            AND estado = 1";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@IdInmueble", idInmueble);

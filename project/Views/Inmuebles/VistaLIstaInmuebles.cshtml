@@ -15,415 +15,7 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-    
-    window.Model = {
-        inmueble: @Html.Raw(JsonConvert.SerializeObject(Model.inmueble))
-    };
-    const fechaInicioInput = document.getElementById('fechaInicio');
-    const fechaFinInput = document.getElementById('fechaFin');
 
-    let tomorrow = new Date();
-    function aplicarFiltrosv2() {
-        const filtroDisponibilidad = document.getElementById('selectDisponible').value;
-        const filtroDni = document.getElementById("inputDniFiltro").value;
-        const filtroUso = document.getElementById('selectUso').value;
-        const selectTipo = document.getElementById('selectTipo').value;
-        const inputCantAmbientes = document.getElementById('inputCantAmbientes').value;
-        const inputPrecioAproximado = document.getElementById('inputPrecioAproximado').value;
-        const inputInicio = document.getElementById('inputInicioAlquiler').value;
-        const inputFin = document.getElementById('inputFinAlquiler').value;
-        const params = new URLSearchParams();
-        if(filtroDisponibilidad !== '') {
-            params.append('disponibilidad', filtroDisponibilidad);
-        }
-        if(filtroDni !== "" && filtroDni.length == 8){
-            params.append('dniPropietario', filtroDni);
-        }
-        if(filtroUso !== '') {
-            params.append('uso', filtroUso);
-        }
-        if(selectTipo !== '') {
-            params.append('tipo', selectTipo);
-        }
-        if(inputCantAmbientes !== '') {
-            params.append('cantAmbientes', inputCantAmbientes);
-        }
-        if(inputPrecioAproximado !== '' || inputPrecioAproximado.length != 0) {
-            params.append('precio', inputPrecioAproximado);
-        }
-        if(inputInicio !== '' || inputInicio.length != 0) {
-            params.append('fechaDesde', inputInicio);
-        }
-        if(inputFin !== '' || inputFin.length != 0) {
-            params.append('fechaHasta', inputFin);
-        }
-        
-        window.location.href = `/inmueble/listar?${params.toString()}`;
-        
-    }
-
-        function abrirNuevoContratoModal(id, direccion) {
-            var modal = new bootstrap.Modal(document.getElementById('nuevoContratoModal'));
-            document.getElementById('idInmueble').value = id;
-            document.getElementById('direccionInmueble').value = direccion;
-            // BUSCA EL INMUEBLE Y ASIGNA IDPROPIETARIO Y MONTO
-            if (window.Model && window.Model.inmueble) {
-                var inmueble = window.Model.inmueble.find(i => i.IdInmueble == id);
-                console.log('Inmueble seleccionado al abrir modal:', inmueble);
-                if (inmueble && inmueble.IdPropietario) {
-                    document.getElementById('IdPropietario').value = inmueble.IdPropietario;
-                    console.log('IdPropietario asignado al abrir modal:', inmueble.IdPropietario);
-                } else {
-                    document.getElementById('IdPropietario').value = '';
-                    console.warn('No se encontró IdPropietario para el inmueble seleccionado');
-                }
-                // AUTORRELLENA MONTO CON EL PRECIO DEL INMUEBLE
-                var montoInput = document.getElementById('Monto');
-                if (montoInput && inmueble && inmueble.Precio) {
-                    montoInput.value = inmueble.Precio;
-                    console.log('Monto alquiler autorellenado con precio:', inmueble.Precio);
-                } else if (montoInput) {
-                    montoInput.value = '';
-                    console.warn('No se encontró precio para el inmueble seleccionado');
-                } else {
-                    console.error("No se encontró el input 'Monto' en el DOM");
-                }
-            } else {
-                console.warn('window.Model.inmueble no está disponible');
-            }
-            // CAMPO DE RANGO DE FECHAS
-            async function initFlatpickr() {
-                const resp = await fetch(`/Inmueble/FechasOcupadas/${id}`);
-                const fechasOcupadas = await resp.json();
-                flatpickr("#rangoFechas", {
-                    mode: "range",
-                    showMonths: 4,
-                    dateFormat: "Y-m-d",
-                    disable: fechasOcupadas,
-                    locale: { rangeSeparator: " a " },
-                    onDayCreate: function(dObj, dStr, fp, dayElem) {
-                    
-                    if (fechasOcupadas.includes(dayElem.dateObj.toISOString().slice(0, 10))) {
-                        dayElem.style.background = "rgba(255,0,0,0.4)";
-                        
-                        dayElem.style.cursor = "not-allowed";
-                        dayElem.style.color = "rgba(255,0,0,0.9)";
-                    }
-                }
-                    
-                });
-            }
-            document.getElementById("btnRegistrarContrato").disabled = true;
-
-            document.getElementById("rangoFechas").addEventListener("change", function() {
-                
-                if(this.value == "" || !this.value.includes(" a ")){ 
-                    this.value = null;
-                    document.getElementById("btnRegistrarContrato").disabled = true;
-                }else{
-                    document.getElementById("btnRegistrarContrato").disabled = false;
-                }
-            })
-            setTimeout(initFlatpickr, 200);
-            modal.show();
-            
-        document.getElementById('formContrato').addEventListener('submit', function(e) {
-            const rango = document.getElementById('rangoFechas').value.split(' a ');
-            document.getElementById('fechaInicio').value = rango[0] || '';
-            document.getElementById('fechaFin').value = rango[1] || '';
-            // Asignamos los valores de fecha inicio y fecha fin antes de hacer el sbmit, haciendo un
-            // split por " a " en el selector de rango de fechas. A ver si funca.
-        });
-        }
-        function actualizarContador(valor){
-            sessionStorage.setItem('contador', valor);
-            console.log('Contador actualizado:', valor);
-        }
-        function limpiarFiltrosv2() {
-            const todosLosCampos = document.querySelectorAll("input , select");
-            todosLosCampos.forEach( campo => {
-                if(campo.tagName == "SELECT"){
-                    campo.selectedIndex = 0;
-                }else{
-                    campo.value = "";
-                }
-            })
-
-            actualizarContador(0);
-            aplicarFiltrosv2();
-        }
-        // GESTION DEL DNI DEL INQUILINO - FUNCIONA BIEN
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectDisponibilidad = document.getElementById('selectDisponible');
-            const inputInicio = document.getElementById('inputInicioAlquiler');
-            const inputFin = document.getElementById('inputFinAlquiler');
-            
-            
-            const dniInput = document.getElementById("dniInquilino");
-            if (!dniInput) return;
-            let inquilinoExiste = false;
-            let idInquilinoActual = null;
-            //inputInicio.min = new Date().toISOString().split('T')[0];
-            //fechaInicioInput.max = new Date().toISOString().split('T')[0];
-            if(inputInicio && inputFin){
-                inputInicio.addEventListener('change', function() {
-                    
-                    inputFin.min = this.value;
-                    if(inputFin.value == ""){
-                        inputFin.value = this.value;
-                    }
-                    if(inputFin.value < inputInicio.value){
-                        inputFin.value = inputInicio.value;
-                    }
-                });
-                inputFin.addEventListener('change', function() {
-                    inputInicio.max = this.value;
-                    if(inputInicio.value == ""){
-                        inputInicio.value = this.value;
-                    }
-                    if(inputInicio.value > inputFin.value){
-                        inputInicio.value = inputFin.value;
-                    }
-                });
-            }
-            
-            dniInput.addEventListener("input", function() {
-                const original = this.value;
-                const filtrado = original.replace(/[^0-9]/g, '');
-                if(this.value.length > 8){
-                    this.value = this.value.slice(0, 8);
-                }
-                if (original !== filtrado ) {
-                    const prevPlaceholder = this.placeholder;
-                    this.value = filtrado;
-                    this.placeholder = "SOLO NÚMEROS";
-                    this.classList.add("placeholder-error");
-                    this.style.color = "#dc3545";
-                    this.style.fontWeight = "bold";
-                    this.style.borderColor = "#dc3545";
-                    setTimeout(() => {
-                        this.classList.remove("placeholder-error");
-                        this.placeholder = prevPlaceholder;
-                        this.style.color = "";
-                        this.style.fontWeight = "";
-                        this.style.borderColor = "";
-                    }, 900);
-                }
-                
-            });
-            
-            dniInput.addEventListener("keyup", function() {
-                const dni = this.value;
-                if (dni.length >= 8) {
-                    fetch('/Inquilino/BuscarPorDni?dni=' + dni)
-                        .then(response => {
-                            if (!response.ok) throw new Error('No se encontró la persona');
-                            return response.json();
-                        })
-                        .then(data => {
-                            document.getElementById('nombreInquilino').value = data.nombre || '';
-                            document.getElementById('apellidoInquilino').value = data.apellido || '';
-                            document.getElementById('telefonoInquilino').value = data.telefono || '';
-                            document.getElementById('direccionInquilino').value = data.direccion || '';
-                            document.getElementById('emailInquilino').value = data.email || '';
-                            ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
-                                document.getElementById(id).disabled = true;
-                            });
-                            // SI ENCONTRAMOS EL INQUILINO POR DNI ASIGNAMOS SU ID AL CAMPO OCULTO Y RELLENAMOS LOS CAMPOS|
-                            if (data.esInquilino) {
-                                if (data.idInquilino) {
-                                    document.getElementById('IdInquilino').value = data.idInquilino;
-                                    console.log('IdInquilino asignado al campo oculto (existente):', data.idInquilino);
-                                } else {
-                                    document.getElementById('IdInquilino').value = '';
-                                    console.warn('No se recibió idInquilino para el inquilino existente');
-                                }
-                                inquilinoExiste = true;
-                                idInquilinoActual = true;
-                            } else {
-                                document.getElementById('IdInquilino').value = '';
-                                inquilinoExiste = false;
-                                idInquilinoActual = null;
-                            }
-                        })
-                        .catch(() => {
-                            document.getElementById('nombreInquilino').value = '';
-                            document.getElementById('apellidoInquilino').value = '';
-                            document.getElementById('telefonoInquilino').value = '';
-                            document.getElementById('direccionInquilino').value = '';
-                            document.getElementById('emailInquilino').value = '';
-                            ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
-                                document.getElementById(id).removeAttribute('disabled');
-                            });
-                            document.getElementById('IdInquilino').value = '';
-                            inquilinoExiste = false;
-                            idInquilinoActual = null;
-                        });
-                } else {
-                    document.getElementById('nombreInquilino').value = '';
-                    document.getElementById('apellidoInquilino').value = '';
-                    document.getElementById('telefonoInquilino').value = '';
-                    document.getElementById('direccionInquilino').value = '';
-                    document.getElementById('emailInquilino').value = '';
-                    ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
-                        document.getElementById(id).setAttribute('disabled', 'disabled');
-                    });
-                    document.getElementById('IdInquilino').value = '';
-                    inquilinoExiste = false;
-                    idInquilinoActual = null;
-                }
-            });
-            
-            // HABILITAMOS LOS CAMPOS PARA ENVIAR EL FORMULARIO
-            document.getElementById('formContrato').addEventListener('submit', async function(e) {
-                ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
-                    document.getElementById(id).removeAttribute('disabled');
-                });
-                // ASIGNA IDPROPIETARIO AL CAMPO OCULTO
-                var idProp = null;
-                if (window.Model && window.Model.inmueble) {
-                    var idInmueble = document.getElementById('idInmueble').value;
-                    var inmueble = window.Model.inmueble.find(i => i.IdInmueble == idInmueble);
-                    console.log('Objeto inmueble seleccionado:', inmueble);
-                    if (inmueble && inmueble.IdPropietario) {
-                        idProp = inmueble.IdPropietario;
-                    }
-                }
-                document.getElementById('IdPropietario').value = idProp || '';
-                console.log('IdPropietario asignado al campo oculto:', document.getElementById('IdPropietario').value);
-
-                // SI NO EXISTE EL INQUILINO, LO CREA Y ESPERA PARA OBTENER SU ID
-                if (!inquilinoExiste) {
-                    e.preventDefault();
-                    // CREAMOS EL INQUILINO CON PREVENT REDIRECT PARA NO CORTAR EL FLUJO
-                    const formData = new FormData();
-                    formData.append('Dni', document.getElementById('dniInquilino').value);
-                    formData.append('Nombre', document.getElementById('nombreInquilino').value);
-                    formData.append('Apellido', document.getElementById('apellidoInquilino').value);
-                    formData.append('Telefono', document.getElementById('telefonoInquilino').value);
-                    formData.append('Direccion', document.getElementById('direccionInquilino').value);
-                    formData.append('Email', document.getElementById('emailInquilino').value);
-                    console.log('Enviando datos para crear inquilino:', Object.fromEntries(formData.entries()));
-                    fetch('/inquilino/Create?preventRedirect=true', {
-                        method: 'POST',
-                        body: formData
-                    }).then(async resp => {
-                        // AWAITEA Q SE CREE Y LUEGO BUSCA EL ID
-                        const dni = document.getElementById('dniInquilino').value;
-                        setTimeout(async () => {
-                            try {
-                                const resp2 = await fetch('/Inquilino/BuscarPorDni?dni=' + dni);
-                                if (resp2.ok) {
-                                    const data = await resp2.json();
-                                    console.log('Respuesta de BuscarPorDni:', data);
-                                    if (data.esInquilino && data.idInquilino) {
-                                        document.getElementById('IdInquilino').value = data.idInquilino;
-                                        inquilinoExiste = true;
-                                        console.log('IdInquilino obtenido y asignado al campo oculto:', document.getElementById('IdInquilino').value);
-                                        // REENVIA EL FORMULARIO CONTRATO
-                                        document.getElementById('formContrato').submit();
-                                    } else {
-                                        console.error('No se pudo obtener el id del nuevo inquilino. Verifique que el backend devuelva idInquilino en /Inquilino/BuscarPorDni');
-                                    }
-                                } else {
-                                    console.error('Error al buscar el nuevo inquilino.');
-                                }
-                            } catch (err) {
-                                console.error('Error inesperado al buscar el nuevo inquilino.', err);
-                            }
-                        }, 1000);
-                    }).catch(() => {
-                        console.error('Error al crear el inquilino.');
-                    });
-                } else {
-                    // SI EL INQUILINO YA EXISTE, ASEGURA LA ASIGNACION DEL ID
-                    if (!document.getElementById('IdInquilino').value) {
-                        const dni = document.getElementById('dniInquilino').value;
-                        const resp = await fetch('/Inquilino/BuscarPorDni?dni=' + dni);
-                        if (resp.ok) {
-                            const data = await resp.json();
-                            console.log('Respuesta de BuscarPorDni (inquilino ya existe):', data);
-                            if (data.idInquilino) {
-                                document.getElementById('IdInquilino').value = data.idInquilino;
-                                console.log('IdInquilino asignado al campo oculto:', document.getElementById('IdInquilino').value);
-                            } else {
-                                console.error('No se encontró idInquilino en la respuesta.');
-                            }
-                        } else {
-                            console.error('Error al buscar el inquilino existente.');
-                        }
-                    } else {
-                        console.log('IdInquilino ya presente en el campo oculto:', document.getElementById('IdInquilino').value);
-                    }
-                }
-                // ANTES DE ENVIAR EL FORMULARIO, CONSOLOGUEA LOS VALORES FINALES ENVIADOS AL BACKEND
-                console.log('Valores finales antes de enviar el contrato:', {
-                    IdInquilino: document.getElementById('IdInquilino').value,
-                    IdPropietario: document.getElementById('IdPropietario').value
-                });
-            });
-            
-            
-        });
-        function desactivarCampos(){
-            
-            document.getElementById('nombreInquilino').disabled = true;
-            document.getElementById('apellidoInquilino').disabled = true;
-            document.getElementById('telefonoInquilino').disabled = true;
-            document.getElementById('direccionInquilino').disabled = true;
-            document.getElementById('emailInquilino').disabled = true;
-        }
-        function habilitarCampos(){
-            
-            document.getElementById('nombreInquilino').disabled = false;
-            document.getElementById('apellidoInquilino').disabled = false;
-            document.getElementById('telefonoInquilino').disabled = false;
-            document.getElementById('direccionInquilino').disabled = false;
-            document.getElementById('emailInquilino').disabled = false;
-        }
-        function confirmarEliminacion(url, nombre) {
-            Swal.fire({
-                title: '¿Estás seguro?',
-                html: `Vas a eliminar: <b>${nombre}</b>`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = url;
-                }
-            });
-
-            // Return false para prevenir el comportamiento por defecto
-            return false;
-        }
-        
-        async function noRenovarContrato(idContrato) {
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: "Estas a punto de NO renovar un contrato.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, no renovar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    
-                    window.location.href = `/contrato/noRenovar/${idContrato}`;
-                }
-            });
-
-            
-            return false;
-        }
-
-</script>
 
 <div class="container d-flex flex-column align-items-center ">
     <div class="d-flex flex-fill align-items-center w-100 shadow-lg pb-3">
@@ -837,4 +429,421 @@
             </div>
         </div>
     </div>
+<script>
+    
+    window.Model = {
+        inmueble: @Html.Raw(JsonConvert.SerializeObject(Model.inmueble))
+    };
+    const fechaInicioInput = document.getElementById('fechaInicio');
+    const fechaFinInput = document.getElementById('fechaFin');
 
+    let tomorrow = new Date();
+    function aplicarFiltrosv2() {
+        const filtroDisponibilidad = document.getElementById('selectDisponible').value;
+        const filtroDni = document.getElementById("inputDniFiltro").value;
+        const filtroUso = document.getElementById('selectUso').value;
+        const selectTipo = document.getElementById('selectTipo').value;
+        const inputCantAmbientes = document.getElementById('inputCantAmbientes').value;
+        const inputPrecioAproximado = document.getElementById('inputPrecioAproximado').value;
+        const inputInicio = document.getElementById('inputInicioAlquiler').value;
+        const inputFin = document.getElementById('inputFinAlquiler').value;
+        const params = new URLSearchParams();
+        if(filtroDisponibilidad !== '') {
+            params.append('disponibilidad', filtroDisponibilidad);
+        }
+        if(filtroDni !== "" && filtroDni.length == 8){
+            params.append('dniPropietario', filtroDni);
+        }
+        if(filtroUso !== '') {
+            params.append('uso', filtroUso);
+        }
+        if(selectTipo !== '') {
+            params.append('tipo', selectTipo);
+        }
+        if(inputCantAmbientes !== '') {
+            params.append('cantAmbientes', inputCantAmbientes);
+        }
+        if(inputPrecioAproximado !== '' || inputPrecioAproximado.length != 0) {
+            params.append('precio', inputPrecioAproximado);
+        }
+        if(inputInicio !== '' || inputInicio.length != 0) {
+            params.append('fechaDesde', inputInicio);
+        }
+        if(inputFin !== '' || inputFin.length != 0) {
+            params.append('fechaHasta', inputFin);
+        }
+        
+        window.location.href = `/inmueble/listar?${params.toString()}`;
+        
+    }
+
+        function abrirNuevoContratoModal(id, direccion) {
+            var modal = new bootstrap.Modal(document.getElementById('nuevoContratoModal'));
+            document.getElementById('idInmueble').value = id;
+            document.getElementById('direccionInmueble').value = direccion;
+            // BUSCA EL INMUEBLE Y ASIGNA IDPROPIETARIO Y MONTO
+            if (window.Model && window.Model.inmueble) {
+                var inmueble = window.Model.inmueble.find(i => i.IdInmueble == id);
+                console.log('Inmueble seleccionado al abrir modal:', inmueble);
+                if (inmueble && inmueble.IdPropietario) {
+                    document.getElementById('IdPropietario').value = inmueble.IdPropietario;
+                    console.log('IdPropietario asignado al abrir modal:', inmueble.IdPropietario);
+                } else {
+                    document.getElementById('IdPropietario').value = '';
+                    console.warn('No se encontró IdPropietario para el inmueble seleccionado');
+                }
+                // AUTORRELLENA MONTO CON EL PRECIO DEL INMUEBLE
+                var montoInput = document.getElementById('Monto');
+                if (montoInput && inmueble && inmueble.Precio) {
+                    montoInput.value = inmueble.Precio;
+                    console.log('Monto alquiler autorellenado con precio:', inmueble.Precio);
+                } else if (montoInput) {
+                    montoInput.value = '';
+                    console.warn('No se encontró precio para el inmueble seleccionado');
+                } else {
+                    console.error("No se encontró el input 'Monto' en el DOM");
+                }
+            } else {
+                console.warn('window.Model.inmueble no está disponible');
+            }
+            // CAMPO DE RANGO DE FECHAS
+            async function initFlatpickr() {
+                const resp = await fetch(`/Inmueble/FechasOcupadas/${id}`);
+                const fechasOcupadas = await resp.json();
+                flatpickr("#rangoFechas", {
+                    mode: "range",
+                    showMonths: 4,
+                    dateFormat: "Y-m-d",
+                    disable: fechasOcupadas,
+                    locale: { rangeSeparator: " a " },
+                    onDayCreate: function(dObj, dStr, fp, dayElem) {
+                    
+                    if (fechasOcupadas.includes(dayElem.dateObj.toISOString().slice(0, 10))) {
+                        dayElem.style.background = "rgba(255,0,0,0.4)";
+                        
+                        dayElem.style.cursor = "not-allowed";
+                        dayElem.style.color = "rgba(255,0,0,0.9)";
+                    }
+                }
+                    
+                });
+            }
+            document.getElementById("btnRegistrarContrato").disabled = true;
+
+            document.getElementById("rangoFechas").addEventListener("change", function() {
+                
+                if(this.value == "" || !this.value.includes(" a ")){ 
+                    this.value = null;
+                    document.getElementById("btnRegistrarContrato").disabled = true;
+                }else{
+                    document.getElementById("btnRegistrarContrato").disabled = false;
+                }
+            })
+            setTimeout(initFlatpickr, 200);
+            modal.show();
+            
+        document.getElementById('formContrato').addEventListener('submit', function(e) {
+            const rango = document.getElementById('rangoFechas').value.split(' a ');
+            document.getElementById('fechaInicio').value = rango[0] || '';
+            document.getElementById('fechaFin').value = rango[1] || '';
+            // Asignamos los valores de fecha inicio y fecha fin antes de hacer el sbmit, haciendo un
+            // split por " a " en el selector de rango de fechas. A ver si funca.
+        });
+        }
+        function actualizarContador(valor){
+            sessionStorage.setItem('contador', valor);
+            console.log('Contador actualizado:', valor);
+        }
+        function limpiarFiltrosv2() {
+            const todosLosCampos = document.querySelectorAll("input , select");
+            todosLosCampos.forEach( campo => {
+                if(campo.tagName == "SELECT"){
+                    campo.selectedIndex = 0;
+                }else{
+                    campo.value = "";
+                }
+            })
+
+            actualizarContador(0);
+            aplicarFiltrosv2();
+        }
+        // GESTION DEL DNI DEL INQUILINO - FUNCIONA BIEN
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectDisponibilidad = document.getElementById('selectDisponible');
+            const inputInicio = document.getElementById('inputInicioAlquiler');
+            const inputFin = document.getElementById('inputFinAlquiler');
+            
+            
+            const dniInput = document.getElementById("dniInquilino");
+            if (!dniInput) return;
+            let inquilinoExiste = false;
+            let idInquilinoActual = null;
+            //inputInicio.min = new Date().toISOString().split('T')[0];
+            //fechaInicioInput.max = new Date().toISOString().split('T')[0];
+            if(inputInicio && inputFin){
+                inputInicio.addEventListener('change', function() {
+                    
+                    inputFin.min = this.value;
+                    if(inputFin.value == ""){
+                        inputFin.value = this.value;
+                    }
+                    if(inputFin.value < inputInicio.value){
+                        inputFin.value = inputInicio.value;
+                    }
+                });
+                inputFin.addEventListener('change', function() {
+                    inputInicio.max = this.value;
+                    if(inputInicio.value == ""){
+                        inputInicio.value = this.value;
+                    }
+                    if(inputInicio.value > inputFin.value){
+                        inputInicio.value = inputFin.value;
+                    }
+                });
+            }
+            document.getElementById('inputCantAmbientes').addEventListener('input', function() {
+                if(this.value <= 0){
+                    this.value = '';
+                }
+            })
+            document.getElementById('inputPrecioAproximado').addEventListener('input', function() {
+                if(this.value <= 0){
+                    this.value = '';
+                }
+            })
+            dniInput.addEventListener("input", function() {
+                const original = this.value;
+                const filtrado = original.replace(/[^0-9]/g, '');
+                if(this.value.length > 8){
+                    this.value = this.value.slice(0, 8);
+                }
+                if (original !== filtrado ) {
+                    const prevPlaceholder = this.placeholder;
+                    this.value = filtrado;
+                    this.placeholder = "SOLO NÚMEROS";
+                    this.classList.add("placeholder-error");
+                    this.style.color = "#dc3545";
+                    this.style.fontWeight = "bold";
+                    this.style.borderColor = "#dc3545";
+                    setTimeout(() => {
+                        this.classList.remove("placeholder-error");
+                        this.placeholder = prevPlaceholder;
+                        this.style.color = "";
+                        this.style.fontWeight = "";
+                        this.style.borderColor = "";
+                    }, 900);
+                }
+                
+            });
+            
+            dniInput.addEventListener("keyup", function() {
+                const dni = this.value;
+                if (dni.length >= 8) {
+                    fetch('/Inquilino/BuscarPorDni?dni=' + dni)
+                        .then(response => {
+                            if (!response.ok) throw new Error('No se encontró la persona');
+                            return response.json();
+                        })
+                        .then(data => {
+                            document.getElementById('nombreInquilino').value = data.nombre || '';
+                            document.getElementById('apellidoInquilino').value = data.apellido || '';
+                            document.getElementById('telefonoInquilino').value = data.telefono || '';
+                            document.getElementById('direccionInquilino').value = data.direccion || '';
+                            document.getElementById('emailInquilino').value = data.email || '';
+                            ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+                                document.getElementById(id).disabled = true;
+                            });
+                            // SI ENCONTRAMOS EL INQUILINO POR DNI ASIGNAMOS SU ID AL CAMPO OCULTO Y RELLENAMOS LOS CAMPOS|
+                            if (data.esInquilino) {
+                                if (data.idInquilino) {
+                                    document.getElementById('IdInquilino').value = data.idInquilino;
+                                    console.log('IdInquilino asignado al campo oculto (existente):', data.idInquilino);
+                                } else {
+                                    document.getElementById('IdInquilino').value = '';
+                                    console.warn('No se recibió idInquilino para el inquilino existente');
+                                }
+                                inquilinoExiste = true;
+                                idInquilinoActual = true;
+                            } else {
+                                document.getElementById('IdInquilino').value = '';
+                                inquilinoExiste = false;
+                                idInquilinoActual = null;
+                            }
+                        })
+                        .catch(() => {
+                            document.getElementById('nombreInquilino').value = '';
+                            document.getElementById('apellidoInquilino').value = '';
+                            document.getElementById('telefonoInquilino').value = '';
+                            document.getElementById('direccionInquilino').value = '';
+                            document.getElementById('emailInquilino').value = '';
+                            ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+                                document.getElementById(id).removeAttribute('disabled');
+                            });
+                            document.getElementById('IdInquilino').value = '';
+                            inquilinoExiste = false;
+                            idInquilinoActual = null;
+                        });
+                } else {
+                    document.getElementById('nombreInquilino').value = '';
+                    document.getElementById('apellidoInquilino').value = '';
+                    document.getElementById('telefonoInquilino').value = '';
+                    document.getElementById('direccionInquilino').value = '';
+                    document.getElementById('emailInquilino').value = '';
+                    ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+                        document.getElementById(id).setAttribute('disabled', 'disabled');
+                    });
+                    document.getElementById('IdInquilino').value = '';
+                    inquilinoExiste = false;
+                    idInquilinoActual = null;
+                }
+            });
+            
+            // HABILITAMOS LOS CAMPOS PARA ENVIAR EL FORMULARIO
+            document.getElementById('formContrato').addEventListener('submit', async function(e) {
+                ['nombreInquilino','apellidoInquilino','telefonoInquilino','direccionInquilino','emailInquilino'].forEach(id => {
+                    document.getElementById(id).removeAttribute('disabled');
+                });
+                // ASIGNA IDPROPIETARIO AL CAMPO OCULTO
+                var idProp = null;
+                if (window.Model && window.Model.inmueble) {
+                    var idInmueble = document.getElementById('idInmueble').value;
+                    var inmueble = window.Model.inmueble.find(i => i.IdInmueble == idInmueble);
+                    console.log('Objeto inmueble seleccionado:', inmueble);
+                    if (inmueble && inmueble.IdPropietario) {
+                        idProp = inmueble.IdPropietario;
+                    }
+                }
+                document.getElementById('IdPropietario').value = idProp || '';
+                console.log('IdPropietario asignado al campo oculto:', document.getElementById('IdPropietario').value);
+
+                // SI NO EXISTE EL INQUILINO, LO CREA Y ESPERA PARA OBTENER SU ID
+                if (!inquilinoExiste) {
+                    e.preventDefault();
+                    // CREAMOS EL INQUILINO CON PREVENT REDIRECT PARA NO CORTAR EL FLUJO
+                    const formData = new FormData();
+                    formData.append('Dni', document.getElementById('dniInquilino').value);
+                    formData.append('Nombre', document.getElementById('nombreInquilino').value);
+                    formData.append('Apellido', document.getElementById('apellidoInquilino').value);
+                    formData.append('Telefono', document.getElementById('telefonoInquilino').value);
+                    formData.append('Direccion', document.getElementById('direccionInquilino').value);
+                    formData.append('Email', document.getElementById('emailInquilino').value);
+                    console.log('Enviando datos para crear inquilino:', Object.fromEntries(formData.entries()));
+                    fetch('/inquilino/Create?preventRedirect=true', {
+                        method: 'POST',
+                        body: formData
+                    }).then(async resp => {
+                        // AWAITEA Q SE CREE Y LUEGO BUSCA EL ID
+                        const dni = document.getElementById('dniInquilino').value;
+                        setTimeout(async () => {
+                            try {
+                                const resp2 = await fetch('/Inquilino/BuscarPorDni?dni=' + dni);
+                                if (resp2.ok) {
+                                    const data = await resp2.json();
+                                    console.log('Respuesta de BuscarPorDni:', data);
+                                    if (data.esInquilino && data.idInquilino) {
+                                        document.getElementById('IdInquilino').value = data.idInquilino;
+                                        inquilinoExiste = true;
+                                        console.log('IdInquilino obtenido y asignado al campo oculto:', document.getElementById('IdInquilino').value);
+                                        // REENVIA EL FORMULARIO CONTRATO
+                                        document.getElementById('formContrato').submit();
+                                    } else {
+                                        console.error('No se pudo obtener el id del nuevo inquilino. Verifique que el backend devuelva idInquilino en /Inquilino/BuscarPorDni');
+                                    }
+                                } else {
+                                    console.error('Error al buscar el nuevo inquilino.');
+                                }
+                            } catch (err) {
+                                console.error('Error inesperado al buscar el nuevo inquilino.', err);
+                            }
+                        }, 1000);
+                    }).catch(() => {
+                        console.error('Error al crear el inquilino.');
+                    });
+                } else {
+                    // SI EL INQUILINO YA EXISTE, ASEGURA LA ASIGNACION DEL ID
+                    if (!document.getElementById('IdInquilino').value) {
+                        const dni = document.getElementById('dniInquilino').value;
+                        const resp = await fetch('/Inquilino/BuscarPorDni?dni=' + dni);
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            console.log('Respuesta de BuscarPorDni (inquilino ya existe):', data);
+                            if (data.idInquilino) {
+                                document.getElementById('IdInquilino').value = data.idInquilino;
+                                console.log('IdInquilino asignado al campo oculto:', document.getElementById('IdInquilino').value);
+                            } else {
+                                console.error('No se encontró idInquilino en la respuesta.');
+                            }
+                        } else {
+                            console.error('Error al buscar el inquilino existente.');
+                        }
+                    } else {
+                        console.log('IdInquilino ya presente en el campo oculto:', document.getElementById('IdInquilino').value);
+                    }
+                }
+                // ANTES DE ENVIAR EL FORMULARIO, CONSOLOGUEA LOS VALORES FINALES ENVIADOS AL BACKEND
+                console.log('Valores finales antes de enviar el contrato:', {
+                    IdInquilino: document.getElementById('IdInquilino').value,
+                    IdPropietario: document.getElementById('IdPropietario').value
+                });
+            });
+            
+            
+        });
+        function desactivarCampos(){
+            
+            document.getElementById('nombreInquilino').disabled = true;
+            document.getElementById('apellidoInquilino').disabled = true;
+            document.getElementById('telefonoInquilino').disabled = true;
+            document.getElementById('direccionInquilino').disabled = true;
+            document.getElementById('emailInquilino').disabled = true;
+        }
+        function habilitarCampos(){
+            
+            document.getElementById('nombreInquilino').disabled = false;
+            document.getElementById('apellidoInquilino').disabled = false;
+            document.getElementById('telefonoInquilino').disabled = false;
+            document.getElementById('direccionInquilino').disabled = false;
+            document.getElementById('emailInquilino').disabled = false;
+        }
+        function confirmarEliminacion(url, nombre) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                html: `Vas a eliminar: <b>${nombre}</b>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+
+            // Return false para prevenir el comportamiento por defecto
+            return false;
+        }
+        
+        async function noRenovarContrato(idContrato) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Estas a punto de NO renovar un contrato.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, no renovar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    window.location.href = `/contrato/noRenovar/${idContrato}`;
+                }
+            });
+
+            
+            return false;
+        }
+
+</script>

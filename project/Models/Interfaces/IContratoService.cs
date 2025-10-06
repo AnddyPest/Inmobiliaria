@@ -2,7 +2,7 @@
 {
     public interface IContratoService
     {
-        Task<(string?, bool)> CreateContrato(Contrato contrato);
+        Task<(string?, bool, int?)> CreateContrato(Contrato contrato);
         Task<(string?, bool)> UpdateContrato(Contrato contrato);
         Task<(string?, List<Contrato>?)> GetAllContratos(int? nroPagina, int? registrosPorPagina, string? disponibilidad, int? fechaCompare, string? inmueble);
 
