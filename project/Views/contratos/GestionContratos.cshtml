@@ -23,281 +23,7 @@
             color: white;
         }
     </style>
-<script>
-    let pagina = @Pagina;
-    let ultimaDisponibilidadSeleccionada = document.querySelector('input[name="disponibilidad"]:checked')?.value || '';
 
-     document.querySelectorAll('input[name="disponibilidad"]').forEach(function(radio) {
-        radio.addEventListener('change', function() {
-            //document.getElementById('filtroForm').submit();
-            if(radio.value == ultimaDisponibilidadSeleccionada){
-                radio.checked = false;
-                ultimaDisponibilidadSeleccionada = '';
-                actualizarContenido();
-            }else{
-                ultimaDisponibilidadSeleccionada = radio.value;
-                actualizarContenido();
-            }
-        });
-    }); 
-    // Filtro de fecha: deselecciona si se hace click en el mismo
-    let lastFechaCompare = document.querySelector('input[name="fechaCompare"]:checked')?.value || null;
-    document.querySelectorAll('input[name="fechaCompare"]').forEach(function(radio) {
-        radio.addEventListener('click', function(e) {
-            let form = document.getElementById('fechaCompareForm');
-            if (lastFechaCompare === radio.value) {
-                radio.checked = false;
-                lastFechaCompare = "";
-                //document.querySelectorAll('input[name="fechaCompare"]').forEach(r => r.checked = false);
-                let hidden = form.querySelector('input[type="hidden"][name="fechaCompare"]');
-                if (!hidden) {
-                    hidden = document.createElement('input');
-                    hidden.type = 'hidden';
-                    hidden.name = 'fechaCompare';
-                    form.appendChild(hidden);
-                }
-                hidden.value = '';
-                actualizarContenido()
-                //form.submit();
-            } else {
-                lastFechaCompare = radio.value;
-                let hidden = form.querySelector('input[type="hidden"][name="fechaCompare"]');
-                if (hidden) hidden.remove();
-                actualizarContenido()
-               // form.submit();
-            }
-        });
-    });
-  
-    function abrirModalRenovar(idContrato, idInquilino, idPropietario, idInmueble, monto, fechaFin) {
-        
-        document.getElementById('hiddenIdContrato').value = idContrato;
-        
-        const fechaInicio = new Date(fechaFin);
-        fechaInicio.setDate(fechaInicio.getDate() + 1);
-        document.getElementById('nuevaFechaInicio').value = fechaInicio.toISOString().slice(0, 10);
-        
-        document.getElementById('nuevaFechaFin').value = '';
-        document.getElementById('nuevoMonto').value = monto;
-        
-        
-        var modal = new bootstrap.Modal(document.getElementById('modalRenovarFechaFin'));
-        modal.show();
-    }
-
-
-    window.Model = {
-        contratos: @Html.Raw(JsonConvert.SerializeObject(Model.contratos))
-    };
-    let datosRenovacion = {};
-    async function finalizarContrato(idInmueble) {
-        var idContrato = null;
-        // BUSCAMOS EL CONTRATO VIGENTE POR EL ID INMUEBLE
-        await fetch(`/contrato/getContratoByIdInmueble/${idInmueble}`)
-            .then(response => {
-                if (!response.ok) throw new Error('No se encontró el contrato');
-                return response.json();
-            })
-            .then(data => {
-            if (data && Array.isArray(data) && data.length > 0 && data[0].idContrato) {
-                idContrato = data[0].idContrato;
-            } else {
-                console.error('No se encontró un contrato vigente para este inmueble.');
-                Swal.fire('Error', 'No se encontró un contrato vigente para este inmueble.', 'error');
-                return false;
-            }
-        })
-            .catch(() => {
-                console.error('Error al buscar el contrato por IdInmueble.');
-                Swal.fire('Error', 'Error al buscar el contrato por IdInmueble.', 'error');
-                return false;
-            });
-        /* try{
-            const response =  await fetch(`/contrato/getContratoByIdInmueble/${idInmueble}`);
-            if(!response.ok){
-                throw new Error('No se encontró el contrato');
-            }
-            const data = await response.json();
-            if(data && Array.isArray(data) && data.length > 0 && data[0].idContrato){
-                idContrato = data[0].idContrato;
-            }else{
-                console.error('No se encontró un contrato vigente para este inmueble.');
-                Swal.fire('Error', 'No se encontró un contrato vigente para este inmueble.', 'error');
-                return false;
-            }
-        }catch(error){
-            console.error('Error al buscar el contrato por IdInmueble.');
-            Swal.fire('Error', 'Error al buscar el contrato por IdInmueble.', 'error');
-            return false;
-        } */
-        let valorMulta = 0;
-        try{
-            const responseFromService = await fetch(`/contrato/calcularMulta/${idContrato}`);
-            if(!responseFromService.ok){
-                throw new Error('Error en el servicio de calculo de Multa');
-            }
-            const dataFromService = await responseFromService.json();
-            if(dataFromService == null){
-                throw new Error('Error en el servicio de calculo de Multa: No envio datos');
-            }
-            valorMulta = dataFromService.resultadoMulta;
-        }catch(error){
-            console.error('Error en el servicio de calculo de Multa.');
-            Swal.fire('Error', 'Error en el servicio de calculo de Multa.', 'error');
-            return false;
-        }
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: "Vas a finalizar este contrato. Se aplicara una multa de $" + valorMulta + " al inquilino.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, finalizar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/contrato/dardebaja?idContrato=${idContrato}&valorMulta=${valorMulta}`;
-            }
-        });
-
-        
-        return false;
-    }
-    function cambiarPagina(nroPagina) {
-        pagina = nroPagina;
-        actualizarContenido();
-    }
-    async function actualizarContenido(){
-        const inputInmueble = document.getElementById('inputFiltroInmueble').value;
-        const disponibilidad = document.querySelector('input[name="disponibilidad"]:checked')?.value || '';
-        const fechaCompare = document.querySelector('input[name="fechaCompare"]:checked')?.value || '';
-
-        const filtros = new URLSearchParams();
-        filtros.append("inmueble",inputInmueble)
-        filtros.append("nroPagina",pagina);
-        filtros.append("disponibilidad",disponibilidad);
-        filtros.append("fechaCompare",fechaCompare);
-        
-       
-        const response = await fetch( '/Contrato/listar?' + filtros);
-        const html = await response.text();
-        const dom = new DOMParser().parseFromString(html, 'text/html');
-        const fragmentoTabla = obtenerFragmentoHTML('contenedorTabla', dom);
-        const fragmentoPaginacion = obtenerFragmentoHTML('contenedorPaginacion', dom);
-        document.getElementById('contenedorTabla').replaceWith(fragmentoTabla);
-        document.getElementById('contenedorPaginacion').replaceWith(fragmentoPaginacion);
-    }
-    function obtenerFragmentoHTML(id , html){
-        
-        return html.getElementById(id);
-    }
-    document.getElementById('inputFiltroInmueble').addEventListener('keydown', actualizarContenido);
-    
-    async function noRenovarContrato(idContrato) {
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: "Estas a punto de NO renovar un contrato.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, no renovar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    
-                    window.location.href = `/contrato/noRenovar/${idContrato}`;
-                }
-            });
-
-            
-            return false;
-        }
-        // Agregar este evento cuando se abra el modal
-        document.getElementById('modalAuditoria').addEventListener('show.bs.modal', function (event) {
-            // Limpiar la tabla primero
-            document.getElementById('tablaAuditoria').innerHTML = '';
-            
-            // Obtener el botón que activó el modal
-            const button = event.relatedTarget;
-            
-            // Obtener el idContrato del atributo data
-            const idContrato = button.getAttribute('data-id-contrato');
-            console.log("linea: 341 - idContrato: ", idContrato);
-            // Llamar a la función para buscar auditoría
-            if (idContrato) {
-                buscarAuditoriaContrato(idContrato);
-            }
-        });
-
-
-async function buscarAuditoriaContrato(idContrato){
-    try{
-        const response = await fetch(`/contrato/buscarAuditoria/${idContrato}`);
-        if(!response.ok){
-            throw new Error('Error al buscar auditoria');
-        }
-        const data = await response.json();
-        actualizarContenidoAuditoria(data);
-    }catch(error){
-        console.log(error);
-        // Mostrar mensaje de error
-        document.getElementById('tablaAuditoria').innerHTML = 
-            '<tr><td colspan="6" class="text-center text-danger">Error al cargar los datos de auditoría</td></tr>';
-    }
-}
-
-    function actualizarContenidoAuditoria(data){
-        let tbody = document.getElementById('tablaAuditoria');
-        tbody.innerHTML = ''; // Limpiar tabla
-        console.log("linea: 612 - data: ", data.auditorias);
-        if (data && data.auditorias.length > 0) {
-            console.log("linea: 614 - data: ", data.auditorias);
-            data.auditorias.forEach((auditoria) => {
-                let tr = document.createElement('tr');
-                console.log("linea: 358 - auditoria: ", auditoria);
-                tr.innerHTML = `
-                    <td>${auditoria.idContrato || ''}</td>
-                    <td>${auditoria.usuario.empleado.nombre || ''}</td>
-                    <td>${auditoria.usuario.empleado.apellido || ''}</td>
-                    <td>${auditoria.usuario.empleado.dni || ''}</td>
-                    <td>${auditoria.motivoAuditoria || ''}</td>
-                    <td>${auditoria.fecha ? new Date(auditoria.fecha).toLocaleString() : ''}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } else {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay registros de auditoría</td></tr>';
-        }
-    }
-    async function buscarAuditoriaContrato(idContrato){
-        try{
-            const response = await fetch(`/auditoria/contrato/${idContrato}`);
-            if(!response.ok){
-                throw new Error('Error al buscar auditoria');
-            }
-            const data = await response.json();
-            actualizarContenidoAuditoria(data);
-        }catch(error){
-            console.log(error);
-            // Mostrar mensaje de error
-            document.getElementById('tablaAuditoria').innerHTML = 
-                '<tr><td colspan="6" class="text-center text-danger">Error al cargar los datos de auditoría</td></tr>';
-        }
-    }
-    document.getElementById('modalAuditoria').addEventListener('show.bs.modal', function (event) {
-        document.getElementById('tablaAuditoria').innerHTML = '';
-        
-        const button = event.relatedTarget;
-        
-        const idContrato = button.getAttribute('data-id-contrato');
-        
-        if (idContrato) {
-            buscarAuditoriaContrato(idContrato);
-        }
-    });
-</script>
 
 <div class="modal fade" id="modalRenovarFechaFin" tabindex="-1" aria-labelledby="modalRenovarLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -604,5 +330,248 @@ async function buscarAuditoriaContrato(idContrato){
             </div>
         </div>
     </div>
+    <script>
+    let pagina = @Pagina;
+    let ultimaDisponibilidadSeleccionada = document.querySelector('input[name="disponibilidad"]:checked')?.value || '';
+
+     document.querySelectorAll('input[name="disponibilidad"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            //document.getElementById('filtroForm').submit();
+            if(radio.value == ultimaDisponibilidadSeleccionada){
+                radio.checked = false;
+                ultimaDisponibilidadSeleccionada = '';
+                actualizarContenido();
+            }else{
+                ultimaDisponibilidadSeleccionada = radio.value;
+                actualizarContenido();
+            }
+        });
+    }); 
+    // Filtro de fecha: deselecciona si se hace click en el mismo
+    let lastFechaCompare = document.querySelector('input[name="fechaCompare"]:checked')?.value || null;
+    document.querySelectorAll('input[name="fechaCompare"]').forEach(function(radio) {
+        radio.addEventListener('click', function(e) {
+            let form = document.getElementById('fechaCompareForm');
+            if (lastFechaCompare === radio.value) {
+                radio.checked = false;
+                lastFechaCompare = "";
+                //document.querySelectorAll('input[name="fechaCompare"]').forEach(r => r.checked = false);
+                let hidden = form.querySelector('input[type="hidden"][name="fechaCompare"]');
+                if (!hidden) {
+                    hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'fechaCompare';
+                    form.appendChild(hidden);
+                }
+                hidden.value = '';
+                actualizarContenido()
+                //form.submit();
+            } else {
+                lastFechaCompare = radio.value;
+                let hidden = form.querySelector('input[type="hidden"][name="fechaCompare"]');
+                if (hidden) hidden.remove();
+                actualizarContenido()
+               // form.submit();
+            }
+        });
+    });
+  
+    function abrirModalRenovar(idContrato, idInquilino, idPropietario, idInmueble, monto, fechaFin) {
+        
+        document.getElementById('hiddenIdContrato').value = idContrato;
+        
+        const fechaInicio = new Date(fechaFin);
+        fechaInicio.setDate(fechaInicio.getDate() + 1);
+        document.getElementById('nuevaFechaInicio').value = fechaInicio.toISOString().slice(0, 10);
+        
+        document.getElementById('nuevaFechaFin').value = '';
+        document.getElementById('nuevoMonto').value = monto;
+        
+        
+        var modal = new bootstrap.Modal(document.getElementById('modalRenovarFechaFin'));
+        modal.show();
+    }
+
+
+    window.Model = {
+        contratos: @Html.Raw(JsonConvert.SerializeObject(Model.contratos))
+    };
+    let datosRenovacion = {};
+    async function finalizarContrato(idInmueble) {
+        var idContrato = null;
+        // BUSCAMOS EL CONTRATO VIGENTE POR EL ID INMUEBLE
+        await fetch(`/contrato/getContratoByIdInmueble/${idInmueble}`)
+            .then(response => {
+                if (!response.ok) throw new Error('No se encontró el contrato');
+                return response.json();
+            })
+            .then(data => {
+            if (data && Array.isArray(data) && data.length > 0 && data[0].idContrato) {
+                idContrato = data[0].idContrato;
+            } else {
+                console.error('No se encontró un contrato vigente para este inmueble.');
+                Swal.fire('Error', 'No se encontró un contrato vigente para este inmueble.', 'error');
+                return false;
+            }
+        })
+            .catch(() => {
+                console.error('Error al buscar el contrato por IdInmueble.');
+                Swal.fire('Error', 'Error al buscar el contrato por IdInmueble.', 'error');
+                return false;
+            });
+        /* try{
+            const response =  await fetch(`/contrato/getContratoByIdInmueble/${idInmueble}`);
+            if(!response.ok){
+                throw new Error('No se encontró el contrato');
+            }
+            const data = await response.json();
+            if(data && Array.isArray(data) && data.length > 0 && data[0].idContrato){
+                idContrato = data[0].idContrato;
+            }else{
+                console.error('No se encontró un contrato vigente para este inmueble.');
+                Swal.fire('Error', 'No se encontró un contrato vigente para este inmueble.', 'error');
+                return false;
+            }
+        }catch(error){
+            console.error('Error al buscar el contrato por IdInmueble.');
+            Swal.fire('Error', 'Error al buscar el contrato por IdInmueble.', 'error');
+            return false;
+        } */
+        let valorMulta = 0;
+        try{
+            const responseFromService = await fetch(`/contrato/calcularMulta/${idContrato}`);
+            if(!responseFromService.ok){
+                throw new Error('Error en el servicio de calculo de Multa');
+            }
+            const dataFromService = await responseFromService.json();
+            if(dataFromService == null){
+                throw new Error('Error en el servicio de calculo de Multa: No envio datos');
+            }
+            valorMulta = dataFromService.resultadoMulta;
+        }catch(error){
+            console.error('Error en el servicio de calculo de Multa.');
+            Swal.fire('Error', 'Error en el servicio de calculo de Multa.', 'error');
+            return false;
+        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Vas a finalizar este contrato. Se aplicara una multa de $" + valorMulta + " al inquilino.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, finalizar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `/contrato/dardebaja?idContrato=${idContrato}&valorMulta=${valorMulta}`;
+            }
+        });
+
+        
+        return false;
+    }
+    function cambiarPagina(nroPagina) {
+        pagina = nroPagina;
+        actualizarContenido();
+    }
+    async function actualizarContenido(){
+        const inputInmueble = document.getElementById('inputFiltroInmueble').value;
+        const disponibilidad = document.querySelector('input[name="disponibilidad"]:checked')?.value || '';
+        const fechaCompare = document.querySelector('input[name="fechaCompare"]:checked')?.value || '';
+
+        const filtros = new URLSearchParams();
+        filtros.append("inmueble",inputInmueble)
+        filtros.append("nroPagina",pagina);
+        filtros.append("disponibilidad",disponibilidad);
+        filtros.append("fechaCompare",fechaCompare);
+        
+       
+        const response = await fetch( '/Contrato/listar?' + filtros);
+        const html = await response.text();
+        const dom = new DOMParser().parseFromString(html, 'text/html');
+        const fragmentoTabla = obtenerFragmentoHTML('contenedorTabla', dom);
+        const fragmentoPaginacion = obtenerFragmentoHTML('contenedorPaginacion', dom);
+        document.getElementById('contenedorTabla').replaceWith(fragmentoTabla);
+        document.getElementById('contenedorPaginacion').replaceWith(fragmentoPaginacion);
+    }
+    function obtenerFragmentoHTML(id , html){
+        
+        return html.getElementById(id);
+    }
+    document.getElementById('inputFiltroInmueble').addEventListener('keydown', actualizarContenido);
+    
+    async function noRenovarContrato(idContrato) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Estas a punto de NO renovar un contrato.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, no renovar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    window.location.href = `/contrato/noRenovar/${idContrato}`;
+                }
+            });
+
+            
+            return false;
+        }
+
+
+    function actualizarContenidoAuditoria(data){
+        let tbody = document.getElementById('tablaAuditoria');
+        tbody.innerHTML = ''; // Limpiar tabla
+        console.log("linea: 612 - data: ", data.auditorias);
+        if (data && data.auditorias.length > 0) {
+            console.log("linea: 614 - data: ", data.auditorias);
+            data.auditorias.forEach((auditoria) => {
+                let tr = document.createElement('tr');
+                console.log("linea: 358 - auditoria: ", auditoria);
+                tr.innerHTML = `
+                    <td>${auditoria.idContrato || ''}</td>
+                    <td>${auditoria.usuario.empleado.nombre || ''}</td>
+                    <td>${auditoria.usuario.empleado.apellido || ''}</td>
+                    <td>${auditoria.usuario.empleado.dni || ''}</td>
+                    <td>${auditoria.motivoAuditoria || ''}</td>
+                    <td>${auditoria.fecha ? new Date(auditoria.fecha).toLocaleString() : ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay registros de auditoría</td></tr>';
+        }
+    }
+    async function buscarAuditoriaContrato(idContrato){
+        try{
+            const response = await fetch(`/auditoria/contrato/${idContrato}`);
+            if(!response.ok){
+                throw new Error('Error al buscar auditoria');
+            }
+            const data = await response.json();
+            actualizarContenidoAuditoria(data);
+        }catch(error){
+            console.log(error);
+            // Mostrar mensaje de error
+            document.getElementById('tablaAuditoria').innerHTML = 
+                '<tr><td colspan="6" class="text-center text-danger">Error al cargar los datos de auditoría</td></tr>';
+        }
+    }
+    document.getElementById('modalAuditoria').addEventListener('show.bs.modal', function (event) {
+        document.getElementById('tablaAuditoria').innerHTML = '';
+        
+        const button = event.relatedTarget;
+        
+        const idContrato = button.getAttribute('data-id-contrato');
+        
+        if (idContrato) {
+            buscarAuditoriaContrato(idContrato);
+        }
+    });
+</script>
 
 
