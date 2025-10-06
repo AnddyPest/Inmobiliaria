@@ -724,14 +724,15 @@ namespace project.Services
                     FechaFin = nuevaFechaFin,
                     estado = true
                 };
-                var baja = await TerminarContrato(idContrato);
-                if (baja.Item1 != null || !baja.Item2)
-                    return ($"No se pudo dar de baja el contrato: {baja.Item1}", false);
-
                 var creado = await CreateContrato(nuevoContrato);
                 if (creado.Item1 != null || !creado.Item2)
                     return ($"El contrato se dio de baja pero no se pudo crear el nuevo: {creado.Item1}", false);
 
+                var baja = await TerminarContrato(idContrato);
+                if (baja.Item1 != null || !baja.Item2)
+                    return ($"No se pudo dar de baja el contrato: {baja.Item1}", false);
+
+                
                 // Dar de baja el contrato anterior
                 
                 return (null, true);
