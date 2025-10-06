@@ -310,20 +310,54 @@
         circulo.addEventListener("change", actualizarContenido);
     })
     async function bajaEmpleado(idEmpleado){
-        const response = await fetch('/Empleado/Baja?idEmpleado=' + idEmpleado);
-        if(response.ok){
+        try{
+            const response = await fetch('/Empleado/Baja?idEmpleado=' + idEmpleado);
+            if(!response.ok){
+                throw new Error(await response.text());
+            }
             actualizarContenido();
+            swal.fire({
+                title: 'Éxito',
+                text: 'Empleado dado de baja correctamente',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            })
             return
+
+        }catch(error){
+            swal.fire({
+                title: 'Error',
+                text: error,
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            })
         }
+        
         console.error("Error al dar de baja el empleado");
     }
     async function altaEmpleado(idEmpleado){
-        const response = await fetch('/Empleado/Alta?idEmpleado=' + idEmpleado);
-        if(response.ok){
+        try{
+            const response = await fetch('/Empleado/Alta?idEmpleado=' + idEmpleado);
+            if(!response.ok){
+                throw new Error(await response.text());
+            }
             actualizarContenido();
+            swal.fire({
+                title: 'Éxito',
+                text: 'Empleado dado de alta correctamente',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            })
             return
+
+        }catch(error){
+            swal.fire({
+                title: 'Error',
+                text: error,
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            })
         }
-        console.error("Error al dar de alta el empleado");
     }
     document.getElementById("inputBuscarEmpleado").addEventListener("input", actualizarContenido);
 </script>

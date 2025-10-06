@@ -143,17 +143,19 @@ public class EmpleadoController : Controller
     [HttpGet("Empleado/Baja")]
     public async Task<IActionResult> BajaEmpleado(int idEmpleado)
     {
-        (string? error, bool confirmacion) = await empleadoService.BajaLogica(idEmpleado);
+        (string? error, bool confirmacion) = await empleadoService.BajaLogica(idEmpleado, Convert.ToInt32(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")!.Value) );
         if (error != null && !confirmacion)
         {
             HelperFor.imprimirMensajeDeError(error, nameof(EmpleadoController), nameof(BajaEmpleado));
-            return this.RedirectToActionWithError(nameof(VistaEmpleados), error);
+            return BadRequest(error);
+            //return this.RedirectToActionWithError(nameof(VistaEmpleados), error);
         }
         (string? errorBaja, bool confirmacionBaja) = await usuarioService.BajaLogicaByIdEmpleado(idEmpleado);
         if (errorBaja != null && !confirmacionBaja)
         {
             HelperFor.imprimirMensajeDeError(errorBaja, nameof(EmpleadoController), nameof(BajaEmpleado));
-            return this.RedirectToActionWithError(nameof(VistaEmpleados), errorBaja);
+            return BadRequest(errorBaja);
+            //return this.RedirectToActionWithError(nameof(VistaEmpleados), errorBaja);
         }
         return Ok();
     }
@@ -165,15 +167,18 @@ public class EmpleadoController : Controller
         if (error != null && !confirmacion)
         {
             HelperFor.imprimirMensajeDeError(error, nameof(EmpleadoController), nameof(AltaEmpleado));
-            return this.RedirectToActionWithError(nameof(VistaEmpleados), error);
+            return BadRequest(error);
+            //return this.RedirectToActionWithError(nameof(VistaEmpleados), error);
         }
         (string? errorAlta, bool confirmacionAlta) = await usuarioService.AltaLogicaByIdEmpleado(idEmpleado);
         if (errorAlta != null && !confirmacionAlta)
         {
             HelperFor.imprimirMensajeDeError(errorAlta, nameof(EmpleadoController), nameof(AltaEmpleado));
-            return this.RedirectToActionWithError(nameof(VistaEmpleados), errorAlta);
+            return BadRequest(errorAlta);
+            //return this.RedirectToActionWithError(nameof(VistaEmpleados), errorAlta);
         }
-        return this.RedirectToActionWithSuccess(nameof(VistaEmpleados), "El empleado se ha dado de alta correctamente", "Empleado dado de alta!!!");
+        return Ok();
+        //return this.RedirectToActionWithSuccess(nameof(VistaEmpleados), "El empleado se ha dado de alta correctamente", "Empleado dado de alta!!!");
     }
     [AllowAnonymous]
     [HttpGet("Empleado/Validar")]
