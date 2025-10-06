@@ -190,7 +190,7 @@ namespace project.Controllers
             );
 
             if (resultado.Item1 != null)
-                return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error en el servicio de contratos", "No se pudo renovar el contrato.");
+                return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error en el servicio de contratos", resultado.Item1);
             if (!resultado.Item2)
                 return this.RedirectToActionWithError("GetAllContratos", "Contrato", "Error al renovar el contrato", "No se pudo renovar el contrato.");
             await _auditoriaService.CreateAuditoria(new Auditoria(

@@ -604,7 +604,7 @@ namespace project.Services
                     return ($"No se encontró un inmueble con Id {idInmueble}.", false);
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    string query = "SELECT COUNT(*) FROM Contrato WHERE IdInmueble = @IdInmueble AND FechaFin >= CURDATE() AND Activo = 1";
+                    string query = "SELECT COUNT(*) FROM Contrato WHERE IdInmueble = @IdInmueble AND FechaFin >= CURDATE() AND estado = 1";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@IdInmueble", idInmueble);
@@ -715,15 +715,16 @@ namespace project.Services
                     FechaFin = nuevaFechaFin,
                     estado = true
                 };
-                var creado = await CreateContrato(nuevoContrato);
-                if (creado.Item1 != null || !creado.Item2)
-                    return ($"No se pudo crear el nuevo contrato: {creado.Item1}", false);
-
-                // Dar de baja el contrato anterior
                 var baja = await TerminarContrato(idContrato);
                 if (baja.Item1 != null || !baja.Item2)
-                    return ($"El nuevo contrato fue creado, pero no se pudo dar de baja el anterior: {baja.Item1}", false);
+                    return ($"No se pudo dar de baja el contrato: {baja.Item1}", false);
 
+                var creado = await CreateContrato(nuevoContrato);
+                if (creado.Item1 != null || !creado.Item2)
+                    return ($"El contrato se dio de baja pero no se pudo crear el nuevo: {creado.Item1}", false);
+
+                // Dar de baja el contrato anterior
+                
                 return (null, true);
             }
             catch (Exception ex)

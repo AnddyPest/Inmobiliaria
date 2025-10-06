@@ -215,7 +215,7 @@
                                         </button>
                                     }
                                 }
-                                @if(contrato.estado && contrato.FechaFin < DateTime.Now){
+                                @if(contrato.estado && contrato.FechaFin.Date <= DateTime.Now.Date){
                                     if(User.IsInRole("Administrador")){
                                         <button type="button" class="btn btn-outline-warning p-1 m-1 w-25" onclick="noRenovarContrato('@contrato.IdContrato')" title="El inmueble tiene un contrato vencido. Finalice el contrato para crear uno nuevo.">
                                             <i class="bi bi-exclamation-circle-fill"></i>
@@ -229,7 +229,7 @@
                                         <i class="bi bi-cash-stack"></i> <!-- GENERAR PAGOS -->
                                     </button>
                                 }
-                                else if (contrato.estado && (contrato.FechaRescision == null && contrato.FechaFin.Date < DateTime.Now.Date))
+                                else if (contrato.estado && (contrato.FechaRescision == null && contrato.FechaFin.Date <= DateTime.Now.Date))
                                 {
                                     <a type="button" class="btn btn-primary p-1 m-1 w-25" onclick="abrirModalRenovar(@contrato.IdContrato, @contrato.IdInquilino, @contrato.IdPropietario, @contrato.IdInmueble, @contrato.Monto, '@contrato.FechaFin.ToString(format: "yyyy-MM-dd")')">
                                         <i class="bi bi-file-check"></i> <!-- Renovar Contrato -->
@@ -609,17 +609,19 @@ async function buscarAuditoriaContrato(idContrato){
         function actualizarContenidoAuditoria(data){
             let tbody = document.getElementById('tablaAuditoria');
             tbody.innerHTML = ''; // Limpiar tabla
-            
-            if (data && data.length > 0) {
-                data.forEach((auditoria) => {
+            console.log("linea: 612 - data: ", data.auditorias);
+            if (data && data.auditorias.length > 0) {
+                console.log("linea: 614 - data: ", data.auditorias);
+                data.auditorias.forEach((auditoria) => {
                     let tr = document.createElement('tr');
+                    console.log("linea: 358 - auditoria: ", auditoria);
                     tr.innerHTML = `
                         <td>${auditoria.idContrato || ''}</td>
-                        <td>${auditoria.nombre || ''}</td>
-                        <td>${auditoria.apellido || ''}</td>
-                        <td>${auditoria.dni || ''}</td>
-                        <td>${auditoria.motivo || ''}</td>
-                        <td>${auditoria.fecha ? new Date(auditoria.fecha).toLocaleDateString() : ''}</td>
+                        <td>${auditoria.usuario.empleado.nombre || ''}</td>
+                        <td>${auditoria.usuario.empleado.apellido || ''}</td>
+                        <td>${auditoria.usuario.empleado.dni || ''}</td>
+                        <td>${auditoria.motivoAuditoria || ''}</td>
+                        <td>${auditoria.fecha ? new Date(auditoria.fecha).toLocaleString() : ''}</td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -629,7 +631,7 @@ async function buscarAuditoriaContrato(idContrato){
         }
         async function buscarAuditoriaContrato(idContrato){
             try{
-                const response = await fetch(`/contrato/buscarAuditoria/${idContrato}`);
+                const response = await fetch(`/auditoria/contrato/${idContrato}`);
                 if(!response.ok){
                     throw new Error('Error al buscar auditoria');
                 }
