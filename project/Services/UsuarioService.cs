@@ -9,9 +9,11 @@ using project.Models;
 public class UsuarioService : IUsuarioService
 {
     private string _connectionString;
-    public UsuarioService(IConfiguration config)
+    private IEmpleadoService _empleadoService;
+    public UsuarioService(IConfiguration config, IEmpleadoService empleadoService)
     {
         _connectionString = config.GetConnectionString("Connection")!;
+        _empleadoService = empleadoService;
     }
     public async Task<(string?, bool, int)> CreateUsuario(Usuario usuario)
     {
@@ -352,22 +354,30 @@ public class UsuarioService : IUsuarioService
     {
         try
         {
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            if (await _empleadoService.getEmpleadoById(idEmpleado) is (null, Empleado empleado) && empleado.IdUsuario != 0)
             {
-                string query = @"   Update usuario 
-                                    Inner join empleado on empleado.idUsuario = usuario.idUsuario
-                                    set usuario.estado = 0 
-                                    where empleado.idEmpleado = @idEmpleado;";
-                using (MySqlCommand command = new MySqlCommand(query, connection))
+
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
-                    command.CommandType = CommandType.Text;
-                    command.Parameters.AddWithValue("@idEmpleado", idEmpleado);
-                    await connection.OpenAsync();
-                    int result = await command.ExecuteNonQueryAsync();
-                    await connection.CloseAsync();
-                    if (result == 0) return ("Error al dar de baja usuario: Database Error", false);
-                    return ("Usuario dado de baja correctamente", true);
+                    string query = @"   Update usuario 
+                                        Inner join empleado on empleado.idUsuario = usuario.idUsuario
+                                        set usuario.estado = 0 
+                                        where empleado.idEmpleado = @idEmpleado;";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@idEmpleado", idEmpleado);
+                        await connection.OpenAsync();
+                        int result = await command.ExecuteNonQueryAsync();
+                        await connection.CloseAsync();
+                        if (result == 0) return ("Error al dar de baja usuario: Database Error", false);
+                        return ("Usuario dado de baja correctamente", true);
+                    }
                 }
+            }
+            else
+            {
+                return (null, true);
             }
         }
         catch (Exception ex)
@@ -379,24 +389,31 @@ public class UsuarioService : IUsuarioService
 
     public async Task<(string?, bool)> AltaLogicaByIdEmpleado(int idEmpleado)
     {
+
         try
         {
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            if (await _empleadoService.getEmpleadoById(idEmpleado) is (null, Empleado empleado) && empleado.IdUsuario != 0)
             {
-                string query = @"   Update usuario 
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    string query = @"   Update usuario 
                                     Inner join empleado on empleado.idUsuario = usuario.idUsuario
                                     set usuario.estado = 1 
                                     where empleado.idEmpleado = @idEmpleado;";
-                using (MySqlCommand command = new MySqlCommand(query, connection))
-                {
-                    command.CommandType = CommandType.Text;
-                    command.Parameters.AddWithValue("@idEmpleado", idEmpleado);
-                    await connection.OpenAsync();
-                    int result = await command.ExecuteNonQueryAsync();
-                    await connection.CloseAsync();
-                    if (result == 0) return ("Error al dar de Alta usuario: Database Error", false);
-                    return ("Usuario dado de alta correctamente", true);
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.Parameters.AddWithValue("@idEmpleado", idEmpleado);
+                        await connection.OpenAsync();
+                        int result = await command.ExecuteNonQueryAsync();
+                        await connection.CloseAsync();
+                        if (result == 0) return ("Error al dar de Alta usuario: Database Error", false);
+                        return ("Usuario dado de alta correctamente", true);
+                    }
                 }
+            }else
+            {
+                return (null, true);
             }
         }
         catch (Exception ex)

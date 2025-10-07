@@ -278,9 +278,11 @@ public class EmpleadoService : IEmpleadoService
         {
 
             if (await this.getEmpleadoById(idEmpleado) is (string error, null)) return (error, false);
-            if( await this.getEmpleadoById(idEmpleado) is (null, Empleado empleado) && empleado.IdUsuario == idUsuario)
+            if (await this.getEmpleadoById(idEmpleado) is (null, Empleado empleado) && empleado.IdUsuario == idUsuario)
+            {
+                System.Console.WriteLine("Valor: " + empleado.IdUsuario);
                 return ("No puedes darte de baja tu propio registro", false);
-            
+            }
             using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     string query = @"UPDATE empleado SET estado = 0 WHERE idEmpleado = @idEmpleado;";
@@ -298,6 +300,7 @@ public class EmpleadoService : IEmpleadoService
         }
         catch (Exception ex)
         {
+            System.Console.WriteLine("HOLA");
             HelperFor.imprimirMensajeDeError(ex.Message, nameof(EmpleadoService), nameof(BajaLogica));
             return ("Error al dar de baja empleado: Internal Server Error", false);
         }

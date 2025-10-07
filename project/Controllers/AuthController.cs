@@ -56,6 +56,11 @@ public class AuthController : Controller
             HelperFor.imprimirMensajeDeError("El empleado no se encuentra registrado", nameof(AuthController), nameof(Registro));
             return this.RedirectToActionWithError(nameof(Registro), "El empleado no se encuentra registrado");
         }
+        if (empleado.Item2.Estado == false)
+        {
+            HelperFor.imprimirMensajeDeError("El empleado se encuentra dado de baja", nameof(AuthController), nameof(Registro));
+            return this.RedirectToActionWithError(nameof(Registro), "El empleado se encuentra dado de baja");
+        }
         Usuario usuario = new Usuario();
         usuario.email = email;
         usuario.contrasena = AuthHelper.HashContraseña(contrasena);
