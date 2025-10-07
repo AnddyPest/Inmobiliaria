@@ -166,7 +166,7 @@ public class EmpleadoService : IEmpleadoService
                             Empleado empleado = new Empleado();
                             empleado.IdEmpleado = reader.GetInt32("idEmpleado");
                             empleado.IdPersona = reader.GetInt32("idPersona");
-                            empleado.IdUsuario = reader.GetInt32("idUsuario");
+                            empleado.IdUsuario = reader.IsDBNull("idUsuario") ? default : reader.GetInt32("idUsuario");
                             empleado.Dni = reader.GetInt32("dni");
                             empleado.Nombre = reader.GetString("nombre");
                             empleado.Apellido = reader.GetString("apellido");
