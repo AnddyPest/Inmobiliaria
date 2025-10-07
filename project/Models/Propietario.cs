@@ -31,7 +31,5 @@ namespace project.Models
         }
     }
 
-    internal class Contratos
-    {
-    }
+    
 }
