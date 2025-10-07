@@ -240,55 +240,56 @@
                                         }
                                     }
                                 }
-                                
-                                @if (inmueble.contrato?.estado == true && inmueble.Estado && inmueble.contrato.FechaInicio <= DateTime.Now)
-                                {
-                                    @* var contratoVigente = Model.Contratos?.FirstOrDefault(c => c.IdInmueble == inmueble.IdInmueble && c.estado);
-                                    var inquilino = Model.inquilinos?.FirstOrDefault(i => i.IdInquilino == contratoVigente?.IdInquilino);
-                                    var propietario = Model.propietarios?.FirstOrDefault(p => p.IdPropietario == contratoVigente?.IdPropietario); *@
-                                    if (inmueble.contrato != null)
-                                    {
-                                        <button type="button" class="btn btn-outline-info p-1 m-1 w-25" data-bs-toggle="modal" data-bs-target="#modalContrato_@inmueble.contrato.IdContrato">
-                                            <i class="bi bi-eye-fill"></i>
-                                        </button>
-                                        <!-- Modal para ver contrato MUESTRA TODOS LOS DATOS Q NO APARECEN EN LA TABLA-->
-                                        <div class="modal fade" id="modalContrato_@inmueble.contrato.IdContrato" tabindex="-1" aria-labelledby="modalContratoLabel_@inmueble.contrato.IdContrato" aria-hidden="true">
-                                            <div class="modal-dialog modal-lg">
-                                                <div class="modal-content border-primary shadow-lg">
-                                                    <div class="modal-header bg-primary text-white">
-                                                        <h5 class="modal-title" id="modalContratoLabel_@inmueble.contrato.IdContrato">
-                                                            <i class="bi bi-file-earmark-text me-2"></i>Datos del Contrato
-                                                        </h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                                    </div>
-                                                    <div class="modal-body bg-light">
-                                                        <div class="row mb-3">
-                                                            <div class="col-md-6 w-100 d-flex justify-content-center">
-                                                                <div class="card border-success mb-3 w-50 overflow-auto">
-                                                                    <div class="card-header bg-success text-white">Inquilino</div>
-                                                                    <div class="card-body">
-                                                                        <h6 class="card-title text-dark">@inmueble.contrato.Inquilino?.Nombre @inmueble.contrato.Inquilino?.Apellido</h6>
-                                                                        <p class="card-text mb-0 text-dark"><strong>ID:</strong> @inmueble.contrato.IdInquilino</p>
+                                @if(inmueble.contratos?.Count > 0){
+                                    @foreach(Contrato contrato in inmueble.contratos!){
+                                        @if (contrato.estado == true && inmueble.Estado && contrato.FechaInicio <= DateTime.Now )
+                                        {
+                                            <button type="button" class="btn btn-outline-info p-1 m-1 w-25" data-bs-toggle="modal" data-bs-target="#modalContrato_@contrato.IdContrato">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </button>
+                                            <!-- Modal para ver contrato MUESTRA TODOS LOS DATOS Q NO APARECEN EN LA TABLA-->
+                                            <div class="modal fade" id="modalContrato_@contrato.IdContrato" tabindex="-1" aria-labelledby="modalContratoLabel_@contrato.IdContrato" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content border-primary shadow-lg">
+                                                        <div class="modal-header bg-primary text-white">
+                                                            <h5 class="modal-title" id="modalContratoLabel_@contrato.IdContrato">
+                                                                <i class="bi bi-file-earmark-text me-2"></i>Datos del Contrato
+                                                            </h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                        </div>
+                                                        <div class="modal-body bg-light">
+                                                            <div class="row mb-3">
+                                                                <div class="col-md-6 w-100 d-flex justify-content-center">
+                                                                    <div class="card border-success mb-3 w-50 overflow-auto">
+                                                                        <div class="card-header bg-success text-white">Inquilino</div>
+                                                                        <div class="card-body">
+                                                                            <h6 class="card-title text-dark">@contrato.Inquilino?.Nombre @contrato.Inquilino?.Apellido</h6>
+                                                                            <p class="card-text mb-0 text-dark"><strong>ID:</strong> @contrato.IdInquilino</p>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                            <ul class="list-group mb-3">
+                                                                <li class="list-group-item"><strong>ID Contrato:</strong> @contrato.IdContrato</li>
+                                                                <li class="list-group-item"><strong>Fecha Inicio:</strong> @contrato.FechaInicio.ToString("dd/MM/yyyy")</li>
+                                                                <li class="list-group-item"><strong>Fecha Fin:</strong> @contrato.FechaFin.ToString("dd/MM/yyyy")</li>
+                                                                <li class="list-group-item"><strong>Monto:</strong> $@contrato.Monto</li>
+                                                                <li class="list-group-item"><strong>Estado:</strong> @(contrato.estado ? "Vigente" : "No vigente")</li>
+                                                            </ul>
                                                         </div>
-                                                        <ul class="list-group mb-3">
-                                                            <li class="list-group-item"><strong>ID Contrato:</strong> @inmueble.contrato.IdContrato</li>
-                                                            <li class="list-group-item"><strong>Fecha Inicio:</strong> @inmueble.contrato.FechaInicio.ToString("dd/MM/yyyy")</li>
-                                                            <li class="list-group-item"><strong>Fecha Fin:</strong> @inmueble.contrato.FechaFin.ToString("dd/MM/yyyy")</li>
-                                                            <li class="list-group-item"><strong>Monto:</strong> $@inmueble.contrato.Monto</li>
-                                                            <li class="list-group-item"><strong>Estado:</strong> @(inmueble.contrato.estado ? "Vigente" : "No vigente")</li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="modal-footer bg-primary">
-                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                                                        <div class="modal-footer bg-primary">
+                                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    }
+                                        }
+                                    }   
                                 }
+                                
+                                
+                                
+                                
                                 <a class="btn btn-outline-success p-1 m-1 w-25" href="@Url.Action("VerImagenes", "Inmueble", new { idInmueble = inmueble.IdInmueble })">
                                     <i class="bi bi-camera"></i>
                                 </a>
