@@ -24,6 +24,8 @@ namespace project.Services
                 (string?, Inquilino?) inquilinoFinded = await _inquilinoService.GetInquilinoById(contrato.IdInquilino);
                 if (inquilinoFinded.Item1 != null)
                     return ($"No se encontró un inquilino con Id {contrato.IdInquilino}.", false, null);
+                if(inquilinoFinded.Item2!.EstadoInquilino == false)
+                    return ($"El inquilino {inquilinoFinded.Item2.Nombre + " " + inquilinoFinded.Item2.Apellido} se encuentra dado de baja.", false, null);
                 (string?, Propietario?) propietarioFinded = await _propietarioService.getPropietarioById(contrato.IdPropietario);
                 if (propietarioFinded.Item1 != null)
                     return ($"No se encontró un propietario con Id {contrato.IdPropietario}.", false, null);
