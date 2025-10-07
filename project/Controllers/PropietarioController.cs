@@ -72,7 +72,11 @@ namespace project.Controllers
 
             int codeResult = await personaService.Editar(personaEnviadaDesdeElFront);
             if (codeResult == -1)
-                return this.RedirectToActionWithError(nameof(ObtenerTodos), "No se actualizo el propietario");
+            {
+                HelperFor.imprimirMensajeDeError("No se pudo actualizar la persona", nameof(PropietarioController), nameof(ActualizarPropietario));
+                SweetAlertHelper.SweetAlertError(this, "No se pudo actualizar la persona", "Error");
+                return Redirect($"/Propietario/Update?id={personaEnviadaDesdeElFront.IdPersona}");
+            }    
 
             (string?, Propietario?) propietario = await propietarioService.getPropietarioByIdPersona(personaEnviadaDesdeElFront.IdPersona);
             if (propietario.Item1 != null) 

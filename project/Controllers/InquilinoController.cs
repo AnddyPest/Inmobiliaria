@@ -118,7 +118,8 @@ namespace project.Controllers
             if (result == -1)
             {
                 HelperFor.imprimirMensajeDeError("No se actualizo la persona", nameof(InquilinoController), nameof(UpdateInquilino));
-                return this.RedirectToActionWithError(nameof(VistaActualizarInquilino),"No se actualizo la persona.", "Internal server error");
+                SweetAlertHelper.SweetAlertError(this, "No se actualizo la persona", "Bad Request");
+                return this.Redirect($"/Inquilino/Update?id={model.IdPersona}");
             }
             (string?, Inquilino?) inquilinoUpdate = await inquilinoService.getInquilinoByIdPersona(existingPersona.Item2.IdPersona!);
             if (inquilinoResult.Item1 != null)
@@ -127,7 +128,7 @@ namespace project.Controllers
                 return this.RedirectToActionWithError(nameof(VistaActualizarInquilino), inquilinoResult.Item1, "Internal server error");
             }
 
-            return RedirectToAction("GetAllInquilinos");
+            return this.RedirectToActionWithSuccess("GetAllInquilinos", "Inquilino", "Inquilino Actualizado");
         }
         [HttpPost("inquilino/Baja")]
         public async Task<IActionResult> LogicalDeleteInquilino([FromBody] int idInquilino) //Testeado y funcional
