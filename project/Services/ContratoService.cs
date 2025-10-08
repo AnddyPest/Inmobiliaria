@@ -728,7 +728,7 @@ namespace project.Services
                 };
                 var creado = await CreateContrato(nuevoContrato);
                 if (creado.Item1 != null || !creado.Item2)
-                    return ($"El contrato se dio de baja pero no se pudo crear el nuevo: {creado.Item1}", false);
+                    return ($"El contrato NO se dio de baja y NO se pudo crear el nuevo: {creado.Item1}", false);
 
                 var baja = await TerminarContrato(idContrato);
                 if (baja.Item1 != null || !baja.Item2)
