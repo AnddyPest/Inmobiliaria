@@ -145,7 +145,7 @@
                             else
                             {
                                 <td class="text-center">
-                                    @if (contrato.FechaFin.Date <= DateTime.Now.Date)
+                                    @if (contrato.FechaFin.Date < DateTime.Now.Date)
                                     {
                                         <span class="text-danger fw-bold">Vencido</span>
                                     }
@@ -210,7 +210,7 @@
                                         </button>
                                     }
                                 }
-                                @if(contrato.estado && contrato.FechaFin.Date <= DateTime.Now.Date){
+                                @if(contrato.estado && contrato.FechaFin.Date < DateTime.Now.Date){
                                     if(User.IsInRole("Administrador")){
                                         <button type="button" class="btn btn-outline-warning p-1 m-1 w-25" onclick="noRenovarContrato('@contrato.IdContrato')" title="El inmueble tiene un contrato vencido. Finalice el contrato para crear uno nuevo.">
                                             <i class="bi bi-exclamation-circle-fill"></i>
