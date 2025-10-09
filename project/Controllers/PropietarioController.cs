@@ -125,7 +125,7 @@ namespace project.Controllers
         {
             var persona = await propietarioService.getPropietarioByIdPersona(id);
             if (persona.Item1 != null) return NotFound(persona.Item1);
-            return View("~/Views/Propietarios/editPropietarios.cshtml", persona.Item2);
+            return View("~/Views/Propietarios/EditPropietarios.cshtml", persona.Item2);
         }
 
         //METODO ESPECIFICO PARA BUSCAR PERSONA POR DNI Y DETERMINAR SI ES PROPIETARIO
